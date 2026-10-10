@@ -2,7 +2,7 @@
 
 return {
 	TOKEN = "DISCORD_BOT_TOKEN",
-	DEV_ACCESS_IDS = {"DISCORD_USER_ID_OF_DEVELOPER"}, -- ids of people to give dev access
+	DEV_ACCESS_IDS = {"DISCORD_USER_ID_OF_DEVELOPER"}, -- ids of people to give dev access (bot owner)
 	DUCKY_CLIENT_SECRET = "DISCORD_CLIENT_SECRET",
     ROBLOX_CLIENT_ID = "ROBLOX_CLIENT_ID",
     ROBLOX_CLIENT_SECRET = "ROBLOX_CLIENT_SECRET",
@@ -20,4 +20,11 @@ return {
 	POSTGRES_USER = "POSTGRES_USER",
 	POSTGRES_DB = "POSTGRES_DB",
 	POSTGRES_PASSWORD = "POSTGRES_PASSWORD",
+	-- Zeltra additions (all optional; leave blank/nil to disable)
+	HOME_GUILD_ID = "", -- your own support/home server (replaces Ducky's hardcoded "Ducky's Pond")
+	LOG_CHANNEL_ID = "", -- channel that receives the bot's internal logs (errors, boots, guild joins...)
+	WEB_BASE_URL = "", -- base URL of your own web dashboard (Roblox OAuth /link, /transcripts, /editor); defaults to the source repo
+	API_HOST = nil, -- bind address for the built-in HTTP API (default 127.0.0.1)
+	KEEP_CUSTOM_EMOJIS = false, -- true = keep Ducky's custom emoji IDs instead of Unicode fallbacks
+	PLUS_PURCHASES_ENABLED = false, -- upstream Plus+ purchases pay Ducky's Roblox group; keep false unless you rewired it
 }

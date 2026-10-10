@@ -36,6 +36,10 @@ local function log(text)
 end
 
 local function sendToDiscord(logLines)
+    -- Zeltra: crash-report webhook is optional (set webhookURL above to enable)
+    if webhookURL == "URL_HERE" or webhookURL == "" then
+        return
+    end
     if os.time() - lastTimeWebhookSent < 10 then
         return log("Not sending webhook due to 10 second cooldown")
     end

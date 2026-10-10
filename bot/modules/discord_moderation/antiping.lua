@@ -153,9 +153,7 @@ antiping.Start = function()
 							.. "\n> -# "
 							.. emojis.right
 							.. " View the GIF below to see how to turn off reply mentions."
-						embs[1].image = {
-							url = "https://duckybot.xyz/images/banners/full/reply.gif",
-						}
+						-- Zeltra: removed hotlinked GIF hosted on Ducky's website
 					end
 				end
 

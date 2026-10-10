@@ -1,7 +1,7 @@
 -- api.lua
 local api = {
 	name = "api",
-	description = "The ultimate Ducky API, https://api.duckybot.xyz."
+	description = "The Zeltra HTTP API (local only unless SECRETS.API_HOST is set)."
 }
 
 local http = _G.luvithttp
@@ -17,7 +17,7 @@ local DUCKY_API_KEY = SECRETS.DUCKY_API_KEY
 
 local connection = nil
 
-local host = "0.0.0.0"
+local host = SECRETS.API_HOST or "127.0.0.1" -- Zeltra: local-only by default (was 0.0.0.0)
 local port = 8001
 
 _G.DuckyAPI = _G.DuckyAPI or discordia.Emitter()
@@ -89,7 +89,7 @@ local function authSession(discordCode, origin)
 		return false, "Invalid discordCode provided."
 	end
 
-	origin = origin or "duckybot.xyz/login"
+	origin = origin or (_G.ZELTRA_WEB_URL:gsub("^https?://", "")) -- Zeltra: was Ducky's website
 
 	local discordToken, refreshToken = getDiscordTokens(discordCode, origin .. "/login") -- If error: false, error
 
@@ -116,7 +116,7 @@ local function getRobloxIDFromCode(code)
 		client_secret = ROBLOX_CLIENT_SECRET,
 		grant_type = "authorization_code",
 		code = code,
-		redirect_uri = "https://duckybot.xyz/link"
+		redirect_uri = _G.ZELTRA_WEB_URL .. "/link"
 	})
 
 	local hdrs = {
@@ -364,7 +364,7 @@ local function updateLinkedRoleMetadata(discordCode, userId, redirectUri)
 	local member = userId and pondMember(userId)
 
 	if not member then
-		return false, "You are not a member of Ducky's Pond."
+		return false, "You are not a member of Zeltra Support."
 	end
 
 	if refreshToken then
@@ -384,7 +384,7 @@ local function updateLinkedRoleMetadata(discordCode, userId, redirectUri)
 		{ "Authorization", "Bearer " .. accessToken },
 		{ "Content-Type", "application/json" }
 	}, json.encode({
-		platform_name = "Ducky Dev",
+		platform_name = "Zeltra Dev",
 		metadata = metadata
 	}))
 
@@ -412,7 +412,7 @@ _G.endpoints = {
 
 					return finish({
 						code = 200,
-						message = "The Ducky API is online.",
+						message = "The Zeltra API is online.",
 						data = {
 							version = {
 								name = version,
@@ -610,7 +610,7 @@ _G.endpoints = {
 
 					return finish({
 						code = 200,
-						message = "All Ducky Team members have been successfully fetched.",
+						message = "All Zeltra Team members have been successfully fetched.",
 						data = allDuckyTeamMembers
 					})
 				end
@@ -642,7 +642,7 @@ _G.endpoints = {
 							if blacklisted(ID) then
 								return finish({
 									code = 403,
-									message = "You are blacklisted from Ducky."
+									message = "You are blacklisted from Zeltra."
 								})
 							end
 						else
@@ -810,7 +810,7 @@ _G.endpoints = {
 						if blacklisted(DiscordID) then
 							return finish({
 								code = 403,
-								message = "You are blacklisted from Ducky."
+								message = "You are blacklisted from Zeltra."
 							})
 						end
 
@@ -1043,7 +1043,7 @@ _G.endpoints = {
 						if blacklisted(DiscordID) then
 							return finish({
 								code = 403,
-								message = "You are blacklisted from Ducky."
+								message = "You are blacklisted from Zeltra."
 							})
 						end
 
@@ -1070,7 +1070,7 @@ _G.endpoints = {
 								if blacklisted(Guild) then
 									return finish({
 										code = 403,
-										message = "The target guild is blacklisted from Ducky."
+										message = "The target guild is blacklisted from Zeltra."
 									})
 								end
 
@@ -2000,7 +2000,7 @@ _G.endpoints = {
 							else
 								return finish({
 									code = 404,
-									message = "Guild '" .. GuildID .. "' was not found, or is inaccessible by Ducky."
+									message = "Guild '" .. GuildID .. "' was not found, or is inaccessible by Zeltra."
 								})
 							end
 						else
@@ -2273,7 +2273,7 @@ _G.endpoints = {
 					end
 
 					utilityChannels.supporters:send({
-						content = "💛 " .. user.mentionString .. " has voted for " .. emojis.ducky .. " **Ducky** on [top.gg](https://top.gg/bot/" .. Client.user.id .. "/vote)!\n"
+						content = "💛 " .. user.mentionString .. " has voted for " .. emojis.ducky .. " **Zeltra** on [top.gg](https://top.gg/bot/" .. Client.user.id .. "/vote)!\n"
 						.. "-# " .. emojis.right .. " Thank you for your support!"
 					})
 
@@ -2365,7 +2365,7 @@ api.Start = function()
 								local cbSuccess, cbError = pcall(coroutine.wrap((endpoint.methods[request.method] and endpoint.methods[request.method].callback) or (endpoint.methods["ANY"] and endpoint.methods["ANY"].callback)), request, response, headers, urlParameters, finishedBody, finish, authorized)
 
 								if not cbSuccess then
-									Client:error("Ducky API encountered an error upon processing request " .. tostring(request.method) .. " " .. tostring(request.url) .. ":\n    " .. tostring(cbError))
+									Client:error("Zeltra API encountered an error upon processing request " .. tostring(request.method) .. " " .. tostring(request.url) .. ":\n    " .. tostring(cbError))
 
 									return finish({
 										code = 500,
@@ -2388,7 +2388,7 @@ api.Start = function()
 						local cbSuccess, cbError = pcall(coroutine.wrap((endpoint.methods[request.method] and endpoint.methods[request.method].callback) or (endpoint.methods["ANY"] and endpoint.methods["ANY"].callback)), request, response, headers, urlParameters, nil, finish, authorized)
 
 						if not cbSuccess then
-							Client:error("Ducky API encountered an error upon processing request " .. tostring(request.method) .. " " .. tostring(request.url) .. ":\n    " .. tostring(cbError))
+							Client:error("Zeltra API encountered an error upon processing request " .. tostring(request.method) .. " " .. tostring(request.url) .. ":\n    " .. tostring(cbError))
 							return finish({
 								code = 500,
 								message = "An internal error occurred while processing this request. Please try again later."
@@ -2410,12 +2410,12 @@ api.Start = function()
 		end))
 
 		if not success then
-			Client:error("Ducky API encountered an error upon processing request " .. tostring(request.method or "unknown method") .. " " .. tostring(request.url or "unknown url") .. ":\n    " .. tostring(err or "unknown error"))
+			Client:error("Zeltra API encountered an error upon processing request " .. tostring(request.method or "unknown method") .. " " .. tostring(request.url or "unknown url") .. ":\n    " .. tostring(err or "unknown error"))
 		end
 	end)
 
 	connection:listen(port, host, function()
-		logAPIUsage("Listening at https://api.duckybot.xyz/ globally and https://" .. host .. ":" .. port .. " locally.")
+		logAPIUsage("Listening at http://" .. host .. ":" .. port .. " (Zeltra API).")
 	end)
 end
 
@@ -2425,10 +2425,10 @@ api.Stop = function()
 	end
 	if connection then
 		connection:close(function(...)
-			logAPIUsage("The Ducky API has been successfully disconnected.")
+			logAPIUsage("The Zeltra API has been successfully disconnected.")
 		end)
 	else
-		logAPIUsage("No Ducky API connection was found.")
+		logAPIUsage("No Zeltra API connection was found.")
 	end
 	Caches.Team = {}
 end

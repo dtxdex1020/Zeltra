@@ -903,8 +903,8 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 		local pond = pondMember(user)
 
 		if pond and not pond:hasRole("1267239172444262490") then
-			pond:addRole("1267239172444262490", "purchased Ducky Plus+")
-			saveLog("info", "plusPurchase", {status = "Added Ducky Plus+ role to user", user_id = user.id, role_id = "1267239172444262490"})
+			pond:addRole("1267239172444262490", "purchased Zeltra Plus+")
+			saveLog("info", "plusPurchase", {status = "Added Zeltra Plus+ role to user", user_id = user.id, role_id = "1267239172444262490"})
 		end
 
 		local _, plus = sqldb:plusMember(user, true)
@@ -944,7 +944,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 						icon_url = user.avatarURL
 					},
 					title = emojis.success .. " Purchase Successful",
-					description = "> **@" .. user.username .. "** has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Ducky Plus+**!\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. os.time() .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`",
+					description = "> **@" .. user.username .. "** has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Zeltra Plus+**!\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. os.time() .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`",
 					timestamp = toISO(os.time()),
 					color = colors.success,
 					thumbnail = thumbnail(user),
@@ -954,10 +954,10 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 					}
 				}
 			})
-			user:send(emojis.success .. " You have been granted **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Ducky Plus+**. Thank you for your support!\n-# " .. emojis.document .. " **Transaction Token:** " .. transactionToken)
-			utilityChannels.supporters:send(":heart: " .. user.mentionString .. " has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Ducky Plus+**!\n-# " .. emojis.right .. " Thank you for your support!")
+			user:send(emojis.success .. " You have been granted **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Zeltra Plus+**. Thank you for your support!\n-# " .. emojis.document .. " **Transaction Token:** " .. transactionToken)
+			utilityChannels.supporters:send(":heart: " .. user.mentionString .. " has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Zeltra Plus+**!\n-# " .. emojis.right .. " Thank you for your support!")
 
-			saveLog("info", "plusPurchase", {status = "User purchased Ducky Plus+ slots successfully", user_id = user.id, slots_purchased = slots, total_slots = plus.slots, transaction_token = transactionToken})
+			saveLog("info", "plusPurchase", {status = "User purchased Zeltra Plus+ slots successfully", user_id = user.id, slots_purchased = slots, total_slots = plus.slots, transaction_token = transactionToken})
 			return true, errorOrPlus
 		else
 			saveLog("error", "plusPurchase", {error = "Failed to set plus data for user after purchase logic", user_id = user.id, error_message = tostring(errorOrPlus)})
@@ -966,7 +966,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 	end)
 
 	if not pcallSuccess then
-		user:send(emojis.fail .. " An unexpected error occurred while attempting to grant you **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Ducky Plus+**. Please contact the " .. emojis.support .. " **Ducky Support** team.")
+		user:send(emojis.fail .. " An unexpected error occurred while attempting to grant you **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Zeltra Plus+**. Please contact the " .. emojis.support .. " **Zeltra Support** team.")
 		utilityChannels.receipts:send({
 			embed = {
 				author = {
@@ -974,7 +974,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 					icon_url = user.avatarURL
 				},
 				title = emojis.fail .. " Purchase Failed",
-				description = "> **@" .. user.username .. "** attempted to purchase **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Ducky Plus+**.\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. time .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`\n" .. emojis.right .. " **Error:** `" .. tostring(functionSuccessOrPcallError) .. "`",
+				description = "> **@" .. user.username .. "** attempted to purchase **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **Zeltra Plus+**.\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. time .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`\n" .. emojis.right .. " **Error:** `" .. tostring(functionSuccessOrPcallError) .. "`",
 				timestamp = toISO(os.time()),
 				color = colors.fail,
 				thumbnail = thumbnail(user),
@@ -1014,16 +1014,16 @@ function sqldb:plusUse(user, guild)
 	local active, plus = sqldb:plusMember(user, true)
 
 	if (not active) or not plus then
-		saveLog("error", "plusUse", {error = "User does not have a Ducky Plus+ purchase", user_id = user, guild_id = guild})
-		return false, "You do not have a Ducky Plus+ purchase."
+		saveLog("error", "plusUse", {error = "User does not have a Zeltra Plus+ purchase", user_id = user, guild_id = guild})
+		return false, "You do not have a Zeltra Plus+ purchase."
 	elseif plus.slots < 1 then
-		saveLog("error", "plusUse", {error = "User does not have any Ducky Plus+ slots available", user_id = user, guild_id = guild, available_slots = plus.slots})
-		return false, "You do not have any Ducky Plus+ slots available."
+		saveLog("error", "plusUse", {error = "User does not have any Zeltra Plus+ slots available", user_id = user, guild_id = guild, available_slots = plus.slots})
+		return false, "You do not have any Zeltra Plus+ slots available."
 	end
 
 	plus.slots = plus.slots - 1
 	table.insert(plus.guilds, guild)
-	saveLog("info", "plusUse", {status = "User used a Ducky Plus+ slot", user_id = user, remaining_slots = plus.slots, guild_added = guild, guild_id = tostring(guild)})
+	saveLog("info", "plusUse", {status = "User used a Zeltra Plus+ slot", user_id = user, remaining_slots = plus.slots, guild_added = guild, guild_id = tostring(guild)})
 
 	return sqldb:plusSet(user, plus)
 end
@@ -1047,8 +1047,8 @@ function sqldb:plusRefund(user, guild)
 	local active, plus = sqldb:plusMember(user, true)
 
 	if (not active) or not plus then
-		saveLog("warning", "plusRefund", {error = "User does not have a Ducky Plus+ purchase to refund", user_id = user.id})
-		return false, "You do not have a Ducky Plus+ purchase."
+		saveLog("warning", "plusRefund", {error = "User does not have a Zeltra Plus+ purchase to refund", user_id = user.id})
+		return false, "You do not have a Zeltra Plus+ purchase."
 	end
 
 	local plusChanged
@@ -1063,8 +1063,8 @@ function sqldb:plusRefund(user, guild)
 	end
 
 	if not plusChanged then
-		saveLog("warning", "plusRefund", {error = "User is not providing Ducky Plus+ to that server for refund", user_id = user.id, guild_id = guild})
-		return false, "You are not providing Ducky Plus+ to that server."
+		saveLog("warning", "plusRefund", {error = "User is not providing Zeltra Plus+ to that server for refund", user_id = user.id, guild_id = guild})
+		return false, "You are not providing Zeltra Plus+ to that server."
 	end
 
 	local plusSetSuccess, plusSetError = sqldb:plusSet(user.id, plus)
@@ -1212,15 +1212,15 @@ function sqldb:plusRefund(user, guild)
 				local setSuccess, setError = sqldb:set(guild, configChanges, "PLUS_SLOT_REFUND", user)
 
 				if not setSuccess then
-					saveLog("error", "plusRefund", {error = "Failed to disable Ducky Plus+ features after refund", user_id = user.id, error_message = setError, guild_id = guild})
-					return false, "Failed to disable Ducky Plus+ features: " .. setError
+					saveLog("error", "plusRefund", {error = "Failed to disable Zeltra Plus+ features after refund", user_id = user.id, error_message = setError, guild_id = guild})
+					return false, "Failed to disable Zeltra Plus+ features: " .. setError
 				end
-				saveLog("info", "plusRefund", {status = "Ducky Plus+ features disabled for guild after refund", user_id = user.id, guild_id = guild})
+				saveLog("info", "plusRefund", {status = "Zeltra Plus+ features disabled for guild after refund", user_id = user.id, guild_id = guild})
 			end
 		end
 	end
 
-	utilityChannels.receipts:send(emojis.undo .. " **@" .. user.username .. "** (" .. user.id .. ") refunded one of their " .. emojis.duckyplus .. " **Ducky Plus+** slots from **" .. ((Guild and Guild.name) or "*Unknown*") .. "** (" .. guild .. ").")
+	utilityChannels.receipts:send(emojis.undo .. " **@" .. user.username .. "** (" .. user.id .. ") refunded one of their " .. emojis.duckyplus .. " **Zeltra Plus+** slots from **" .. ((Guild and Guild.name) or "*Unknown*") .. "** (" .. guild .. ").")
 	saveLog("info", "plusRefund", {status = "success", user_id = tostring(user.id), guild_id = tostring(guild)})
 	return true, plus
 end
@@ -1255,11 +1255,11 @@ function sqldb:plusGift(user, targetUser)
 
 	local userActive, userPlus = sqldb:plusMember(user, true)
 	if (not userActive) or not userPlus then
-		saveLog("warning", "plusGift", {error = "gifting user does not have a Ducky Plus+ subscription", user_id = user})
-		return false, "You do not have a Ducky Plus+ purchase."
+		saveLog("warning", "plusGift", {error = "gifting user does not have a Zeltra Plus+ subscription", user_id = user})
+		return false, "You do not have a Zeltra Plus+ purchase."
 	elseif userPlus.slots <= 0 then
-		saveLog("warning", "plusGift", {error = "gifting user does not have any Ducky Plus+ slots available", user_id = user, available_slots = userPlus.slots})
-		return false, "You do not have any Ducky Plus+ slots available."
+		saveLog("warning", "plusGift", {error = "gifting user does not have any Zeltra Plus+ slots available", user_id = user, available_slots = userPlus.slots})
+		return false, "You do not have any Zeltra Plus+ slots available."
 	end
 
 	local targetActive, targetPlus = sqldb:plusMember(targetUser, true)
@@ -1278,10 +1278,10 @@ function sqldb:plusGift(user, targetUser)
 	targetPlus.slots = targetPlus.slots + 1
 
 	if pondTarget and not pondTarget:hasRole("1267239172444262490") then
-		pondTarget:addRole("1267239172444262490", "received gifted Ducky Plus+ slot")
+		pondTarget:addRole("1267239172444262490", "received gifted Zeltra Plus+ slot")
 	end
 	if userPlus.slots <= 0 and table.count(userPlus.guilds) <= 0 and pondUser and pondUser:hasRole("1267239172444262490") then
-		pondUser:removeRole("1267239172444262490", "gifted Ducky Plus+ slot")
+		pondUser:removeRole("1267239172444262490", "gifted Zeltra Plus+ slot")
 	end
 
 	local success, err = sqldb:plusSet(targetUser, targetPlus)
@@ -1309,7 +1309,7 @@ function sqldb:plusGift(user, targetUser)
 		return false, "Failed to remove slot from user: " .. tostring(err)
 	end
 
-	saveLog("info", "plusGift", {status = "User gifted a Ducky Plus+ slot to target user successfully", gifting_user_id = user, target_user_id = targetUser, remaining_slots_gifter = userPlus.slots, new_slots_target = targetPlus.slots})
+	saveLog("info", "plusGift", {status = "User gifted a Zeltra Plus+ slot to target user successfully", gifting_user_id = user, target_user_id = targetUser, remaining_slots_gifter = userPlus.slots, new_slots_target = targetPlus.slots})
 	return true, userPlus
 end
 
@@ -2362,7 +2362,7 @@ function sqldb:getAllUserData(userId)
 	local plusSucc, plusInfo = sqldb:plusMember(userId)
 	if plusSucc and plusInfo then
 		userData.duckyplus = plusInfo
-		table.insert(output, "## **Ducky Plus**")
+		table.insert(output, "## **Zeltra Plus**")
 		table.insert(output, "- Slots: " .. tostring(plusInfo.slots))
 		table.insert(output, "- Guilds: " .. table.concat(plusInfo.guilds or {}, ", "))
 	end

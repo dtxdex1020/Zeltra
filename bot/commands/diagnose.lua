@@ -1,9 +1,9 @@
 -- diagnose.lua
-local slashCommand = tools.slashCommand("diagnose", "Ensure that Ducky is properly configured to work as intended.")
+local slashCommand = tools.slashCommand("diagnose", "Ensure that Zeltra is properly configured to work as intended.")
 
 return {
     name = "diagnose",
-    description = "Ensure that Ducky is properly configured to work as intended.",
+    description = "Ensure that Zeltra is properly configured to work as intended.",
     aliases = {"diagnosis", "dg"},
     category = "Configuration",
     slashCommand = slashCommand,

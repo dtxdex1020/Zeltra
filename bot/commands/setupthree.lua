@@ -1,9 +1,9 @@
 -- setupthree.lua
-local slashCommand = tools.slashCommand("config", "Setup/configure Ducky for your server's needs.")
+local slashCommand = tools.slashCommand("config", "Setup/configure Zeltra for your server's needs.")
 
 return {
 	name = "setupthree",
-	description = "Setup/configure Ducky for your server's needs.",
+	description = "Setup/configure Zeltra for your server's needs.",
 	aliases = {
 		"setup3",
 		"setupv3"
@@ -158,7 +158,7 @@ return {
 		-- 				emoji = resolvedEmojis.book
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support
 		-- 			})
@@ -207,7 +207,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -220,7 +220,7 @@ return {
 		-- 					name = guild.name .. "'s Configuration",
 		-- 					icon_url = guild.iconURL
 		-- 				},
-		-- 				description = emojis.right .. " Configure Ducky's prefix, and disable unwanted commands.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Prefix:** `" .. (config.prefix or "d!") .. "`\n" .. emojis.right .. " **Disabled Commands:**\n" .. emojis.space .. emojis.right .. " " .. ((config.disabledcommands and table.count(config.disabledcommands) > 0 and table.concatFn(config.disabledcommands, "\n" .. emojis.space .. emojis.right .. " ", function(v)
+		-- 				description = emojis.right .. " Configure Zeltra's prefix, and disable unwanted commands.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Prefix:** `" .. (config.prefix or "d!") .. "`\n" .. emojis.right .. " **Disabled Commands:**\n" .. emojis.space .. emojis.right .. " " .. ((config.disabledcommands and table.count(config.disabledcommands) > 0 and table.concatFn(config.disabledcommands, "\n" .. emojis.space .. emojis.right .. " ", function(v)
 		-- 					return "`/" .. v .. "`"
 		-- 				end)) or "None") .. "\n" .. emojis.right .. " **Configuration Log Channel:** " .. display(config.configlogchannel, "channel"),
 		-- 				color = colors.yellow
@@ -261,7 +261,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -274,7 +274,7 @@ return {
 		-- 					name = guild.name .. "'s Configuration",
 		-- 					icon_url = guild.iconURL
 		-- 				},
-		-- 				description = emojis.right .. " Configure role-based permissions for various features across Ducky.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Discord Moderator Roles:** " .. display(config.modroles, "role") .. "\n" .. emojis.right .. " **Discord Administrator Roles:** " .. display(config.adminroles, "role") .. "\n" .. emojis.right .. " **ERLC Staff Roles:** " .. display(config.erlcstaffroles, "role") .. "\n" .. emojis.right .. " **ERLC Administrator Roles:** " .. display(config.erlcadminroles, "role") .. "\n" .. emojis.right .. " **ERLC Manager Roles:** " .. display(config.erlcmanagerroles, "role") .. "\n" .. emojis.right .. " **Session Starter Roles:** " .. display(config.sessionstarterroles, "role"),
+		-- 				description = emojis.right .. " Configure role-based permissions for various features across Zeltra.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Discord Moderator Roles:** " .. display(config.modroles, "role") .. "\n" .. emojis.right .. " **Discord Administrator Roles:** " .. display(config.adminroles, "role") .. "\n" .. emojis.right .. " **ERLC Staff Roles:** " .. display(config.erlcstaffroles, "role") .. "\n" .. emojis.right .. " **ERLC Administrator Roles:** " .. display(config.erlcadminroles, "role") .. "\n" .. emojis.right .. " **ERLC Manager Roles:** " .. display(config.erlcmanagerroles, "role") .. "\n" .. emojis.right .. " **Session Starter Roles:** " .. display(config.sessionstarterroles, "role"),
 		-- 				color = colors.yellow
 		-- 			},
 		-- 			components = discordia.Components():selectMenu({
@@ -328,7 +328,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -470,7 +470,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -524,7 +524,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -582,7 +582,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -663,7 +663,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -738,7 +738,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -802,7 +802,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -871,7 +871,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -938,7 +938,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://duckybot.xyz/support",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 				label = "Support",
 		-- 				emoji = resolvedEmojis.support,
 		-- 				actionRow = 2
@@ -1039,10 +1039,10 @@ return {
 		-- 							if command then
 		-- 								if table.find(command.requiredPermissions, "BOT_DEVELOPER") then
 		-- 									updateMenu()
-		-- 									return mia:fail("The command `" .. command.name .. "` cannot be disabled as it is locked to the Ducky Development team.", nil, true)
+		-- 									return mia:fail("The command `" .. command.name .. "` cannot be disabled as it is locked to the Zeltra Development team.", nil, true)
 		-- 								elseif table.find(command.requiredPermissions, "SUPPORT") then
 		-- 									updateMenu()
-		-- 									return mia:fail("The command `" .. command.name .. "` cannot be disabled as it is locked to the Ducky Support team.", nil, true)
+		-- 									return mia:fail("The command `" .. command.name .. "` cannot be disabled as it is locked to the Zeltra Support team.", nil, true)
 		-- 								else
 		-- 									table.insert(disabledcommands, command)
 		-- 								end
@@ -1099,19 +1099,19 @@ return {
 		-- 				{
 		-- 					label = "Warning",
 		-- 					value = "warning",
-		-- 					description = "The appeal link for warnings via Ducky.",
+		-- 					description = "The appeal link for warnings via Zeltra.",
 		-- 					emoji = resolvedEmojis.warning
 		-- 				},
 		-- 				{
 		-- 					label = "Mute",
 		-- 					value = "mute",
-		-- 					description = "The appeal link for mutes via Ducky.",
+		-- 					description = "The appeal link for mutes via Zeltra.",
 		-- 					emoji = resolvedEmojis.timeout
 		-- 				},
 		-- 				{
 		-- 					label = "Ban",
 		-- 					value = "ban",
-		-- 					description = "The appeal link for bans via Ducky.",
+		-- 					description = "The appeal link for bans via Zeltra.",
 		-- 					emoji = resolvedEmojis.ban
 		-- 				}
 		-- 			}, 1, nil, true)
@@ -1223,7 +1223,7 @@ return {
 		-- 						ia:fail("Failed to send message: ```" .. e .. "```", nil, true)
 		-- 					end
 		-- 				else
-		-- 					ia:fail("Failed to find channel, please make sure Ducky has permissions to view the channel.", nil, true)
+		-- 					ia:fail("Failed to find channel, please make sure Zeltra has permissions to view the channel.", nil, true)
 		-- 				end
 		-- 			end, vars, (config.erlcserverstatusmessage and config.erlcserverstatusmessage.tosend) or nil, true)
 		-- 		elseif key == "erlcserverstatuschannels" then
@@ -1289,7 +1289,7 @@ return {
 		-- 								return updateMenu()
 		-- 							end
 		-- 						else
-		-- 							mia:fail("Something went wrong, please try again or contact [Ducky Support](https://discord.gg/j4w5ZcbRyh).", nil, true)
+		-- 							mia:fail("Something went wrong, please try again or contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
 		-- 							return updateMenu()
 		-- 						end
 
@@ -1379,7 +1379,7 @@ return {
 		-- 									mia:updateDeferred(true)
 		-- 									return updateMenu()
 		-- 								else
-		-- 									mia:fail("Something went wrong, please try again or contact [Ducky Support](https://discord.gg/j4w5ZcbRyh).", nil, true)
+		-- 									mia:fail("Something went wrong, please try again or contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
 		-- 									return updateMenu()
 		-- 								end
 
@@ -1530,58 +1530,58 @@ return {
 		-- 				if tosend then
 		-- 					if hasPermission(m, "BOT_DEVELOPER") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Developer",
+		-- 							label = "Zeltra Developer",
 		-- 							emoji = resolvedEmojis.developer
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "WEB_DEVELOPER") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Web Developer",
+		-- 							label = "Zeltra Web Developer",
 		-- 							emoji = resolvedEmojis.web
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "EXECUTIVE") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Executive",
+		-- 							label = "Zeltra Executive",
 		-- 							emoji = resolvedEmojis.executive
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "MANAGEMENT") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Management",
+		-- 							label = "Zeltra Management",
 		-- 							emoji = resolvedEmojis.settings
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "SUPPORT") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Support",
+		-- 							label = "Zeltra Support",
 		-- 							emoji = resolvedEmojis.support
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "DUCKY_STAFF") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Staff",
+		-- 							label = "Zeltra Staff",
 		-- 							emoji = resolvedEmojis.permission
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "QUALITY_ASSURANCE") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Quality Assurance",
+		-- 							label = "Zeltra Quality Assurance",
 		-- 							emoji = resolvedEmojis.qa
 		-- 						}):raw()
 		-- 					elseif hasPermission(m, "DOCWRITER") then
 		-- 						tosend.components = discordia.Components():button({
-		-- 							url = "https://duckybot.xyz/support",
+		-- 							url = "https://github.com/dtxdex1020/Zeltra/issues",
 		-- 							style = "link",
-		-- 							label = "Ducky Docwriter",
+		-- 							label = "Zeltra Docwriter",
 		-- 							emoji = resolvedEmojis.edit
 		-- 						}):raw()
 		-- 					end

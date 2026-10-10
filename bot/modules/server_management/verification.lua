@@ -1,7 +1,7 @@
 -- verification.lua
 local verificationmodule = {
     name = "verificationmodule",
-    description = "Processes Roblox verification for Ducky."
+    description = "Processes Roblox verification for Zeltra."
 }
 
 local connections = {
@@ -89,15 +89,15 @@ verificationmodule.Start = function()
                                     "\n" .. emojis.right .. " Navigate to the " .. emojis.roblox ..
                                     "**Roblox Verification** page in `/setup` and **Toggle Bloxlink Usage**." ..
                                     "\n" .. emojis.right ..
-                                    " If you need assistance, contact us in the [support server](https://duckybot.xyz/support)." ..
+                                    " If you need assistance, contact us in the [support server](https://github.com/dtxdex1020/Zeltra/issues)." ..
                                     "\n\n***Information for further reference:***\n" .. emojis.right ..
                                     " Bloxlink returned the following error: ```" .. result.code .. ": " ..
                                     body.error .. "```",
 
                                 components = discordia.Components():button({
-                                    url = "https://discord.gg/w2dNr7vuKP",
+                                    url = "https://github.com/dtxdex1020/Zeltra/issues",
                                     style = "link",
-                                    label = "Ducky's Pond",
+                                    label = "Zeltra Support",
                                     emoji = resolvedEmojis.ducky
                                 }):raw()
                             })
@@ -131,7 +131,7 @@ verificationmodule.Start = function()
                                 })
                                 local policyLink = discordia.Button({
                                     style = "link",
-                                    url = "https://duckybot.xyz/legal/privacy#discord",
+                                    url = "https://github.com/dtxdex1020/Zeltra#terms-and-privacy",
                                     emoji = resolvedEmojis.document,
                                     label = "More Information"
                                 })
@@ -143,9 +143,9 @@ verificationmodule.Start = function()
                                     content = emojis.pings .. " Your " .. emojis.roblox .. " **Roblox** profile, **" ..
                                         robloxUser.hyperlink ..
                                         "**, has been fetched from the **Bloxlink API**. Would like to have this profile saved on " ..
-                                        emojis.ducky .. " **Ducky** as well?\n-# " .. emojis.right ..
+                                        emojis.ducky .. " **Zeltra** as well?\n-# " .. emojis.right ..
                                         " By denying this request, your profile will not be stored nor processed by " ..
-                                        emojis.ducky .. " **Ducky**.",
+                                        emojis.ducky .. " **Zeltra**.",
                                     components = comps:raw()
                                 })
 
@@ -160,9 +160,9 @@ verificationmodule.Start = function()
                                             content = emojis.pings .. " Your " .. emojis.roblox ..
                                                 " **Roblox** profile, **" .. robloxUser.hyperlink ..
                                                 "**, has been fetched from the **Bloxlink API**. Would like to have this profile saved on " ..
-                                                emojis.ducky .. " **Ducky** as well?\n-# " .. emojis.right ..
+                                                emojis.ducky .. " **Zeltra** as well?\n-# " .. emojis.right ..
                                                 " By denying this request, your profile will not be stored nor processed by " ..
-                                                emojis.ducky .. " **Ducky**.",
+                                                emojis.ducky .. " **Zeltra**.",
                                             components = comps:raw()
                                         })
                                     end
@@ -235,12 +235,12 @@ verificationmodule.Start = function()
                                 "\n" .. emojis.right .. " Navigate to the " .. emojis.roblox ..
                                 "**Roblox Verification** page in `/setup` and **Toggle Bloxlink Usage**." .. "\n" ..
                                 emojis.right ..
-                                " If you need assistance, contact us in the [support server](https://duckybot.xyz/support).",
+                                " If you need assistance, contact us in the [support server](https://github.com/dtxdex1020/Zeltra/issues).",
 
                             components = discordia.Components():button({
-                                url = "https://discord.gg/w2dNr7vuKP",
+                                url = "https://github.com/dtxdex1020/Zeltra/issues",
                                 style = "link",
-                                label = "Ducky's Pond",
+                                label = "Zeltra Support",
                                 emoji = resolvedEmojis.ducky
                             }):raw()
                         })
@@ -258,7 +258,7 @@ verificationmodule.Start = function()
                 local member = guild:getMember(user.id)
 
                 if member then
-                    updateMember(member, "user linked with Ducky")
+                    updateMember(member, "user linked with Zeltra")
                 end
             end
         end
@@ -270,7 +270,7 @@ verificationmodule.Start = function()
                 local member = guild:getMember(user.id)
 
                 if member then
-                    updateMember(member, "user unlinked from Ducky")
+                    updateMember(member, "user unlinked from Zeltra")
                 end
             end
         end

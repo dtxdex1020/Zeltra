@@ -1,5 +1,5 @@
 -- setup.lua
-local slashCommand = tools.slashCommand("setup", "Setup/configure Ducky for your server's needs.")
+local slashCommand = tools.slashCommand("setup", "Setup/configure Zeltra for your server's needs.")
 slashCommand = slashCommand:addOption(tools.string("page", "Give a page to directly teleport to."):setRequired(false):setAutocomplete(true))
 local function question(intr, q, ph, cb, style, min, max, required)
 	return ask(intr, q, ph, nil, nil, style, required, nil, cb, min, max)
@@ -140,8 +140,8 @@ subjectBuilderComps:button(cancelSubjectButton)
 
 local allPages = {
 	welcome = {
-		name = "Welcome to Ducky",
-		value = "Welcome to Ducky",
+		name = "Welcome to Zeltra",
+		value = "Welcome to Zeltra",
 		number = 1
 	},
 	dcmod = {
@@ -265,7 +265,7 @@ local allPages = {
 
 return {
 	name = "setup",
-	description = "Setup/configure Ducky for your server's needs.",
+	description = "Setup/configure Zeltra for your server's needs.",
 	aliases = {
 		"config",
 		"cfg",
@@ -311,7 +311,7 @@ return {
 		local succ, config = sqldb:registerGuild(interaction.guild.id)
 
 		if not succ then
-			return interaction:fail("Failed to initialize configuration for your server. Please try again, and contact [Ducky Support](https://discord.gg/j4w5ZcbRyh) if this error persists.", nil, true)
+			return interaction:fail("Failed to initialize configuration for your server. Please try again, and contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues) if this error persists.", nil, true)
 		end
 
 		local isPlusGuild = sqldb:plusGuild(interaction.guild)
@@ -390,19 +390,19 @@ return {
 			{
 				label = "Warning",
 				value = "warning",
-				description = "The appeal link for warnings with Ducky.",
+				description = "The appeal link for warnings with Zeltra.",
 				emoji = resolvedEmojis.warning
 			},
 			{
 				label = "Mute",
 				value = "mute",
-				description = "The appeal link for time-outs with Ducky.",
+				description = "The appeal link for time-outs with Zeltra.",
 				emoji = resolvedEmojis.timeout
 			},
 			{
 				label = "Ban",
 				value = "ban",
-				description = "The appeal link for bans with Ducky.",
+				description = "The appeal link for bans with Zeltra.",
 				emoji = resolvedEmojis.ban
 			}
 		}
@@ -1783,7 +1783,7 @@ return {
 
 		local function getEmbedDescription(pagenum)
 			if pagenum == allPages.welcome.number then
-				return "## " .. emojis.ducky .. " Welcome to Ducky\n" .. emojis.hiya .. " **Hiya,** and thank you for choosing " .. emojis.ducky .. " **Ducky**, a multipurpose bot focused on seamlessly integrating Discord and ERLC server automation for effortless management. This configuration menu allows you to configure Ducky to fit your server's needs. On this page, you can find basic configuration to get you started quickly. If you require assistance, check out our [documentation (work-in-progress)](https://docs.duckybot.xyz/) or contact our " .. emojis.support .. " **Support** team via the [support server](https://duckybot.xyz/support).\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Prefix:** " .. (config.prefix or emojis.fail) .. "\n" .. emojis.right .. " **Disabled Commands:**\n" .. emojis.space .. emojis.right .. " " .. ((config.disabledcommands and table.count(config.disabledcommands) > 0) and table.concatFn(config.disabledcommands, "\n" .. emojis.space .. emojis.right .. " ", function(v)
+				return "## " .. emojis.ducky .. " Welcome to Zeltra\n" .. emojis.hiya .. " **Hiya,** and thank you for choosing " .. emojis.ducky .. " **Zeltra**, a multipurpose bot focused on seamlessly integrating Discord and ERLC server automation for effortless management. This configuration menu allows you to configure Zeltra to fit your server's needs. On this page, you can find basic configuration to get you started quickly. If you require assistance, check out our [documentation (work-in-progress)](https://docs.duckybot.xyz/) or contact our " .. emojis.support .. " **Support** team via the [support server](https://github.com/dtxdex1020/Zeltra/issues).\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Prefix:** " .. (config.prefix or emojis.fail) .. "\n" .. emojis.right .. " **Disabled Commands:**\n" .. emojis.space .. emojis.right .. " " .. ((config.disabledcommands and table.count(config.disabledcommands) > 0) and table.concatFn(config.disabledcommands, "\n" .. emojis.space .. emojis.right .. " ", function(v)
 					return "`/" .. v .. "`"
 				end) or "None") .. "\n" .. emojis.right .. " **Command Blacklists:**\n" .. emojis.space .. emojis.right .. " " .. ((config.commandblacklists and ((type(config.commandblacklists.channels) == "table" and #config.commandblacklists.channels > 0) or (type(config.commandblacklists.roles) == "table" and #config.commandblacklists.roles > 0))) and table.concat((function()
 					local lines = {}
@@ -1824,7 +1824,7 @@ return {
 					return "<@&" .. r .. ">"
 				end)) or emojis.fail) .. "\n" .. emojis.right .. " **Configuration Log Channel:** " .. ((config.configlogchannel and ("<#" .. config.configlogchannel .. ">")) or emojis.fail)
 			elseif pagenum == allPages.dcmod.number then
-				return "## " .. emojis.moderate .. " Discord Moderation\n" .. emojis.right .. " Ducky's " .. emojis.moderate .. " **Discord Moderation** module allows for you to moderate your Discord server with ease.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Modlogs Channel:** " .. ((config.modlogchannel and "<#" .. config.modlogchannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Appeal Links:**\n" .. emojis.space .. emojis.right .. " " .. (config.appealLinks and table.count(config.appealLinks) > 0 and (table.concatFn(config.appealLinks, "\n" .. emojis.space .. emojis.right .. " ", function(link, type)
+				return "## " .. emojis.moderate .. " Discord Moderation\n" .. emojis.right .. " Zeltra's " .. emojis.moderate .. " **Discord Moderation** module allows for you to moderate your Discord server with ease.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Modlogs Channel:** " .. ((config.modlogchannel and "<#" .. config.modlogchannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Appeal Links:**\n" .. emojis.space .. emojis.right .. " " .. (config.appealLinks and table.count(config.appealLinks) > 0 and (table.concatFn(config.appealLinks, "\n" .. emojis.space .. emojis.right .. " ", function(link, type)
 					return string.capitalize(type) .. ": " .. link
 				end)) or "None") .. "\n" .. emojis.right .. " **Staff Immunity:** " .. ((config.discordstaffimmunity and emojis.success) or emojis.fail)
 			elseif pagenum == allPages.audit.number then
@@ -1851,7 +1851,7 @@ return {
 					modifyKey("auditlogchannels", config.auditlogchannels)
 				end
 
-				return "## " .. emojis.log .. " Audit Logging\n" .. emojis.right .. " Ducky's " .. emojis.log .. " **Audit Logging** module allows for you to see what changes occur in your server.\n### " .. emojis.settings .. " Configuration\n"
+				return "## " .. emojis.log .. " Audit Logging\n" .. emojis.right .. " Zeltra's " .. emojis.log .. " **Audit Logging** module allows for you to see what changes occur in your server.\n### " .. emojis.settings .. " Configuration\n"
 					.. emojis.right .. " **Primary Audit Logs Channel:** " .. ((config.auditlogchannels and config.auditlogchannels.primary and config.auditlogchannels.primary.channel and "<#" .. config.auditlogchannels.primary.channel .. ">") or emojis.fail)
 					.. "\n" .. emojis.right .. " **Audit Log Types:**\n"
 						.. ((config.audittypes and table.count(config.audittypes) > 0 and getAuditString()) or emojis.space .. emojis.right .. " None")
@@ -1863,7 +1863,7 @@ return {
 				end
 
 				return "## " .. emojis.game .. " ERLC Integration\n"
-				.. emojis.right .. " Ducky's " .. emojis.game .. " **ERLC Integration** module allows for you to manage and view your ERLC server without having to go in-game.\n" ..
+				.. emojis.right .. " Zeltra's " .. emojis.game .. " **ERLC Integration** module allows for you to manage and view your ERLC server without having to go in-game.\n" ..
 				"### " .. emojis.settings .. " Configuration" .. "\n"
 				.. emojis.right .. " **In-Game Role:** " .. ((config.ingamerole and "<@&" .. config.ingamerole .. ">") or emojis.fail) .. "\n"
 				.. emojis.right .. " **ERLC Server:** " .. ((ERLCServer and ERLCServer.name and ERLCServer.joinCode and ERLCServer.name .. " (`" .. ERLCServer.joinCode .. "`)") or emojis.fail) .. "\n"
@@ -1890,7 +1890,7 @@ return {
 				.. emojis.right .. " **Playtime Reward Announcements Channel:** " .. ((config.erlcplaytimechannel and "<#" .. config.erlcplaytimechannel .. ">") or emojis.fail)
 			elseif pagenum == allPages.erlcRegions.number then
 				return "## " .. emojis.map .. " ERLC Regions\n"
-				.. emojis.right .. " Ducky's " .. emojis.map .. " **ERLC Regions** module allows for you to seamlessly automate and manage players based on their locations on the map. These regions can be used across Ducky for features such as Linked VCs, Automations, and more.\n" ..
+				.. emojis.right .. " Zeltra's " .. emojis.map .. " **ERLC Regions** module allows for you to seamlessly automate and manage players based on their locations on the map. These regions can be used across Zeltra for features such as Linked VCs, Automations, and more.\n" ..
 				"### " .. emojis.settings .. " Configuration" .. "\n"
 				.. emojis.right .. " **Regions:** " .. (config.regions and next(config.regions) and "\n" .. emojis.space .. emojis.right .. " " .. table.concatFn(config.regions, "\n" .. emojis.space .. emojis.right .. " ", function(region)
 					local Region = erlua.Region(region.name, region.points)
@@ -1912,7 +1912,7 @@ return {
 					if changed then modifyKey("erlcserverstatuschannels", config.erlcserverstatuschannels) end
 				end
 
-				return "## " .. emojis.network .. " ERLC Server Status\n" .. emojis.right .. " Ducky's " .. emojis.network .. " **ERLC Server Status** module allows you to display live statistics from your ERLC server in your discord server.\n### " .. emojis.settings .. " Configuration" .. "\n" .. emojis.right .. " **Server Status Message:** " .. "\n" .. emojis.space .. emojis.right .. " **Channel:** " .. ((config.erlcserverstatusmessage and config.erlcserverstatusmessage.channel and ("<#" .. config.erlcserverstatusmessage.channel .. ">")) or emojis.fail) .. "\n" .. emojis.space .. emojis.right .. " **Link:** " .. ((config.erlcserverstatusmessage and config.erlcserverstatusmessage.channel and config.erlcserverstatusmessage.message and ("https://discord.com/channels/" .. interaction.guild.id .. "/" .. config.erlcserverstatusmessage.channel .. "/" .. config.erlcserverstatusmessage.message)) or emojis.fail) .. "\n" .. emojis.space .. emojis.right .. " **Content:** " .. ((config.erlcserverstatusmessage and config.erlcserverstatusmessage.tosend and "Custom") or emojis.fail) .. "\n" .. emojis.right .. " **Server Status Channels:** \n" .. emojis.space .. emojis.right .. " " .. ((config.erlcserverstatuschannels and (table.count(config.erlcserverstatuschannels) > 0) and table.concatFn(config.erlcserverstatuschannels, "\n" .. emojis.space .. emojis.right .. " ", function(sh)
+				return "## " .. emojis.network .. " ERLC Server Status\n" .. emojis.right .. " Zeltra's " .. emojis.network .. " **ERLC Server Status** module allows you to display live statistics from your ERLC server in your discord server.\n### " .. emojis.settings .. " Configuration" .. "\n" .. emojis.right .. " **Server Status Message:** " .. "\n" .. emojis.space .. emojis.right .. " **Channel:** " .. ((config.erlcserverstatusmessage and config.erlcserverstatusmessage.channel and ("<#" .. config.erlcserverstatusmessage.channel .. ">")) or emojis.fail) .. "\n" .. emojis.space .. emojis.right .. " **Link:** " .. ((config.erlcserverstatusmessage and config.erlcserverstatusmessage.channel and config.erlcserverstatusmessage.message and ("https://discord.com/channels/" .. interaction.guild.id .. "/" .. config.erlcserverstatusmessage.channel .. "/" .. config.erlcserverstatusmessage.message)) or emojis.fail) .. "\n" .. emojis.space .. emojis.right .. " **Content:** " .. ((config.erlcserverstatusmessage and config.erlcserverstatusmessage.tosend and "Custom") or emojis.fail) .. "\n" .. emojis.right .. " **Server Status Channels:** \n" .. emojis.space .. emojis.right .. " " .. ((config.erlcserverstatuschannels and (table.count(config.erlcserverstatuschannels) > 0) and table.concatFn(config.erlcserverstatuschannels, "\n" .. emojis.space .. emojis.right .. " ", function(sh)
 					local channel = interaction.guild:getChannel(sh.channel)
 
 					if channel then
@@ -1934,7 +1934,7 @@ return {
 					if changed then modifyKey("discordserverstatuschannels", config.discordserverstatuschannels) end
 				end
 
-				return "## " .. emojis.chart .. " Discord Server Statistics\n" .. emojis.right .. " Ducky's " .. emojis.chart .. " **Discord Server Statistics** module allows you to display live statistics from your Discord server.\n### " .. emojis.settings .. " Configuration" .. "\n" .. emojis.right .. " **Current Statistics Channels:** \n" .. emojis.space .. emojis.right .. " " .. ((config.discordserverstatuschannels and (table.count(config.discordserverstatuschannels) > 0) and table.concatFn(config.discordserverstatuschannels, "\n" .. emojis.space .. emojis.right .. " ", function(sh)
+				return "## " .. emojis.chart .. " Discord Server Statistics\n" .. emojis.right .. " Zeltra's " .. emojis.chart .. " **Discord Server Statistics** module allows you to display live statistics from your Discord server.\n### " .. emojis.settings .. " Configuration" .. "\n" .. emojis.right .. " **Current Statistics Channels:** \n" .. emojis.space .. emojis.right .. " " .. ((config.discordserverstatuschannels and (table.count(config.discordserverstatuschannels) > 0) and table.concatFn(config.discordserverstatuschannels, "\n" .. emojis.space .. emojis.right .. " ", function(sh)
 					local channel = interaction.guild:getChannel(sh.channel)
 
 					if channel then
@@ -1944,31 +1944,31 @@ return {
 					end
 				end)) or "None")
 			elseif pagenum == allPages.erlcLog.number then
-				return "## " .. emojis.search .. " ERLC Server Logs\n" .. emojis.right .. " Ducky's " .. emojis.search .. " **ERLC Server Logs** module allows you to keep track of in-game activity, with a simple setup and fully customizable messages.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Player Join Logs:** " .. (config.erlclogs and config.erlclogs.playerjoin and "<#" .. config.erlclogs.playerjoin.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Player Leave Logs:** " .. (config.erlclogs and config.erlclogs.playerleave and "<#" .. config.erlclogs.playerleave.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Player Team Logs:** " .. (config.erlclogs and config.erlclogs.playerteam and "<#" .. config.erlclogs.playerteam.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Player Kill Logs:** " .. (config.erlclogs and config.erlclogs.playerkill and "<#" .. config.erlclogs.playerkill.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Modcall Logs:** " .. (config.erlclogs and config.erlclogs.modcall and "<#" .. config.erlclogs.modcall.channel .. ">" or emojis.fail) .. "\n\n-# *" .. emojis.right .. " Looking for more customization? Use " .. emojis.automation .. " **Automations** with `/automations create`.*"
+				return "## " .. emojis.search .. " ERLC Server Logs\n" .. emojis.right .. " Zeltra's " .. emojis.search .. " **ERLC Server Logs** module allows you to keep track of in-game activity, with a simple setup and fully customizable messages.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Player Join Logs:** " .. (config.erlclogs and config.erlclogs.playerjoin and "<#" .. config.erlclogs.playerjoin.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Player Leave Logs:** " .. (config.erlclogs and config.erlclogs.playerleave and "<#" .. config.erlclogs.playerleave.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Player Team Logs:** " .. (config.erlclogs and config.erlclogs.playerteam and "<#" .. config.erlclogs.playerteam.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Player Kill Logs:** " .. (config.erlclogs and config.erlclogs.playerkill and "<#" .. config.erlclogs.playerkill.channel .. ">" or emojis.fail) .. "\n" .. emojis.right .. " **Modcall Logs:** " .. (config.erlclogs and config.erlclogs.modcall and "<#" .. config.erlclogs.modcall.channel .. ">" or emojis.fail) .. "\n\n-# *" .. emojis.right .. " Looking for more customization? Use " .. emojis.automation .. " **Automations** with `/automations create`.*"
 			elseif pagenum == allPages.join.number then
-				return "## " .. emojis.wave .. " Welcome/Autoroles\n" .. emojis.right .. " Ducky's " .. emojis.wave .. " **Welcome/Autoroles** module allows for you to send a message to welcome your users in the specified channel, as well as give them up to 5 roles automatically.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Autoroles:** " .. ((config.joinroles and (table.count(config.joinroles) > 0) and ("\n" .. emojis.space .. emojis.right .. table.concatFn(config.joinroles, "\n" .. emojis.space .. emojis.right .. " ", function(jr)
+				return "## " .. emojis.wave .. " Welcome/Autoroles\n" .. emojis.right .. " Zeltra's " .. emojis.wave .. " **Welcome/Autoroles** module allows for you to send a message to welcome your users in the specified channel, as well as give them up to 5 roles automatically.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Autoroles:** " .. ((config.joinroles and (table.count(config.joinroles) > 0) and ("\n" .. emojis.space .. emojis.right .. table.concatFn(config.joinroles, "\n" .. emojis.space .. emojis.right .. " ", function(jr)
 					return "<@&" .. tostring(jr) .. ">"
 				end))) or emojis.fail) .. "\n" .. emojis.right .. " **Welcome Channel:** " .. ((config.joinchannel and "<#" .. config.joinchannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Autodelete Delay:** " .. ((config.joinmessagedelete and readable(config.joinmessagedelete)) or emojis.fail) .. "\n" .. emojis.right .. " **DM Member:** " .. ((config.dmjoin and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Joingate Threshold:** " .. ((config.joingatethreshold and readable(config.joingatethreshold)) or emojis.fail)
 			elseif pagenum == allPages.sessions.number then
-				return "## " .. emojis.game .. " Sessions\n" .. emojis.right .. " Ducky's " .. emojis.game .. " **Sessions** module allows for you to manage your sessions easily.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Sessions Channel:** " .. ((config.sessionschannel and "<#" .. config.sessionschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Session Mentionables:**\n" .. emojis.space .. emojis.right .. " " .. ((config.sessionmentionables and table.count(config.sessionmentionables) > 0 and table.concatFn(config.sessionmentionables, "\n" .. emojis.space .. emojis.right .. " ", function(sm)
+				return "## " .. emojis.game .. " Sessions\n" .. emojis.right .. " Zeltra's " .. emojis.game .. " **Sessions** module allows for you to manage your sessions easily.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Sessions Channel:** " .. ((config.sessionschannel and "<#" .. config.sessionschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Session Mentionables:**\n" .. emojis.space .. emojis.right .. " " .. ((config.sessionmentionables and table.count(config.sessionmentionables) > 0 and table.concatFn(config.sessionmentionables, "\n" .. emojis.space .. emojis.right .. " ", function(sm)
 					return (interaction.guild:getRole(sm) and ("<@&" .. sm .. ">")) or ("<@" .. sm .. ">")
 				end)) or "None") .. "\n" .. emojis.right .. " **Ping Here:** " .. ((config.sessionspinghere and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Ping Everyone:** " .. ((config.sessionspingeveryone and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Server Information:** " .. ((config.serverInfo and "\n" .. emojis.space .. emojis.right .. " **Server Name:** " .. (config.serverInfo.Name or emojis.fail) .. "\n" .. emojis.space .. emojis.right .. " **Server Max Players:** " .. (config.serverInfo.MaxPlayers or emojis.fail) .. "\n" .. emojis.space .. emojis.right .. " **Server Join Code:** " .. (config.serverInfo.JoinKey or emojis.fail)) or ((config.apikey and emojis.key .. " Fetched with API Key") or emojis.fail))
 			elseif pagenum == allPages.staff.number then
-				return "## " .. emojis.quickfix .. " Staff Management\n" .. emojis.right .. " Ducky's " .. emojis.quickfix .. " **Staff Management** module allows for you to infract and promote your staff members.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Infractions Channel:** " .. ((config.infractionschannel and "<#" .. config.infractionschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Infraction Thread:** " .. ((config.infractionthread and string.truncate(config.infractionthread, 100)) or emojis.fail) .. "\n" .. emojis.right .. " **Infraction Types:**\n" .. emojis.space .. emojis.right .. " " .. ((config.infractiontypes and table.count(config.infractiontypes) > 0 and table.concatFn(config.infractiontypes, "\n" .. emojis.space .. emojis.right .. " ", function(it)
+				return "## " .. emojis.quickfix .. " Staff Management\n" .. emojis.right .. " Zeltra's " .. emojis.quickfix .. " **Staff Management** module allows for you to infract and promote your staff members.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Infractions Channel:** " .. ((config.infractionschannel and "<#" .. config.infractionschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Infraction Thread:** " .. ((config.infractionthread and string.truncate(config.infractionthread, 100)) or emojis.fail) .. "\n" .. emojis.right .. " **Infraction Types:**\n" .. emojis.space .. emojis.right .. " " .. ((config.infractiontypes and table.count(config.infractiontypes) > 0 and table.concatFn(config.infractiontypes, "\n" .. emojis.space .. emojis.right .. " ", function(it)
 					return it.name
 				end)) or "None") .. "\n" .. emojis.right .. " **Promotions Channel:** " .. ((config.promotionschannel and "<#" .. config.promotionschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Promotion Thread:** " .. ((config.promotionsthread and string.truncate(config.promotionsthread, 100)) or emojis.fail) .. "\n" .. emojis.right .. " **Feedback Channel:** " .. ((config.feedbackchannel and "<#" .. config.feedbackchannel .. ">") or emojis.fail)
 			elseif pagenum == allPages.punish.number then
-				return "## " .. emojis.roblox .. " Roblox Punishments\n" .. emojis.right .. " Ducky's " .. emojis.roblox .. " **Roblox Punishments** module allows for you to manage and log punishments for your ERLC server.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Roblox Punishment Logs Channel:** " .. ((config.punishmentlogschannel and "<#" .. config.punishmentlogschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **BOLO Logs Channel:** " .. ((config.bolologschannel and "<#" .. config.bolologschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **BOLO Log Mentionables:**\n" .. emojis.space .. emojis.right .. " " .. ((config.bolologmentionables and table.count(config.bolologmentionables) > 0 and table.concatFn(config.bolologmentionables, "\n" .. emojis.space .. emojis.right .. " ", function(bm)
+				return "## " .. emojis.roblox .. " Roblox Punishments\n" .. emojis.right .. " Zeltra's " .. emojis.roblox .. " **Roblox Punishments** module allows for you to manage and log punishments for your ERLC server.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Roblox Punishment Logs Channel:** " .. ((config.punishmentlogschannel and "<#" .. config.punishmentlogschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **BOLO Logs Channel:** " .. ((config.bolologschannel and "<#" .. config.bolologschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **BOLO Log Mentionables:**\n" .. emojis.space .. emojis.right .. " " .. ((config.bolologmentionables and table.count(config.bolologmentionables) > 0 and table.concatFn(config.bolologmentionables, "\n" .. emojis.space .. emojis.right .. " ", function(bm)
 					return (interaction.guild:getRole(bm) and ("<@&" .. bm .. ">")) or ("<@" .. bm .. ">")
 				end)) or "None") .. "\n" .. emojis.right .. " **Roblox Punishment Types:**\n" .. emojis.space .. emojis.right .. " " .. ((config.punishmenttypes and table.count(config.punishmenttypes) > 0 and table.concat(config.punishmenttypes, "\n" .. emojis.space .. emojis.right .. " ")) or "None") .. "\n" .. emojis.right .. " **Tempban for Moderators:** " .. ((config.tempbantimemods and tonumber(config.tempbantimemods) and readable(config.tempbantimemods)) or emojis.fail)
 			elseif pagenum == allPages.verify.number then
-				return "## " .. emojis.roblox .. " Roblox Verification\n" .. emojis.right .. " Ducky's " .. emojis.roblox .. " **Roblox Verification** module allows for you to add a layer of security to your server.\n\n**Verified Nickname Variables**\n" .. emojis.right .. " **`{roblox.username}`:** The member's Roblox username.\n" .. emojis.right .. " **`{roblox.display}`:** The member's Roblox display name.\n" .. emojis.right .. " **`{roblox.id}`:** The member's Roblox ID.\n" .. emojis.right .. " **`{discord.username}`:** The member's Discord username.\n" .. emojis.right .. " **`{discord.name}`:** The member's Discord display name.\n" .. emojis.right .. " **`{discord.id}`:** The member's Discord ID.\n### " .. emojis.settings .. " Configuration" .. "\n" .. emojis.right .. " **Verified Nickname:** " .. ((config.verifiednickname) or emojis.fail) .. "\n" .. emojis.right .. " **Verified Roles:**\n" .. emojis.space .. emojis.right .. " " .. ((config.verifiedroles and table.count(config.verifiedroles) > 0 and table.concatFn(config.verifiedroles, "\n" .. emojis.space .. emojis.right .. " ", function(r)
+				return "## " .. emojis.roblox .. " Roblox Verification\n" .. emojis.right .. " Zeltra's " .. emojis.roblox .. " **Roblox Verification** module allows for you to add a layer of security to your server.\n\n**Verified Nickname Variables**\n" .. emojis.right .. " **`{roblox.username}`:** The member's Roblox username.\n" .. emojis.right .. " **`{roblox.display}`:** The member's Roblox display name.\n" .. emojis.right .. " **`{roblox.id}`:** The member's Roblox ID.\n" .. emojis.right .. " **`{discord.username}`:** The member's Discord username.\n" .. emojis.right .. " **`{discord.name}`:** The member's Discord display name.\n" .. emojis.right .. " **`{discord.id}`:** The member's Discord ID.\n### " .. emojis.settings .. " Configuration" .. "\n" .. emojis.right .. " **Verified Nickname:** " .. ((config.verifiednickname) or emojis.fail) .. "\n" .. emojis.right .. " **Verified Roles:**\n" .. emojis.space .. emojis.right .. " " .. ((config.verifiedroles and table.count(config.verifiedroles) > 0 and table.concatFn(config.verifiedroles, "\n" .. emojis.space .. emojis.right .. " ", function(r)
 					return "<@&" .. r .. ">"
 				end)) or "None") .. "\n" .. emojis.right .. " **Unverified Roles:**\n" .. emojis.space .. emojis.right .. " " .. ((config.unverifiedroles and table.count(config.unverifiedroles) > 0 and table.concatFn(config.unverifiedroles, "\n" .. emojis.space .. emojis.right .. " ", function(r)
 					return "<@&" .. r .. ">"
 				end)) or "None") .. "\n" .. emojis.right .. " **Verification Channel:** " .. ((config.verificationchannel and "<#" .. config.verificationchannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Use Bloxlink:** " .. ((config.bloxlinkServerKey and emojis.success) or emojis.fail)
 			elseif pagenum == allPages.pings.number then
-				return "## " .. emojis.pings .. " Discord Pings\n" .. emojis.right .. " Ducky's " .. emojis.pings .. " **Discord Pings** module spares you from unnecessary pings and ghost pings.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Module Enabled:** " .. ((config.antiping and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Protected Roles:**\n" .. emojis.space .. emojis.right .. " " .. ((config.antipingprotectedroles and table.count(config.antipingprotectedroles) > 0 and table.concatFn(config.antipingprotectedroles, "\n" .. emojis.space .. emojis.right .. " ", function(r)
+				return "## " .. emojis.pings .. " Discord Pings\n" .. emojis.right .. " Zeltra's " .. emojis.pings .. " **Discord Pings** module spares you from unnecessary pings and ghost pings.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Module Enabled:** " .. ((config.antiping and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Protected Roles:**\n" .. emojis.space .. emojis.right .. " " .. ((config.antipingprotectedroles and table.count(config.antipingprotectedroles) > 0 and table.concatFn(config.antipingprotectedroles, "\n" .. emojis.space .. emojis.right .. " ", function(r)
 					return "<@&" .. r .. ">"
 				end)) or "None") .. "\n" .. emojis.right .. " **Whitelisted Roles:**\n" .. emojis.space .. emojis.right .. " " .. ((config.antipingwhitelistedroles and table.count(config.antipingwhitelistedroles) > 0 and table.concatFn(config.antipingwhitelistedroles, "\n" .. emojis.space .. emojis.right .. " ", function(r)
 					return "<@&" .. r .. ">"
@@ -1976,13 +1976,13 @@ return {
 					return "<#" .. c .. ">"
 				end)) or emojis.fail)
 			elseif pagenum == allPages.suggestions.number then
-				return "## " .. emojis.suggestion .. " Suggestions\n" .. emojis.right .. " Ducky's " .. emojis.suggestion .. " **Suggestions** module allows you to smoothly collect feedback from community members through suggestions.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Suggestions Channel:** " .. ((config.suggestchannel and "<#" .. config.suggestchannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Max Upvotes:** " .. (config.suggestionsmaxupvotes or emojis.fail) .. "\n" .. emojis.right .. " **Max Downvotes:** " .. (config.suggestionsmaxdownvotes or emojis.fail) .. "\n" .. emojis.right .. " **Suggestion Thread:** " .. (config.suggestionthread or emojis.fail)
+				return "## " .. emojis.suggestion .. " Suggestions\n" .. emojis.right .. " Zeltra's " .. emojis.suggestion .. " **Suggestions** module allows you to smoothly collect feedback from community members through suggestions.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Suggestions Channel:** " .. ((config.suggestchannel and "<#" .. config.suggestchannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **Max Upvotes:** " .. (config.suggestionsmaxupvotes or emojis.fail) .. "\n" .. emojis.right .. " **Max Downvotes:** " .. (config.suggestionsmaxdownvotes or emojis.fail) .. "\n" .. emojis.right .. " **Suggestion Thread:** " .. (config.suggestionthread or emojis.fail)
 			elseif pagenum == allPages.shift.number then
-				return "## " .. emojis.clock .. " Shift Management\n" .. emojis.right .. " Ducky's " .. emojis.clock .. " **Shift Management** module allows your staff to manage their shifts with ease. You can view shift statistics, administrate a shift, use GameLock to ensure staff are in-game before starting their shift, and more.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Shift Logs Channel:** " .. ((config.shiftlogschannel and "<#" .. config.shiftlogschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **GameLock Enabled:** " .. ((config.shifts and config.shifts.gamelock and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Shift Types:**\n" .. emojis.space .. emojis.right .. " " .. ((config.shifts and config.shifts.types and table.count(config.shifts.types) > 0 and table.concatFn(config.shifts.types, "\n" .. emojis.space .. emojis.right .. " ", function(st)
+				return "## " .. emojis.clock .. " Shift Management\n" .. emojis.right .. " Zeltra's " .. emojis.clock .. " **Shift Management** module allows your staff to manage their shifts with ease. You can view shift statistics, administrate a shift, use GameLock to ensure staff are in-game before starting their shift, and more.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Shift Logs Channel:** " .. ((config.shiftlogschannel and "<#" .. config.shiftlogschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **GameLock Enabled:** " .. ((config.shifts and config.shifts.gamelock and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Shift Types:**\n" .. emojis.space .. emojis.right .. " " .. ((config.shifts and config.shifts.types and table.count(config.shifts.types) > 0 and table.concatFn(config.shifts.types, "\n" .. emojis.space .. emojis.right .. " ", function(st)
 					return st.name
 				end)) or "None") .. "\n" .. emojis.right .. " **Wave Interval:** " .. ((config.shifts and config.shifts.waveinterval and readable(config.shifts.waveinterval)) or emojis.fail)
 			elseif pagenum == allPages.activity.number then
-				return "## " .. emojis.chart .. " Activity Management\n" .. emojis.right .. " Ducky's " .. emojis.chart .. " **Activity Management** module allows your staff to request LOAs, and allows for you to ensure your staff's activity.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **LOAs Enabled:** " .. ((config.loasenabled and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **LOA Logs Channel:** " .. ((config.loalogschannel and "<#" .. config.loalogschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **LOA Mentionables:** " .. ((config.loamentionables and next(config.loamentionables) and "\n" .. emojis.space .. emojis.right .. " " .. table.concatFn(config.loamentionables, "\n" .. emojis.space .. emojis.right .. " ", function(sm) return (interaction.guild:getRole(sm) and ("<@&" .. sm .. ">")) or ("<@" .. sm .. ">") end)) or emojis.fail) .. "\n" .. emojis.right .. " **LOA Role:** " .. ((config.loarole and "<@&" .. config.loarole .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **LOA Nickname:** " .. ((config.loanickname and ("`" .. config.loanickname .. "`")) or emojis.fail) .. "\n" .. emojis.right .. " **Max LOA Length:** " .. ((config.loamaxlength and readable(config.loamaxlength)) or emojis.fail) .. "\n" .. emojis.right .. " **Track Modcalls:** " .. ((config.trackModcalls and emojis.success) or emojis.fail)
+				return "## " .. emojis.chart .. " Activity Management\n" .. emojis.right .. " Zeltra's " .. emojis.chart .. " **Activity Management** module allows your staff to request LOAs, and allows for you to ensure your staff's activity.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **LOAs Enabled:** " .. ((config.loasenabled and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **LOA Logs Channel:** " .. ((config.loalogschannel and "<#" .. config.loalogschannel .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **LOA Mentionables:** " .. ((config.loamentionables and next(config.loamentionables) and "\n" .. emojis.space .. emojis.right .. " " .. table.concatFn(config.loamentionables, "\n" .. emojis.space .. emojis.right .. " ", function(sm) return (interaction.guild:getRole(sm) and ("<@&" .. sm .. ">")) or ("<@" .. sm .. ">") end)) or emojis.fail) .. "\n" .. emojis.right .. " **LOA Role:** " .. ((config.loarole and "<@&" .. config.loarole .. ">") or emojis.fail) .. "\n" .. emojis.right .. " **LOA Nickname:** " .. ((config.loanickname and ("`" .. config.loanickname .. "`")) or emojis.fail) .. "\n" .. emojis.right .. " **Max LOA Length:** " .. ((config.loamaxlength and readable(config.loamaxlength)) or emojis.fail) .. "\n" .. emojis.right .. " **Track Modcalls:** " .. ((config.trackModcalls and emojis.success) or emojis.fail)
 			elseif pagenum == allPages.economy.number then
 				config.economy = config.economy or {}
 				
@@ -2067,7 +2067,7 @@ return {
 					blacklistedRoles = emojis.fail
 				end
 
-				return "## " .. emojis.quack .. " Server Economy\n" .. emojis.right .. " Ducky's " .. emojis.quack .. " **Server Economy** module allows for your members to have fun by collecting " .. emojis.quack .. " **Money**.\n### " .. emojis.settings .. " Configuration\n" ..
+				return "## " .. emojis.quack .. " Server Economy\n" .. emojis.right .. " Zeltra's " .. emojis.quack .. " **Server Economy** module allows for your members to have fun by collecting " .. emojis.quack .. " **Money**.\n### " .. emojis.settings .. " Configuration\n" ..
 					emojis.right .. " **Module Enabled:** " .. ((config.economy and config.economy.disabled and emojis.fail) or emojis.success) .. "\n" ..
 					emojis.right .. " **Currency:** " .. (config.economy and config.economy.currency or emojis.quack) .. "\n" ..
 					emojis.right .. " **Initial Amount:** " .. (config.economy and formatNumber(tonumber(config.economy.initial or 0))) .. "\n" ..
@@ -2080,7 +2080,7 @@ return {
 					emojis.right .. " **Collection Roles:** " .. (collectionRoles ~= emojis.fail and "\n" .. collectionRoles or " " .. emojis.fail .. "\n") ..
 					emojis.right .. " **Multipliers:** " .. (multipliers ~= emojis.fail and "\n" .. multipliers or " " .. emojis.fail .. "\n")
 			elseif pagenum == allPages.tickets.number then
-				return "## " .. emojis.ticket .. " Tickets\n" .. emojis.right .. " Ducky's " .. emojis.ticket .. " **Tickets** module allows your community to create tickets for assistance.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Panels:**\n" .. emojis.space .. emojis.right .. " " .. ((config.panels and table.count(config.panels) > 0 and table.concatFn(config.panels, "\n" .. emojis.space .. emojis.right .. " ", function(p, id)
+				return "## " .. emojis.ticket .. " Tickets\n" .. emojis.right .. " Zeltra's " .. emojis.ticket .. " **Tickets** module allows your community to create tickets for assistance.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Panels:**\n" .. emojis.space .. emojis.right .. " " .. ((config.panels and table.count(config.panels) > 0 and table.concatFn(config.panels, "\n" .. emojis.space .. emojis.right .. " ", function(p, id)
 					return (p.disabled and emojis.power .. emojis.dot or "") .. "https://discord.com/channels/" .. interaction.guild.id .. "/" .. p.channel .. "/" .. id .. " (`" .. id .. "`)"
 				end)) or "None")
 			elseif pagenum == allPages.responders.number then
@@ -2088,7 +2088,7 @@ return {
 				--	ar.response = sanitizeUTF8(ar.response)
 				--end
 
-				return "## " .. emojis.chat .. " Autoresponders\n" .. emojis.right .. " Ducky's " .. emojis.chat .. " **Autoresponders** module allows you to have Ducky automatically respond to certain keyphrases.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Autoresponders:**\n" .. emojis.space .. emojis.right .. " " .. ((config.autoresponders and table.count(config.autoresponders) > 0 and table.concatFn(config.autoresponders, "\n" .. emojis.space .. emojis.right .. " ", function(ar)
+				return "## " .. emojis.chat .. " Autoresponders\n" .. emojis.right .. " Zeltra's " .. emojis.chat .. " **Autoresponders** module allows you to have Zeltra automatically respond to certain keyphrases.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Autoresponders:**\n" .. emojis.space .. emojis.right .. " " .. ((config.autoresponders and table.count(config.autoresponders) > 0 and table.concatFn(config.autoresponders, "\n" .. emojis.space .. emojis.right .. " ", function(ar)
 					return 
 					ar.name .. " " .. ((ar.casesensitive and emojis.casesensitive) or "") .. (((not ar.matchexact) and emojis.search) or "")
 					.. "\n" .. emojis.space .. emojis.space .. emojis.right .. " **Trigger:** " .. ar.trigger
@@ -2099,9 +2099,9 @@ return {
 					.. "\n" .. emojis.space .. emojis.space .. emojis.right .. " **Enabled:** " .. ((ar.disabled and emojis.fail) or emojis.success)
 				end)) or "None")
 			elseif pagenum == allPages.giveaways.number then
-				return "## " .. emojis.gift .. " Giveaways\n" .. emojis.right .. " Ducky's " .. emojis.gift .. " **Giveaways** module allows you to interact with your community and giveaway prizes.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Giveaway Embed:** " .. ((config.giveawayembeds and "Custom") or "Default") .. "\n" .. emojis.right .. " **Giveaway Blacklist Role:** " .. ((config.giveawayblacklist and "<@&" .. config.giveawayblacklist .. ">") or emojis.fail)
+				return "## " .. emojis.gift .. " Giveaways\n" .. emojis.right .. " Zeltra's " .. emojis.gift .. " **Giveaways** module allows you to interact with your community and giveaway prizes.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Giveaway Embed:** " .. ((config.giveawayembeds and "Custom") or "Default") .. "\n" .. emojis.right .. " **Giveaway Blacklist Role:** " .. ((config.giveawayblacklist and "<@&" .. config.giveawayblacklist .. ">") or emojis.fail)
 			elseif pagenum == allPages.boards.number then
-				return "## " .. emojis.board .. " Reaction Boards\n" .. emojis.right .. " Ducky's " .. emojis.board .. " **Reaction Boards** module allows you to have customized starboards, which allow users to essentially vote to pin a message, but instead of pinning the message, it sends it to your board channel.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Reaction Boards:**\n" .. emojis.space .. emojis.right .. " " .. ((config.reactionboards and table.count(config.reactionboards) > 0 and table.concatFn(config.reactionboards, "\n" .. emojis.space .. emojis.right .. " ", function(board)
+				return "## " .. emojis.board .. " Reaction Boards\n" .. emojis.right .. " Zeltra's " .. emojis.board .. " **Reaction Boards** module allows you to have customized starboards, which allow users to essentially vote to pin a message, but instead of pinning the message, it sends it to your board channel.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Reaction Boards:**\n" .. emojis.space .. emojis.right .. " " .. ((config.reactionboards and table.count(config.reactionboards) > 0 and table.concatFn(config.reactionboards, "\n" .. emojis.space .. emojis.right .. " ", function(board)
 					return
 					("<#" .. board.channel .. ">\n" 
 					.. emojis.space .. emojis.space .. emojis.right .. " **Reaction:** `" .. board.reaction .. "`"
@@ -2123,7 +2123,7 @@ return {
 					autoReactChannels = emojis.fail
 				end
 
-				return "## " .. emojis.send .. " Message Management\n" .. emojis.right .. " Ducky's " .. emojis.send .. " **Message Management** module allow you to create sticky messages, auto delete channels, and make your valuable messages require confirmation to purge. " .. "\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Sticky Messages:**\n" .. emojis.space .. emojis.right .. " " .. ((config.stickymessages and table.count(config.stickymessages) > 0 and table.concatFn(config.stickymessages, "\n" .. emojis.space .. emojis.right .. " ", function(sm)
+				return "## " .. emojis.send .. " Message Management\n" .. emojis.right .. " Zeltra's " .. emojis.send .. " **Message Management** module allow you to create sticky messages, auto delete channels, and make your valuable messages require confirmation to purge. " .. "\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Sticky Messages:**\n" .. emojis.space .. emojis.right .. " " .. ((config.stickymessages and table.count(config.stickymessages) > 0 and table.concatFn(config.stickymessages, "\n" .. emojis.space .. emojis.right .. " ", function(sm)
 					return
 					("<#" .. sm.channel .. ">\n"
 					.. emojis.space .. emojis.space .. emojis.right .. " **Content:** `" .. string.truncate(sm.content or emojis.fail, 50) .. "`\n"
@@ -2142,7 +2142,7 @@ return {
 				end)) or "None")
 			elseif pagenum == allPages.departments.number then
 				local isDep, host = db:isDepartment(interaction.guild)
-				return "## " .. emojis.guild .. " Departments\n" .. emojis.right .. " Ducky's " .. emojis.guild .. " **Departments** module allows you to manage departmental servers with ease.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Departments:**\n" .. emojis.space .. emojis.right .. " " .. ((config.departments and table.count(config.departments) > 0 and table.concatFn(config.departments, "\n" .. emojis.space .. emojis.right .. " ", function(depConfig, did)
+				return "## " .. emojis.guild .. " Departments\n" .. emojis.right .. " Zeltra's " .. emojis.guild .. " **Departments** module allows you to manage departmental servers with ease.\n### " .. emojis.settings .. " Configuration\n" .. emojis.right .. " **Departments:**\n" .. emojis.space .. emojis.right .. " " .. ((config.departments and table.count(config.departments) > 0 and table.concatFn(config.departments, "\n" .. emojis.space .. emojis.right .. " ", function(depConfig, did)
 					depConfig = depConfig or {}
 					local d = Client:getGuild(did)
 
@@ -2201,7 +2201,7 @@ return {
 					if first == "prefix" then
 						prompt(ia, "Edit Prefix", {
 							{
-								question = "What should Ducky's prefix be?",
+								question = "What should Zeltra's prefix be?",
 								style = "short",
 								required = false,
 								min = 0,
@@ -2210,7 +2210,7 @@ return {
 							}
 						}, function(mia, responses)
 							if mia then
-								local response = (responses and responses["What should Ducky's prefix be?"] ~= "" and responses["What should Ducky's prefix be?"]) or "d!"
+								local response = (responses and responses["What should Zeltra's prefix be?"] ~= "" and responses["What should Zeltra's prefix be?"]) or "d!"
 
 								modifyKey("prefix", response)
 								mia:updateDeferred(true)
@@ -2267,12 +2267,12 @@ return {
 										return
 
 									elseif table.find(command.requiredPermissions, "BOT_DEVELOPER") then
-										mia:fail("The `/" .. command.name .. "` command is locked to the " .. emojis.developer .. " **Ducky Development** team and cannot be disabled.", nil, true)
+										mia:fail("The `/" .. command.name .. "` command is locked to the " .. emojis.developer .. " **Zeltra Development** team and cannot be disabled.", nil, true)
 										updatePage(allPages.welcome.number)
 										return
 
 									elseif table.find(command.requiredPermissions, "SUPPORT") then
-										mia:fail("The `/" .. command.name .. "` command is locked to the " .. emojis.support .. " **Ducky Support** team and cannot be disabled.", nil, true)
+										mia:fail("The `/" .. command.name .. "` command is locked to the " .. emojis.support .. " **Zeltra Support** team and cannot be disabled.", nil, true)
 										updatePage(allPages.welcome.number)
 										return
 									end
@@ -2471,7 +2471,7 @@ return {
 				end
 			end,
 			identifier = {
-				text = "Welcome to Ducky",
+				text = "Welcome to Zeltra",
 				emoji = resolveEmoji(emojis.ducky)
 			}
 		})
@@ -2558,19 +2558,19 @@ return {
 									existingWebhook:delete()
 								end
 
-								local webhook, err = channel:createWebhook("Ducky", "for Ducky's audit logging module")
+								local webhook, err = channel:createWebhook("Zeltra", "for Zeltra's audit logging module")
 								if not webhook then
-									return ia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure Ducky has the right permissions, and contact our [support server](https://duckybot.xyz/support) for assistance.", nil, true)
+									return ia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure Zeltra has the right permissions, and contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) for assistance.", nil, true)
 								end
 
-								webhook:setAvatar("./images/avatars/Ducky.png")
+								webhook:setAvatar("./images/avatars/Zeltra.png")
 								config.auditlogchannels.primary.webhook = { ID = webhook.id, TOKEN = webhook.token }
 							end
 
 							if channelID then
 								local channel = interaction.guild:getChannel(channelID)
 								if not channel then
-									return ia:fail("That channel does not exist or Ducky does not have permission to view it.\n-# " .. emojis.right .. " Contact our [support server](https://duckybot.xyz/support) if you need assistance.", nil, true)
+									return ia:fail("That channel does not exist or Zeltra does not have permission to view it.\n-# " .. emojis.right .. " Contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) if you need assistance.", nil, true)
 								end
 								createPrimaryWebhook(channel)
 							else
@@ -2612,7 +2612,7 @@ return {
 								if channelID then
 									local channel = oia.guild:getChannel(channelID)
 									if not channel then
-										return oia:fail("That channel does not exist or Ducky doesn’t have permission to view it.\n-# " .. emojis.right .. " Contact our [support server](https://duckybot.xyz/support) if you need assistance.", nil, true)
+										return oia:fail("That channel does not exist or Zeltra doesn’t have permission to view it.\n-# " .. emojis.right .. " Contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) if you need assistance.", nil, true)
 									end
 
 									local existingWebhook
@@ -2624,11 +2624,11 @@ return {
 									end
 
 									if not existingWebhook then
-										local webhook, err = channel:createWebhook("Ducky", "for Ducky's audit logging module (" .. auditlabel .. ")")
+										local webhook, err = channel:createWebhook("Zeltra", "for Zeltra's audit logging module (" .. auditlabel .. ")")
 										if not webhook then
-											return oia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure Ducky has the right permissions, and contact our [support server](https://duckybot.xyz/support) for assistance.", nil, true)
+											return oia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure Zeltra has the right permissions, and contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) for assistance.", nil, true)
 										end
-										webhook:setAvatar("./images/avatars/Ducky.png")
+										webhook:setAvatar("./images/avatars/Zeltra.png")
 										existingWebhook = webhook
 									end
 
@@ -3126,7 +3126,7 @@ return {
 									ia:fail("Failed to send message: ```" .. e .. "```", nil, true)
 								end
 							else
-								ia:fail("Failed to find channel, please make sure Ducky has permissions to view the channel.", nil, true)
+								ia:fail("Failed to find channel, please make sure Zeltra has permissions to view the channel.", nil, true)
 							end
 						end, vars, default, true)
 					elseif selection == "erlcserverstatusvars" then
@@ -3198,7 +3198,7 @@ return {
 										mia:fail("Failed to create voice channel: ```" .. err .. "```", nil, true)
 									end
 								else
-									mia:fail("Something went wrong, please try again or contact [Ducky Support](https://discord.gg/j4w5ZcbRyh).", nil, true)
+									mia:fail("Something went wrong, please try again or contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
 								end
 
 								updatePage(allPages.erlcStatus.number)
@@ -3289,7 +3289,7 @@ return {
 
 											modifyKey("erlcserverstatuschannels", config.erlcserverstatuschannels)
 										else
-											mia:fail("Something went wrong, please try again or contact [Ducky Support](https://discord.gg/j4w5ZcbRyh).", nil, true)
+											mia:fail("Something went wrong, please try again or contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
 										end
 
 										updatePage(allPages.erlcStatus.number)
@@ -3371,7 +3371,7 @@ return {
 
 				if id == "actions" then
 					if not config.apikey then
-						return ia:fail("This feature requires for you to link your ERLC API Key with Ducky via the " .. emojis.game .. " **ERLC Integration** page in `/setup`.", nil, true)
+						return ia:fail("This feature requires for you to link your ERLC API Key with Zeltra via the " .. emojis.game .. " **ERLC Integration** page in `/setup`.", nil, true)
 					end
 
 					if config.erlclogs and next(config.erlclogs) then
@@ -3618,7 +3618,7 @@ return {
 										mia:fail("Failed to create voice channel: ```" .. err .. "```", nil, true)
 									end
 								else
-									mia:fail("Something went wrong, please try again or contact [Ducky Support](https://discord.gg/j4w5ZcbRyh).", nil, true)
+									mia:fail("Something went wrong, please try again or contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
 								end
 
 								updatePage(allPages.discordStatistics.number)
@@ -3703,7 +3703,7 @@ return {
 
 											modifyKey("discordserverstatuschannels", config.discordserverstatuschannels)
 										else
-											mia:fail("Something went wrong, please try again or contact [Ducky Support](https://discord.gg/j4w5ZcbRyh).", nil, true)
+											mia:fail("Something went wrong, please try again or contact [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
 										end
 
 										updatePage(allPages.discordStatistics.number)
@@ -3859,64 +3859,64 @@ return {
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Developer",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Developer",
 									emoji = resolvedEmojis.developer
 								}
 							elseif hasPermission(m, "WEB_DEVELOPER") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Web Developer",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Web Developer",
 									emoji = resolvedEmojis.web
 								}
 							elseif hasPermission(m, "EXECUTIVE") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Executive",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Executive",
 									emoji = resolvedEmojis.executive
 								}
 							elseif hasPermission(m, "MANAGEMENT") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Management",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Management",
 									emoji = resolvedEmojis.settings
 								}
 							elseif hasPermission(m, "SUPPORT") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Support",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Support",
 									emoji = resolvedEmojis.support
 								}
 							elseif hasPermission(m, "DUCKY_STAFF") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Staff",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Staff",
 									emoji = resolvedEmojis.permission
 								}
 							elseif hasPermission(m, "QUALITY_ASSURANCE") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Quality Assurance",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Quality Assurance",
 									emoji = resolvedEmojis.qa
 								}
 							elseif hasPermission(m, "DOCWRITER") then
 								roleButton = {
 									type = 2,
 									style = 5,
-									url = "https://duckybot.xyz/support",
-									label = "Ducky Docwriter",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
+									label = "Zeltra Docwriter",
 									emoji = resolvedEmojis.edit
 								}
 							end
@@ -4694,7 +4694,7 @@ return {
 						
 						messageEditor(ia, function(message)
 							local components = discordia.Components():button({
-								url = "https://duckybot.xyz/link",
+								url = _G.ZELTRA_WEB_URL .. "/link",
 								label = "Link",
 								style = "link",
 								emoji = resolvedEmojis.link
@@ -7376,7 +7376,7 @@ return {
 									updateBuilder(bia)
 								end, nil, panel.embeds)
 							elseif selection == "import" then
-								ask(bia, "Import from Exportable", "Enter a valid Ducky exportable code...", nil, nil, "short", false, nil, function(_, mia, response)
+								ask(bia, "Import from Exportable", "Enter a valid Zeltra exportable code...", nil, nil, "short", false, nil, function(_, mia, response)
 									local imported, err = _G.import(response or "_", "panel")
 
 									if imported then

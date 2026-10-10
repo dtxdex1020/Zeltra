@@ -1,5 +1,5 @@
 -- ticket.lua
-local slashCommand = tools.slashCommand("ticket", "Use Ducky's ticket system.")
+local slashCommand = tools.slashCommand("ticket", "Use Zeltra's ticket system.")
 local subcmd = tools.subCommand("manage", "Manage the current ticket.")
 slashCommand = slashCommand:addOption(subcmd)
 local subcmd = tools.subCommand("claim", "Claim the current ticket.")
@@ -46,7 +46,7 @@ local closedActions = discordia.Components():button({
 
 return {
 	name = "ticket",
-	description = "Use Ducky's ticket system.",
+	description = "Use Zeltra's ticket system.",
 	aliases = {},
 	category = "Tickets",
 	slashCommand = slashCommand,

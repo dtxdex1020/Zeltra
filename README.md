@@ -1,4 +1,65 @@
-# Ducky V1 open source
+# Zeltra
+
+**Zeltra** is a multipurpose Discord + ER:LC bot run by [Shark (dtxdex1020)](https://github.com/dtxdex1020): moderation, tickets, verification, staff management (shifts, LOAs, promotions), ER:LC server integration, economy, giveaways and more.
+
+> [!IMPORTANT]
+> **Credits: Zeltra is a modified version of Ducky V1 by duckyerlc (https://github.com/duckyerlc/Ducky-opensource), licensed under AGPL-3.0.**
+> Changes were made (see [Changes from Ducky V1](#changes-from-ducky-v1)). All original copyright and license notices are kept intact.
+
+- **Source code:** https://github.com/dtxdex1020/Zeltra (this repository; it is the complete source of the running bot, including all modifications)
+- **Upstream:** https://github.com/duckyerlc/Ducky-opensource (Ducky V1 by duckyerlc)
+- **License:** [GNU Affero General Public License v3.0](LICENSE). Copyright (C) 2026 duckyerlc, with modifications by dtxdex1020.
+- **In Discord:** `/about` shows the credit and the source link, as required by AGPL-3.0 section 13.
+
+## Changes from Ducky V1
+
+Zeltra keeps Ducky's features and code; the changes are kept small:
+
+- **Branding:** user-facing "Ducky" text (embeds, help, about, footers, command descriptions) now says "Zeltra". Internal identifiers (variable names, database keys) are unchanged.
+- **Credit and source offer:** `/about` and `/help` credit Ducky V1 by duckyerlc and link this repository (AGPL-3.0 section 13).
+- **Ducky-only links and IDs removed or replaced:**
+  - Ducky's support server and website support links now point to [this repo's issues](https://github.com/dtxdex1020/Zeltra/issues).
+  - Ducky's founder user ID no longer has owner powers. Owner/dev access comes from `DEV_ACCESS_IDS` in `secrets.lua`.
+  - Ducky's home server ("Ducky's Pond") and its staff-role checks and log channels are replaced by the optional `HOME_GUILD_ID` / `LOG_CHANNEL_ID` settings. When those aren't set, the lookups do nothing.
+  - **Plus+ purchases are disabled.** Upstream payments go to Ducky's Roblox group and catalog items. Set `PLUS_PURCHASES_ENABLED` only if you rewire them to your own.
+  - The community-support module (hard-wired to Ducky's forum) is disabled, and the `/botreview` command (reviews for Ducky's website) was removed.
+  - Images hotlinked from duckybot.xyz were removed. Ducky's web features (Roblox OAuth `/link`, web transcripts, web editor) now use the optional `WEB_BASE_URL`. See [Web features](#web-features).
+  - The built-in HTTP API listens on `127.0.0.1` by default (it was `0.0.0.0`).
+  - The crash-report webhook in `watchduck.lua` is optional.
+  - Documentation links still point to Ducky's docs (https://docs.duckybot.xyz), because they describe the same features.
+- **Emojis:** Ducky's custom application emojis only render for Ducky's own bot, so `bot/libs/zeltra-emojis.lua` maps them to Unicode. To keep custom emojis, set `KEEP_CUSTOM_EMOJIS = true` (for example after uploading your own).
+- **Runs without Docker:** `scripts/install-deps.sh` installs luvit/lit plus the exact dependencies at pinned versions, using the system packages listed in `bot/Dockerfile`. The upstream repo doesn't ship its `deps/` folder. Dependencies include Ducky's [Quackscordia](https://github.com/duckyerlc/Quackscordia) fork of Discordia and its components and slash forks.
+- **Compatibility shims:** `bot/libs/zeltra-compat.lua` adds the few helpers the code expects that the published libraries lack, such as `Interaction:fail/success/...` and `Client:waitModal(id, userId)`. `bot/libs/snowflake.lua` is a small ID generator.
+- **Slash commands** are bulk-registered on startup whenever they change. Upstream only did this through the dev-only `/sync` command.
+
+## Running it
+
+Requirements: Linux x86_64, `git`, `curl`, and the system packages from `bot/Dockerfile`. The install script installs them through apt.
+
+```bash
+git clone https://github.com/dtxdex1020/Zeltra && cd Zeltra
+scripts/install-deps.sh                 # luvit + lit + Lua deps (into bot/), system libs via apt
+cp bot/example.secrets.lua bot/secrets.lua && chmod 600 bot/secrets.lua   # then fill it in (never commit it)
+scripts/start.sh                        # or: docker compose up -d (upstream Dockerfile)
+```
+
+Data is stored in SQLite (`bot/data.db`, backups in `bot/sqlbackups/`). Postgres support (`sqlpg.lua`) is optional and not used by default.
+
+Run it under a supervisor such as pm2 or systemd so it restarts automatically. `watchduck.lua` is upstream's watchdog. Your bot needs the **Server Members** and **Message Content** privileged intents.
+
+## Web features
+
+Ducky hosted some features on its website (duckybot.xyz): Roblox OAuth account linking, web ticket transcripts and the web embed editor. Zeltra doesn't host a website. Unless `WEB_BASE_URL` is set in `secrets.lua`, those links lead here. For Roblox account linking, use **Legacy Verification** in `/link`, which works fully inside Discord.
+
+## Terms and Privacy
+
+Zeltra stores the data that its features need. That includes server configuration, moderation cases, Roblox links, economy balances, tickets and transcripts. The data is kept in the bot's own database and used only to provide these features. Server managers can wipe their server's configuration through `/setup`. For data questions or removal requests, [open an issue](https://github.com/dtxdex1020/Zeltra/issues) or contact Shark on Discord.
+
+---
+
+## Original Ducky V1 README
+
+### Ducky V1 open source
 This is the source code of Ducky V1.
 
 Licensed under the [GNU Affero General Public License v3.0](LICENSE).

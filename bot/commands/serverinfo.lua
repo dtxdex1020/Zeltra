@@ -71,15 +71,15 @@ return {
 
 		local function newval(title, val) emb.description = emb.description .. emojis.right .. " **" .. title .. ":** " .. val .. "\n" end
 
-		if sqldb:isAffiliate(guild.id) then emb.description = emb.description .. "-# " .. emojis.right .. " *This server is an official " .. emojis.affiliate .. " **Ducky Affiliate**.*\n" end
-		if sqldb:plusGuild(guild) then emb.description = emb.description .. "-# " .. emojis.right .. " *This server is a " .. emojis.duckyplus .. " **Ducky Plus+** server.*\n" end
+		if sqldb:isAffiliate(guild.id) then emb.description = emb.description .. "-# " .. emojis.right .. " *This server is an official " .. emojis.affiliate .. " **Zeltra Affiliate**.*\n" end
+		if sqldb:plusGuild(guild) then emb.description = emb.description .. "-# " .. emojis.right .. " *This server is a " .. emojis.duckyplus .. " **Zeltra Plus+** server.*\n" end
 		if (guild.description) and (guild.description ~= "") then emb.description = emb.description .. "> *" .. interaction.guild.description .. "*\n\n" end
 
         emb.description = emb.description .. emojis.settings .. " **General Information**\n"
 		newval("Owner", owner.mentionString)
 		newval("Guild ID", "`" .. guild.id .. "`")
 		newval("Created", string.format("<t:%s> (<t:%s:R>)", tostring(createdTimestamp), tostring(createdTimestamp)))
-		newval("Ducky Added", string.format("<t:%s> (<t:%s:R>)", tostring(joinedTimestamp), tostring(joinedTimestamp)))
+		newval("Zeltra Added", string.format("<t:%s> (<t:%s:R>)", tostring(joinedTimestamp), tostring(joinedTimestamp)))
 		newval("System Channel", (systemChannel and systemChannel.mentionString) or "N/A")
 		newval("Member Count", mc)
 		newval("Bot Count", bc)

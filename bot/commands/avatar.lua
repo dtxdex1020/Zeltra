@@ -20,7 +20,7 @@ return {
                 embed = {
                     author = author(interaction.guild),
                     image = {
-                        url = (tostring(interaction.guild.iconURL) .. "?size=4096") or "https://duckybot.xyz/images/misc/defaultpfp.webp"
+                        url = (tostring(interaction.guild.iconURL) .. "?size=4096") or "https://cdn.discordapp.com/embed/avatars/0.png"
                     },
                     color = colors.yellow
                 }
@@ -33,10 +33,10 @@ return {
 			embed = {
                 author = {
                     name = member.name .. "'s avatar",
-                    icon_url = member.avatarURL or member.defaultAvatarURL or "https://duckybot.xyz/images/misc/defaultpfp.webp"
+                    icon_url = member.avatarURL or member.defaultAvatarURL or "https://cdn.discordapp.com/embed/avatars/0.png"
                 },
                 image = {
-                    url = (tostring(member.avatarURL or member.defaultAvatarURL) .. "?size=4096") or "https://duckybot.xyz/images/misc/defaultpfp.webp"
+                    url = (tostring(member.avatarURL or member.defaultAvatarURL) .. "?size=4096") or "https://cdn.discordapp.com/embed/avatars/0.png"
                 },
                 color = colors.yellow
             }

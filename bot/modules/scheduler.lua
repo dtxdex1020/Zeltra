@@ -291,7 +291,7 @@ scheduler.Start = function()
 																				.. member.username
 																				.. "**'s infraction was revoked by **@"
 																				.. issuer.name
-																				.. "**. Therefore, Ducky has reverted the infraction action `"
+																				.. "**. Therefore, Zeltra has reverted the infraction action `"
 																				.. ac.cmd
 																				.. "`.",
 																			color = colors.success,
@@ -313,7 +313,7 @@ scheduler.Start = function()
 																				.. member.username
 																				.. "**'s infraction was revoked by **@"
 																				.. issuer.name
-																				.. "**. However, Ducky was unable to revert the infraction action `"
+																				.. "**. However, Zeltra was unable to revert the infraction action `"
 																				.. ac.cmd
 																				.. "`: ```"
 																				.. err

@@ -29,3 +29,9 @@ sqlbackups/
 temp.lua
 discordia.log
 **/logs/
+
+# --- Zeltra (local runtime files) ---
+bot/dryrun.lua
+bot/.slash-commands.cache.json
+bot/node_modules/
+ecosystem.config.cjs

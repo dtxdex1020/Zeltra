@@ -65,7 +65,7 @@ return {
 						icon_url = interaction.user.avatarURL
 					},
 					title = emojis.settings .. " User Settings",
-					description = emojis.right .. " **AutoShifts:** " .. ((settings.autoshifts and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Default AFK:** " .. (settings.defaultafkreason or emojis.fail) .. "\n" .. emojis.right .. " **Global AFK:** " .. ((settings.globalafk and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Timezone:** " .. ((settings.timezone and (settings.timezone.name .. " (`" .. settings.timezone.abrv .. "`)")) or emojis.fail) .. "\n" .. emojis.right .. " **Infraction Notifications:** " .. ((settings.infractionnotifications and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Ticket Notifications:** " .. ((settings.ticketnotifications and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Punishment Notifications:** " .. ((settings.punishmentnotifications == "dms" and "Discord DMs") or (settings.punishmentnotifications == "both" and "Both") or (settings.punishmentnotifications == "none" and emojis.fail) or "In-Game PMs") .. "\n" .. emojis.right .. " **Track Playtime:** " .. ((settings.trackplaytime and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **[Use Bloxlink API](https://duckybot.xyz/legal/privacy#discord):** " .. ((settings.bloxlinkoptout and emojis.fail) or emojis.success),
+					description = emojis.right .. " **AutoShifts:** " .. ((settings.autoshifts and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Default AFK:** " .. (settings.defaultafkreason or emojis.fail) .. "\n" .. emojis.right .. " **Global AFK:** " .. ((settings.globalafk and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Timezone:** " .. ((settings.timezone and (settings.timezone.name .. " (`" .. settings.timezone.abrv .. "`)")) or emojis.fail) .. "\n" .. emojis.right .. " **Infraction Notifications:** " .. ((settings.infractionnotifications and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Ticket Notifications:** " .. ((settings.ticketnotifications and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **Punishment Notifications:** " .. ((settings.punishmentnotifications == "dms" and "Discord DMs") or (settings.punishmentnotifications == "both" and "Both") or (settings.punishmentnotifications == "none" and emojis.fail) or "In-Game PMs") .. "\n" .. emojis.right .. " **Track Playtime:** " .. ((settings.trackplaytime and emojis.success) or emojis.fail) .. "\n" .. emojis.right .. " **[Use Bloxlink API](https://github.com/dtxdex1020/Zeltra#terms-and-privacy):** " .. ((settings.bloxlinkoptout and emojis.fail) or emojis.success),
 					color = colors.info
 				},
 				components = discordia.Components():selectMenu({
@@ -118,7 +118,7 @@ return {
 						},
 						{
 							label = "Toggle Track Playtime",
-							description = "Track your playtime across all ERLC servers linked with Ducky",
+							description = "Track your playtime across all ERLC servers linked with Zeltra",
 							value = "trackplaytime",
 							emoji = resolvedEmojis.game
 						},

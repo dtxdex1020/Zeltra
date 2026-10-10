@@ -1,7 +1,7 @@
 -- guilds.lua
 return {
     name = "guilds",
-    description = "Get the servers that Ducky is in.",
+    description = "Get the servers that Zeltra is in.",
     aliases = {"servers"},
     category = "Utility",
     slashCommand = nil,
@@ -37,13 +37,13 @@ return {
 				footer = "Guilds are sorted by membercount, greatest to least."
 				return a.totalMemberCount > b.totalMemberCount
 			elseif sortby == "joined" then
-				footer = "Guilds are sorted based on when Ducky joined, most recent to oldest."
+				footer = "Guilds are sorted based on when Zeltra joined, most recent to oldest."
 				return discordia.Date.fromISO(a.joinedAt):toSeconds() > discordia.Date.fromISO(b.joinedAt):toSeconds()
 			elseif sortby == "abc" then
 				footer = "Guilds are sorted in alphabetical order."
 				return a.name:lower() < b.name:lower()
 			elseif sortby == "duckyplus" then
-				footer = "Only guilds with " .. emojis.duckyplus .. " **Ducky Plus+** are shown."
+				footer = "Only guilds with " .. emojis.duckyplus .. " **Zeltra Plus+** are shown."
 				return a.totalMemberCount > b.totalMemberCount
 			elseif sortby == "notconfigured" then
 				footer = "Only guilds that are not configured are shown."
@@ -57,7 +57,7 @@ return {
 		local pages = {
 			{
 				title = emojis.guild .. " Guilds",
-				description = "> Ducky is in **" .. #Client.guilds .. "** guilds.\n> -# " .. emojis.filter .. " " .. footer,
+				description = "> Zeltra is in **" .. #Client.guilds .. "** guilds.\n> -# " .. emojis.filter .. " " .. footer,
 				color = colors.info,
 				identifier = {
 					text = "Guilds",
@@ -85,9 +85,9 @@ return {
 			})
 
 			table.insert(options, {
-				label = "Remove Ducky",
+				label = "Remove Zeltra",
 				value = "remove",
-				description = "Remove Ducky from the server.",
+				description = "Remove Zeltra from the server.",
 				emoji = resolvedEmojis.kick
 			})
 		end
@@ -190,14 +190,14 @@ return {
 								return ia:fail("The owner of **" .. guild.name .. "**, <@" .. tostring(guild.ownerId) .. ">, has their DMs disabled.", nil, true)
 							end
 						elseif first == "remove" then
-							confirm(ia, "Are you sure you would like to remove Ducky from **" .. guild.name .. "**?", function(result, ria, r)
+							confirm(ia, "Are you sure you would like to remove Zeltra from **" .. guild.name .. "**?", function(result, ria, r)
 								if result == true then
 									local n = guild.name
 									guild:leave()
 									ria:updateDeferred(true)
 									ia:editReply({
 										embed = {
-											description = emojis.success .. " Ducky has been removed from **" .. n .. "**.",
+											description = emojis.success .. " Zeltra has been removed from **" .. n .. "**.",
 											color = colors.success
 										},
 										components = {}

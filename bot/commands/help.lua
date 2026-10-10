@@ -1,10 +1,10 @@
 -- help.lua
-local slashCommand = tools.slashCommand("help", "View the Ducky Help menu.")
+local slashCommand = tools.slashCommand("help", "View the Zeltra Help menu.")
 slashCommand = slashCommand:addOption(tools.string("category", "Jump to a specific category."):setRequired(false):setAutocomplete(true))
 
 return {
 	name = "help",
-	description = "View the Ducky help menu.",
+	description = "View the Zeltra help menu.",
 	aliases = { "cmds", "commands", "support", "assistance", "helpme" },
 	slashCommand = slashCommand,
 	requiredPermissions = {},
@@ -117,24 +117,25 @@ return {
 
         local helpMenu = {
             embed = {
-                title = emojis.ducky .. " Ducky's Commands",
-                description = emojis.right .. " Welcome to " .. emojis.ducky .. " **Ducky's Help Menu**, view more information on commands below, or join our **[Ducky's Pond](https://duckybot.xyz/support)** for further assistance.",
-                color = colors.duckyyellow
+                title = emojis.ducky .. " Zeltra's Commands",
+                description = emojis.right .. " Welcome to " .. emojis.ducky .. " **Zeltra's Help Menu**, view more information on commands below, or [**open an issue**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance.",
+                color = colors.duckyyellow,
+                footer = { text = "Zeltra is based on Ducky V1 by duckyerlc (AGPL-3.0) · Source: " .. _G.ZELTRA_SOURCE_URL }
             },
             components = discordia.Components({
                 buildCategorySelector(false)
                 })
                 :button({
-                    url = 'https://discord.gg/w2dNr7vuKP',
+                    url = 'https://github.com/dtxdex1020/Zeltra/issues',
                     style  = 'link',
-                    label = 'Support Server',
+                    label = 'Support',
                     emoji = resolvedEmojis.support
 
                 })
                 :button({
                     url = 'https://docs.duckybot.xyz/',
                     style = 'link',
-                    label = 'Documentation',
+                    label = 'Documentation (Ducky docs)',
                     emoji = resolvedEmojis.edit
 
                 })

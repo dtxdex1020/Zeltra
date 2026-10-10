@@ -31,7 +31,7 @@ return {
             local currentTime = os.time()
 
             -- if not config.apiKey then
-            --     return interaction:fail("This feature requires you to link your ERLC API key with Ducky via the " ..
+            --     return interaction:fail("This feature requires you to link your ERLC API key with Zeltra via the " ..
             --                                 emojis.game .. " **ERLC Integration** page in `/setup`.", nil, true)
             -- end
 

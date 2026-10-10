@@ -1,67 +1,67 @@
 local MAINTENANCE = {
 	status = "🔨 ・ Ongoing maintenance",
-	message = "<:ducky:1259003248266711081> **Ducky** is currently under maintenance for a **stability**. This interaction is unavailable at this time. There is **no ETA**."
+	message = "<:ducky:1259003248266711081> **Zeltra** is currently under maintenance for a **stability**. This interaction is unavailable at this time. There is **no ETA**."
 }
 
 local startl = 0
 
-print("[Ducky] | Initializing SECRETS...")
+print("[Zeltra] | Initializing SECRETS...")
 startl = os.clock()
 local SECRETS = require("secrets")
 _G.SECRETS = SECRETS
-print("[Ducky] | Initialized SECRETS in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized SECRETS in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing Discordia...")
+print("[Zeltra] | Initializing Discordia...")
 startl = os.clock()
 local discordia = require("discordia")
 _G.discordia = discordia
-print("[Ducky] | Initialized Discordia in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized Discordia in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-components...")
+print("[Zeltra] | Initializing discordia-components...")
 startl = os.clock()
 require("discordia-components")
-print("[Ducky] | Initialized discordia-components in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-components in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-textchat...")
+print("[Zeltra] | Initializing discordia-textchat...")
 startl = os.clock()
 require("discordia-textchat")
-print("[Ducky] | Initialized discordia-textchat in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-textchat in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-voice-plus...")
+print("[Zeltra] | Initializing discordia-voice-plus...")
 startl = os.clock()
 require("discordia-voice-plus")
-print("[Ducky] | Initialized discordia-voice-plus in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-voice-plus in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-modals...")
+print("[Zeltra] | Initializing discordia-modals...")
 startl = os.clock()
 local dmodals = require("discordia-modals")
 _G.dmodals = dmodals
-print("[Ducky] | Initialized discordia-modals in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-modals in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-slash...")
+print("[Zeltra] | Initializing discordia-slash...")
 startl = os.clock()
 local dslash = require("discordia-slash")
 _G.dslash = dslash
-print("[Ducky] | Initialized discordia-slash in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-slash in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-slash tools...")
+print("[Zeltra] | Initializing discordia-slash tools...")
 startl = os.clock()
 local tools = dslash.util.tools()
 _G.tools = tools
-print("[Ducky] | Initialized discordia-slash tools in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-slash tools in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing Discordia.extensions()...")
+print("[Zeltra] | Initializing Discordia.extensions()...")
 startl = os.clock()
 discordia.extensions()
-print("[Ducky] | Initialized Discordia.extensions() in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized Discordia.extensions() in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing querystring...")
+print("[Zeltra] | Initializing querystring...")
 startl = os.clock()
 local querystring = require("querystring")
 _G.querystring = querystring
-print("[Ducky] | Initialized querystring in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized querystring in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing Client...")
+print("[Zeltra] | Initializing Client...")
 startl = os.clock()
 local Client = discordia.Client({
 	logFile = "",
@@ -75,7 +75,7 @@ Client:useApplicationCommands()
 Client:enableAllIntents()
 Client:disableIntents(discordia.enums.gatewayIntent.guildPresences)
 _G.Client = Client
-print("[Ducky] | Initialized Client in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized Client in " .. (os.clock() - startl) .. " seconds.\n")
 
 _G.emojis = {
 	success = "<:success:1362343220096274530>",
@@ -415,7 +415,7 @@ Client:on("messageCreate", function(message)
         message:reply({
 			embed = {
 				color = colors.yellow,
-				description = MAINTENANCE.message or "Ducky is currently under maintenance, join [**Ducky's Pond**](https://discord.gg/w2dNr7vuKP) for updates."
+				description = MAINTENANCE.message or "Zeltra is currently under maintenance, join [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
 			}
 		})
     end
@@ -425,7 +425,7 @@ Client:on("slashCommand", function(interaction)
     interaction:reply({
 		embed = {
 			color = colors.yellow,
-			description = MAINTENANCE.message or "Ducky is currently under maintenance, join [**Ducky's Pond**](https://discord.gg/w2dNr7vuKP) for updates."
+			description = MAINTENANCE.message or "Zeltra is currently under maintenance, join [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
 		}
 	}, true)
 end)
@@ -434,7 +434,7 @@ Client:on("interactionCreate", function(interaction)
     interaction:reply({
 		embed = {
 			color = colors.yellow,
-			description = MAINTENANCE.message or "Ducky is currently under maintenance, join [**Ducky's Pond**](https://discord.gg/w2dNr7vuKP) for updates."
+			description = MAINTENANCE.message or "Zeltra is currently under maintenance, join [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
 		}
 	}, true)
 end)

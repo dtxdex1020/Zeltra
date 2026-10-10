@@ -30,14 +30,14 @@ local flags = {
     ["1391386174244913222"] = emojis.inspiration .. " Elite Quacker",
     ["1279781412156735591"] = emojis.star .. " Elite Donator",
     ["1282277290868477963"] = emojis.donation .. " Donator",
-    ["1267239172444262490"] = emojis.duckyplus .. " Ducky Plus+ Member",
+    ["1267239172444262490"] = emojis.duckyplus .. " Zeltra Plus+ Member",
     ["1281961357658292294"] = emojis.goose .. " Goose",
     ["1265695370693050515"] = emojis.bughunter .. " Bug Hunter",
     ["1266499891488882760"] = emojis.suggester .. " Suggester",
-    ["1257408154195464224"] = emojis.ducky .. " Ducky",
-    ["1388261712574021786"] = emojis.duckyplus .. " Ducky Plus+",
-    ["1307670808260513899"] = emojis.duckyoutline .. " Ducky Dev",
-    ["1305166985352708158"] = emojis.duckyexperimental .. " Ducky Experimental"
+    ["1257408154195464224"] = emojis.ducky .. " Zeltra",
+    ["1388261712574021786"] = emojis.duckyplus .. " Zeltra Plus+",
+    ["1307670808260513899"] = emojis.duckyoutline .. " Zeltra Dev",
+    ["1305166985352708158"] = emojis.duckyexperimental .. " Zeltra Experimental"
 }
 
 local function getFlags(user)
@@ -171,7 +171,7 @@ return {
 
             if blacklisted(user) then
                 local _, blacklist = sqldb:getBlacklist(user.id)
-                embed.description = embed.description .. "\n-# " .. emojis.ban .. " This user is **blacklisted** from " .. emojis.ducky .. " **Ducky**" .. ((hasPermission(interaction.member, "DUCKY_STAFF") and blacklist and blacklist.reason and (" for **" .. blacklist.reason .. "**")) or "") .. "."
+                embed.description = embed.description .. "\n-# " .. emojis.ban .. " This user is **blacklisted** from " .. emojis.ducky .. " **Zeltra**" .. ((hasPermission(interaction.member, "DUCKY_STAFF") and blacklist and blacklist.reason and (" for **" .. blacklist.reason .. "**")) or "") .. "."
             end
 
             interaction:reply({
@@ -195,10 +195,10 @@ return {
                     if roblox then
                         player = roblox
                     else
-                        return interaction:fail(getUserString(interaction.mentionedUsers.first) .. " is linked with Ducky, but their Roblox account could not be found.", nil, true)
+                        return interaction:fail(getUserString(interaction.mentionedUsers.first) .. " is linked with Zeltra, but their Roblox account could not be found.", nil, true)
                     end
                 else
-                    return interaction:fail(getUserString(interaction.mentionedUsers.first) .. " is not linked with Ducky.", nil, true)
+                    return interaction:fail(getUserString(interaction.mentionedUsers.first) .. " is not linked with Zeltra.", nil, true)
                 end
             end
 

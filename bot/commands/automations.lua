@@ -1,5 +1,5 @@
 -- automations.lua
-local slashCommand = tools.slashCommand("automations", "Use Ducky's automations module.")
+local slashCommand = tools.slashCommand("automations", "Use Zeltra's automations module.")
 
 local subCommand = tools.subCommand("create", "Create an automation.")
 slashCommand = slashCommand:addOption(subCommand)
@@ -648,9 +648,9 @@ local vars = {
 	["plate"] = emojis.right .. " **`{vehicle.name}`:** The name of the vehicle that used the plate.\n" .. emojis.right .. " **`{vehicle.make}`:** The make of the vehicle that used the plate.\n" .. emojis.right .. " **`{vehicle.model}`:** The model of the vehicle that used the plate.\n" .. emojis.right .. " **`{vehicle.year}`:** The year of the vehicle that used the plate.\n" .. emojis.right .. " **`{vehicle.plate}`:** The exact plate the vehicle used.\n" .. emojis.right .. " **`{vehicle.livery}`:** The livery of the vehicle that used the plate.\n" .. emojis.right .. " **`{vehicle.color}`:** The color of the vehicle that used the plate.\n" .. emojis.right .. " **`{player.name}`:** The name of the player that used the plate.\n" .. emojis.right .. " **`{player.id}`:** The ID of the player that is using the plate.\n" .. emojis.right .. " **`{player.profile}`:** The link to the player using the plate's profile.\n" .. emojis.right .. " **`{player.hyperlink}`:** The hyperlink to the player using the plate's profile.\n" .. emojis.right .. " **`{player.team}`:** The player's team.\n" .. emojis.right .. " [`{timestamp}`](https://docs.duckybot.xyz/misc/timestamps): The timestamp of when the plate was used.",
 	["callsign"] = emojis.right .. " **`{player.name}`:** The name of the player that used the callsign.\n" .. emojis.right .. " **`{player.id}`:** The ID of the player that is using the callsign.\n" .. emojis.right .. " **`{player.profile}`:** The link to the player using the callsign's profile.\n" .. emojis.right .. " **`{player.hyperlink}`:** The hyperlink to the player using the callsign's profile.\n" .. emojis.right .. " **`{player.team}`:** The player's team.\n" .. emojis.right .. " **`{player.callsign}`:** The exact callsign that was used.\n" .. emojis.right .. " [`{timestamp}`](https://docs.duckybot.xyz/misc/timestamps): The timestamp of when the callsign was used.",
 	["killedin"] = emojis.right .. " **`{killer.name}`:** The name of the killer.\n" .. emojis.right .. " **`{killer.id}`:** The ID of the killer.\n" .. emojis.right .. " **`{killer.profile}`:** The profile link to the killer's profile.\n" .. emojis.right .. " **`{killer.hyperlink}`:** The hyperlink to the killer's profile.\n" .. emojis.right .. " [`{timestamp}`](https://docs.duckybot.xyz/misc/timestamps): The timestamp of when it was detected.",
-	["shiftUpdate"] = emojis.right .. " **`{staff.discord.*}`:** Includes `.name`, `.username`, `.id`, `.mention`, `.avatar`.\n" .. emojis.right .. " **`{staff.roblox.*}`:** Includes `.display`, `.name`, `.id`, `.avatar`, `.description`, `.banned`, `.verified`, `.profile`, `.hyperlink`. Only available if user is linked with Ducky.\n" .. emojis.right .. " **`{shift.status}`:** The current status of their shift.\n" .. emojis.right .. " **`{shift.started}`:** The timestamp of when their shift started.\n" .. emojis.right .. " **`{shift.ended}`:** The timestamp of when their shift ended.\n" .. emojis.right .. " **`{shift.elapsed}`:** That total elapsed time of their shift.\n" .. emojis.right .. " **`{shift.punishments}`:** The amount of punishments they logged during their shift.\n" .. emojis.right .. " **`{shift.commands}`:** The amount of in-game commands they used during their shift.\n" .. emojis.right .. " **`{shift.pauses}`:** The amount of pauses they made during their shift.\n" .. emojis.right .. " **`{shift.pausetime}`:** The total elapsed time paused during their shift.\n" .. emojis.right .. " **`{shift.type}`:** The shift type they used during their shift.\n" .. emojis.right .. " [`{timestamp}`](https://docs.duckybot.xyz/misc/timestamps): The timestamp of when the shift status updated.",
-	["manual"] = emojis.right .. " **`{executor.discord.*}`:** Includes `.name`, `.username`, `.id`, `.mention`, `.avatar`.\n" .. emojis.right .. " **`{executor.roblox.*}`:** Includes `.display`, `.name`, `.id`, `.avatar`, `.description`, `.banned`, `.verified`, `.profile`, `.hyperlink`. Only available if user is linked with Ducky.",
-	["interval"] = emojis.right .. " **`{executor.discord.*}`:** Includes `.name`, `.username`, `.id`, `.mention`, `.avatar`.\n" .. emojis.right .. " **`{executor.roblox.*}`:** Includes `.display`, `.name`, `.id`, `.avatar`, `.description`, `.banned`, `.verified`, `.profile`, `.hyperlink`. Only available if user is linked with Ducky."
+	["shiftUpdate"] = emojis.right .. " **`{staff.discord.*}`:** Includes `.name`, `.username`, `.id`, `.mention`, `.avatar`.\n" .. emojis.right .. " **`{staff.roblox.*}`:** Includes `.display`, `.name`, `.id`, `.avatar`, `.description`, `.banned`, `.verified`, `.profile`, `.hyperlink`. Only available if user is linked with Zeltra.\n" .. emojis.right .. " **`{shift.status}`:** The current status of their shift.\n" .. emojis.right .. " **`{shift.started}`:** The timestamp of when their shift started.\n" .. emojis.right .. " **`{shift.ended}`:** The timestamp of when their shift ended.\n" .. emojis.right .. " **`{shift.elapsed}`:** That total elapsed time of their shift.\n" .. emojis.right .. " **`{shift.punishments}`:** The amount of punishments they logged during their shift.\n" .. emojis.right .. " **`{shift.commands}`:** The amount of in-game commands they used during their shift.\n" .. emojis.right .. " **`{shift.pauses}`:** The amount of pauses they made during their shift.\n" .. emojis.right .. " **`{shift.pausetime}`:** The total elapsed time paused during their shift.\n" .. emojis.right .. " **`{shift.type}`:** The shift type they used during their shift.\n" .. emojis.right .. " [`{timestamp}`](https://docs.duckybot.xyz/misc/timestamps): The timestamp of when the shift status updated.",
+	["manual"] = emojis.right .. " **`{executor.discord.*}`:** Includes `.name`, `.username`, `.id`, `.mention`, `.avatar`.\n" .. emojis.right .. " **`{executor.roblox.*}`:** Includes `.display`, `.name`, `.id`, `.avatar`, `.description`, `.banned`, `.verified`, `.profile`, `.hyperlink`. Only available if user is linked with Zeltra.",
+	["interval"] = emojis.right .. " **`{executor.discord.*}`:** Includes `.name`, `.username`, `.id`, `.mention`, `.avatar`.\n" .. emojis.right .. " **`{executor.roblox.*}`:** Includes `.display`, `.name`, `.id`, `.avatar`, `.description`, `.banned`, `.verified`, `.profile`, `.hyperlink`. Only available if user is linked with Zeltra."
 }
 
 -----------------------------
@@ -663,7 +663,7 @@ local savingAutomations = {}
 
 return {
 	name = "automations",
-	description = "Use Ducky's automations module.",
+	description = "Use Zeltra's automations module.",
 	aliases = {
 		"ams",
 		"autos",
@@ -690,7 +690,7 @@ return {
 
 		local function requireAPIKey(ia)
 			if not config.apikey then
-				return false, ia:fail("This feature requires for you to link your ERLC API Key with Ducky via the " .. emojis.game .. " **ERLC Integration** page in `/setup`.", nil, true)
+				return false, ia:fail("This feature requires for you to link your ERLC API Key with Zeltra via the " .. emojis.game .. " **ERLC Integration** page in `/setup`.", nil, true)
 			else
 				return true
 			end
@@ -1216,7 +1216,7 @@ return {
 								},
 								{
 									question = "In how much time?",
-									placeholder = "After how long should Ducky forget about a kill?",
+									placeholder = "After how long should Zeltra forget about a kill?",
 									style = "short",
 									required = true
 								}
@@ -2799,7 +2799,7 @@ return {
 					end)
 				elseif id == "edit" and selection == "toggle" then
 					if automation.disabled and not plus and type(automation.actions) == "table" and table.count(automation.actions) > featureLimits.automationActions.normal then
-						ia:fail("This automation cannot be enabled as it exceeds the " .. emojis.automation .. " **Automations** action limit, " .. table.count(automation.actions) .. "/" .. featureLimits.automationActions.normal .. " actions.\n-# " .. emojis.right .. " Remove actions or purchase " .. emojis.duckyplus .. " **Ducky Plus+** to enabled this automation.", nil, true)
+						ia:fail("This automation cannot be enabled as it exceeds the " .. emojis.automation .. " **Automations** action limit, " .. table.count(automation.actions) .. "/" .. featureLimits.automationActions.normal .. " actions.\n-# " .. emojis.right .. " Remove actions or purchase " .. emojis.duckyplus .. " **Zeltra Plus+** to enabled this automation.", nil, true)
 					else
 						automation.disabled = not automation.disabled
 						ia:updateDeferred(true)
@@ -3037,7 +3037,7 @@ return {
 						if automationCount >= maxAutomationCount then
 							ia:update({
 								embed = {
-									description = emojis.fail .. " You have already created " .. automationCount .. "/" .. maxAutomationCount .. " available automations." .. ((not plus) and "\n-# " .. emojis.duckyplus .. " **Ducky Plus+** members can make up to 50 automations."),
+									description = emojis.fail .. " You have already created " .. automationCount .. "/" .. maxAutomationCount .. " available automations." .. ((not plus) and "\n-# " .. emojis.duckyplus .. " **Zeltra Plus+** members can make up to 50 automations."),
 									color = colors.fail
 								},
 								components = {}
@@ -3241,7 +3241,7 @@ return {
 								end
 							end
 						else
-							ia:fail("Something went wrong, please contact us in [Ducky's Pond](http://duckybot.xyz/support).")
+							ia:fail("Something went wrong, please contact us in [Zeltra Support](https://github.com/dtxdex1020/Zeltra/issues).")
 						end
 
 						return true

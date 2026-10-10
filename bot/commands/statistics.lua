@@ -10,11 +10,11 @@ return {
 		local now = realtime()
 		local pages = {}
 
-		-- Ducky Plus+
+		-- Zeltra Plus+
 		local succ, allPlus = sqldb:plusAll()
 
 		if not succ then
-			return interaction:fail("Failed to get " .. emojis.duckyplus .. " **Ducky Plus+** data.")
+			return interaction:fail("Failed to get " .. emojis.duckyplus .. " **Zeltra Plus+** data.")
 		end
 
 		local plusSalesInRobux = {
@@ -73,7 +73,7 @@ return {
 		local share_value = market_value / total_shares
 
 		table.insert(pages, {
-			title = emojis.duckyplus .. " **Ducky Plus+** Revenue",
+			title = emojis.duckyplus .. " **Zeltra Plus+** Revenue",
 			color = colors.yellow,
 			description = emojis.right
 				.. " **Last 7 Days**\n"
@@ -180,7 +180,7 @@ return {
 				.. emojis.space .. emojis.right .. " **Market value: €" .. formatNumber(market_value) .. "**\n"
 				.. emojis.space .. emojis.right .. " **Share value: €" .. formatNumber(share_value) .. "**",
 			identifier = {
-				text = "Ducky Plus+ Revenue",
+				text = "Zeltra Plus+ Revenue",
 				emoji = resolvedEmojis.duckyplus,
 			},
 		})

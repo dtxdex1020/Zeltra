@@ -18,7 +18,7 @@ return {
             return interaction:reply({
                 embed = {
                     description = _G.emojis.fail ..
-                    " Ducky is not setup in this server. Run the `/setup` command to setup Ducky.",
+                    " Zeltra is not setup in this server. Run the `/setup` command to setup Zeltra.",
                     color = _G.colors.fail
                 }
             })

@@ -1,7 +1,7 @@
 -- blacklist.lua
 return {
     name = "blacklist",
-    description = "Blacklist a user or guild from Ducky.",
+    description = "Blacklist a user or guild from Zeltra.",
     aliases = {},
     category = "Utility",
     slashCommand = nil,
@@ -40,15 +40,15 @@ return {
 				local s, e
 				
 				if class(object) == "User" then
-					s, e = dms:send(emojis.ban .. " You have been **blacklisted** from " .. emojis.ducky .. " **Ducky** for **" .. reason .. "**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Ducky's Pond**](https://duckybot.xyz/support).")
+					s, e = dms:send(emojis.ban .. " You have been **blacklisted** from " .. emojis.ducky .. " **Zeltra** for **" .. reason .. "**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).")
 				elseif class(object) == "Guild" then
-					s, e = dms:send(emojis.ban .. " Your server, **" .. object.name .. "**, has been **blacklisted** from " .. emojis.ducky .. " **Ducky** for **" .. reason .. "**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Ducky's Pond**](https://duckybot.xyz/support).")
+					s, e = dms:send(emojis.ban .. " Your server, **" .. object.name .. "**, has been **blacklisted** from " .. emojis.ducky .. " **Zeltra** for **" .. reason .. "**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).")
 				end
 
 				dmed = not not s
 			end
 
-			return message:success("**" .. name .. "** has been blacklisted from " .. emojis.ducky .. " **Ducky** for **" .. reason .. "**." .. (((not dmed) and "\n-# " .. emojis.right .. " The " .. ((class(object) == "User" and "user") or "guild's owner") .. " could not be notified.") or ""), nil, true)
+			return message:success("**" .. name .. "** has been blacklisted from " .. emojis.ducky .. " **Zeltra** for **" .. reason .. "**." .. (((not dmed) and "\n-# " .. emojis.right .. " The " .. ((class(object) == "User" and "user") or "guild's owner") .. " could not be notified.") or ""), nil, true)
 		else
 			return message:fail("Failed to blacklist **" .. name .. "**: ```" .. err .. "```", nil, true)
 		end

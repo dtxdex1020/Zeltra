@@ -195,7 +195,7 @@ devlogs.Start = function()
 					for _, review in pairs(response.reviews) do
 						if review.created_at > lastReview and review.score >= 4 then
 							utilityChannels.supporters:send({
-								content = ":yellow_heart: <@" .. review.user.discord_id .. "> has reviewed " .. emojis.ducky .. " **Ducky** on <:AdvertisingERLC:1489646397002354728> [**AdvertisingERLC**](<https://advertisingerlc.xyz/discovery/221>) with " .. starMap[review.score]
+								content = ":yellow_heart: <@" .. review.user.discord_id .. "> has reviewed " .. emojis.ducky .. " **Zeltra** on <:AdvertisingERLC:1489646397002354728> [**AdvertisingERLC**](<https://advertisingerlc.xyz/discovery/221>) with " .. starMap[review.score]
 								.. (review.comment and review.comment ~= "" and ":\n" .. emojis.right .. " " .. tostring(review.comment) or "!"),
 								allowed_mentions = {
 									users = {review.user.discord_id}
@@ -236,7 +236,7 @@ devlogs.Start = function()
 					for _, bump in pairs(response.bumps) do
 						if bump.bumped_at > lastBump then
 							utilityChannels.supporters:send({
-								content = ":yellow_heart: <@" .. bump.user.discord_id .. "> has bumped " .. emojis.ducky .. " **Ducky** on <:AdvertisingERLC:1489646397002354728> [**AdvertisingERLC**](https://advertisingerlc.xyz/discovery/221)!\n"
+								content = ":yellow_heart: <@" .. bump.user.discord_id .. "> has bumped " .. emojis.ducky .. " **Zeltra** on <:AdvertisingERLC:1489646397002354728> [**AdvertisingERLC**](https://advertisingerlc.xyz/discovery/221)!\n"
 								.. "-# " .. emojis.right .. " Thank you for your support!"
 							})
 						end

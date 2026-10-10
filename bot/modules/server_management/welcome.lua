@@ -59,64 +59,64 @@ welcome.Start = function()
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Developer",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Developer",
 						emoji = resolvedEmojis.developer
 					}
 				elseif hasPermission(m, "WEB_DEVELOPER") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Web Developer",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Web Developer",
 						emoji = resolvedEmojis.web
 					}
 				elseif hasPermission(m, "EXECUTIVE") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Executive",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Executive",
 						emoji = resolvedEmojis.executive
 					}
 				elseif hasPermission(m, "MANAGEMENT") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Management",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Management",
 						emoji = resolvedEmojis.settings
 					}
 				elseif hasPermission(m, "SUPPORT") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Support",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Support",
 						emoji = resolvedEmojis.support
 					}
 				elseif hasPermission(m, "DUCKY_STAFF") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Staff",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Staff",
 						emoji = resolvedEmojis.permission
 					}
 				elseif hasPermission(m, "QUALITY_ASSURANCE") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Quality Assurance",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Quality Assurance",
 						emoji = resolvedEmojis.qa
 					}
 				elseif hasPermission(m, "DOCWRITER") then
 					roleButton = {
 						type = 2,
 						style = 5,
-						url = "https://duckybot.xyz/support",
-						label = "Ducky Docwriter",
+						url = "https://github.com/dtxdex1020/Zeltra/issues",
+						label = "Zeltra Docwriter",
 						emoji = resolvedEmojis.edit
 					}
 				end

@@ -150,9 +150,9 @@ dbModule.Start = function()
 							owner:send({
 								content = "# " .. emojis.warning .. " Audit Logs Disabled\n" .. emojis.right .. " The **" .. getAuditName(auditType) .. "** Audit Log in **" .. guild.name .. "** failed to send due to an invalid webhook.\n-# " .. emojis.right .. " The configuration for " .. (isPrimary and "the primary audit logs channel" or "this audit log type") .. " has therefore been removed.",
 								components = discordia.Components():button({
-									url = "https://discord.gg/w2dNr7vuKP",
+									url = "https://github.com/dtxdex1020/Zeltra/issues",
 									style = "link",
-									label = "Ducky's Pond",
+									label = "Zeltra Support",
 									emoji = resolvedEmojis.ducky
 								}):raw()
 							})
@@ -432,7 +432,7 @@ dbModule.Start = function()
 										icon_url = issuer.user.avatarURL
 									},
 									title = emojis.success .. " Infraction Action Executed",
-									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. Therefore, Ducky has executed the infraction action `" .. ac.cmd .. "`.",
+									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. Therefore, Zeltra has executed the infraction action `" .. ac.cmd .. "`.",
 									color = colors.success,
 									thumbnail = {
 										url = issuer.user.avatarURL
@@ -449,7 +449,7 @@ dbModule.Start = function()
 										icon_url = issuer.user.avatarURL
 									},
 									title = emojis.fail .. " Infraction Action Failed",
-									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. However, Ducky was unable to execute the infraction action `" .. ac.cmd .. "`: ```" .. err .. "```",
+									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. However, Zeltra was unable to execute the infraction action `" .. ac.cmd .. "`: ```" .. err .. "```",
 									color = colors.fail,
 									thumbnail = {
 										url = issuer.user.avatarURL

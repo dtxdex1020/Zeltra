@@ -12,7 +12,7 @@ erlcbansync.Start = function()
 			local link = sqldb:getLink(user.id)
 
 			if link then
-				local cmd = ":ban " .. link.roblox .. " Ducky Ban Syncing"
+				local cmd = ":ban " .. link.roblox .. " Zeltra Ban Syncing"
 
 				local moderator
 
@@ -62,7 +62,7 @@ erlcbansync.Start = function()
 								author = author(moderator),
 								thumbnail = thumbnail(user),
 								title = emojis.success .. " Ban Syncing Successful",
-								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. Therefore, Ducky has queued the ban of **" .. violator.hyperlink .. "** in the in-game server.",
+								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. Therefore, Zeltra has queued the ban of **" .. violator.hyperlink .. "** in the in-game server.",
 								color = colors.success
 							}
 						})
@@ -75,7 +75,7 @@ erlcbansync.Start = function()
 								author = author(moderator),
 								thumbnail = thumbnail(user),
 								title = emojis.success .. " Ban Syncing Successful",
-								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. Therefore, Ducky has banned **" .. violator.hyperlink .. "** from the in-game server.",
+								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. Therefore, Zeltra has banned **" .. violator.hyperlink .. "** from the in-game server.",
 								color = colors.success
 							}
 						})
@@ -85,7 +85,7 @@ erlcbansync.Start = function()
 								author = author(moderator),
 								thumbnail = thumbnail(user),
 								title = emojis.fail .. " Ban Syncing Failed",
-								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. However, Ducky was unable to ban **" .. violator.hyperlink .. "** from the in-game server: ```" .. err .. "```",
+								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. However, Zeltra was unable to ban **" .. violator.hyperlink .. "** from the in-game server: ```" .. err .. "```",
 								color = colors.fail
 							}
 						})
@@ -156,7 +156,7 @@ erlcbansync.Start = function()
 								author = author(moderator),
 								thumbnail = thumbnail(user),
 								title = emojis.success .. " Ban Syncing Successful",
-								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. Therefore, Ducky has queued the unban of **" .. violator.hyperlink .. "** in the in-game server.",
+								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. Therefore, Zeltra has queued the unban of **" .. violator.hyperlink .. "** in the in-game server.",
 								color = colors.success
 							}
 						})
@@ -169,7 +169,7 @@ erlcbansync.Start = function()
 								author = author(moderator),
 								thumbnail = thumbnail(user),
 								title = emojis.success .. " Ban Syncing Successful",
-								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. Therefore, Ducky has unbanned **" .. violator.hyperlink .. "** from the in-game server.",
+								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. Therefore, Zeltra has unbanned **" .. violator.hyperlink .. "** from the in-game server.",
 								color = colors.success
 							}
 						})
@@ -179,7 +179,7 @@ erlcbansync.Start = function()
 								author = author(moderator),
 								thumbnail = thumbnail(user),
 								title = emojis.fail .. " Ban Syncing Failed",
-								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. However, Ducky was unable to unban **" .. violator.hyperlink .. "** from the in-game server: ```" .. err .. "```",
+								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. However, Zeltra was unable to unban **" .. violator.hyperlink .. "** from the in-game server: ```" .. err .. "```",
 								color = colors.fail
 							}
 						})
@@ -203,7 +203,7 @@ erlcbansync.Start = function()
 
 				for id, name in pairs(bans) do
 					if id == robloxID then
-						banMember(member.guild, member, member.user, moderator, "Ducky Ban Syncing")
+						banMember(member.guild, member, member.user, moderator, "Zeltra Ban Syncing")
 					end
 				end
 			end
@@ -238,7 +238,7 @@ erlcbansync.Start = function()
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
 						title = emojis.success .. " Ban Syncing Successful",
-						description = "> " .. getUserString(moderator) .. " banned **" .. violator.hyperlink .. "** in-game. Therefore, Ducky has banned " .. getUserString(violatorUser) .. " from the Discord server.",
+						description = "> " .. getUserString(moderator) .. " banned **" .. violator.hyperlink .. "** in-game. Therefore, Zeltra has banned " .. getUserString(violatorUser) .. " from the Discord server.",
 						color = colors.success
 					}
 				})
@@ -248,7 +248,7 @@ erlcbansync.Start = function()
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
 						title = emojis.fail .. " Ban Syncing Failed",
-						description = "> " .. getUserString(moderator) .. " banned **" .. violator.hyperlink .. "** in-game. However, Ducky was unable to ban " .. getUserString(violatorUser) .. " from the Discord server: ```" .. result .. "```",
+						description = "> " .. getUserString(moderator) .. " banned **" .. violator.hyperlink .. "** in-game. However, Zeltra was unable to ban " .. getUserString(violatorUser) .. " from the Discord server: ```" .. result .. "```",
 						color = colors.fail
 					}
 				})
@@ -281,7 +281,7 @@ erlcbansync.Start = function()
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
 						title = emojis.success .. " Ban Syncing Successful",
-						description = "> " .. getUserString(moderator) .. " unbanned **" .. violator.hyperlink .. "** in-game. Therefore, Ducky has unbanned " .. getUserString(violatorUser) .. " from the Discord server.",
+						description = "> " .. getUserString(moderator) .. " unbanned **" .. violator.hyperlink .. "** in-game. Therefore, Zeltra has unbanned " .. getUserString(violatorUser) .. " from the Discord server.",
 						color = colors.success
 					}
 				})
@@ -291,7 +291,7 @@ erlcbansync.Start = function()
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
 						title = emojis.fail .. " Ban Syncing Failed",
-						description = "> " .. getUserString(moderator) .. " unbanned **" .. violator.hyperlink .. "** in-game. However, Ducky was unable to unban " .. getUserString(violatorUser) .. " from the Discord server: ```" .. (result or "Unknown Error") .. "```",
+						description = "> " .. getUserString(moderator) .. " unbanned **" .. violator.hyperlink .. "** in-game. However, Zeltra was unable to unban " .. getUserString(violatorUser) .. " from the Discord server: ```" .. (result or "Unknown Error") .. "```",
 						color = colors.fail
 					}
 				})

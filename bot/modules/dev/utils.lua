@@ -86,7 +86,7 @@ _G.errCodes = {
 	[50068] = "Invalid emoji used.\n-# " .. emojis.right .. " **HTTP Error:** `50068`",
 	[50070] = "Reaction blocked. The user disabled DMs or reactions.\n-# " .. emojis.right .. " **HTTP Error:** `50070`",
 	[50073] = "This action cannot be performed due to age restrictions.\n-# " .. emojis.right .. " **HTTP Error:** `50073`",
-	[50278] = "The user could not be messaged because Ducky shares no mutual guilds with them or they have DMs disabled.\n-# " .. emojis.right .. " **HTTP Error:** `50278`"
+	[50278] = "The user could not be messaged because Zeltra shares no mutual guilds with them or they have DMs disabled.\n-# " .. emojis.right .. " **HTTP Error:** `50278`"
 }
 
 _G.words = {
@@ -2665,7 +2665,7 @@ _G.featureLimits = {
 }
 
 utils.Start = function()
-	print("[Ducky] | Loading utility functions...")
+	print("[Zeltra] | Loading utility functions...")
 	local startl = os.clock()
 
 	local function toISO(epoch)
@@ -3631,7 +3631,7 @@ utils.Start = function()
 						prompt(eia, "Import from JSON or Exportable", {
 							{
 								question = "Import Data",
-								placeholder = "Enter a valid Ducky exportable code or JSON data...",
+								placeholder = "Enter a valid Zeltra exportable code or JSON data...",
 								style = "paragraph",
 								required = false
 							}
@@ -3995,7 +3995,7 @@ utils.Start = function()
 					prompt(meia, "Import from JSON or Exportable", {
 						{
 							question = "Import Data",
-							placeholder = "Enter a valid Ducky exportable code or JSON data...",
+							placeholder = "Enter a valid Zeltra exportable code or JSON data...",
 							style = "paragraph",
 							required = false
 						}
@@ -4259,7 +4259,7 @@ utils.Start = function()
 						},
 						{
 							question = "What emoji should the button have?",
-							placeholder = "Either a Ducky emoji name or an emoji ID...",
+							placeholder = "Either a Zeltra emoji name or an emoji ID...",
 							style = "short",
 							required = false,
 							max = 30,
@@ -4302,7 +4302,7 @@ utils.Start = function()
 						})
 					else
 						table.insert(questions, {
-							question = "What exportable should Ducky reply with?",
+							question = "What exportable should Zeltra reply with?",
 							style = "short",
 							required = false,
 							max = 31,
@@ -4336,7 +4336,7 @@ utils.Start = function()
 							end
 						end
 
-						local exportableInput = responses["What exportable should Ducky reply with?"]
+						local exportableInput = responses["What exportable should Zeltra reply with?"]
 
 						if not isDisabled and opt ~= "link" then
 							if not exportableInput or exportableInput == "" then
@@ -4615,14 +4615,14 @@ utils.Start = function()
 									},
 									{
 										question = "What emoji should the option have?",
-										placeholder = "Either a Ducky emoji name or an emoji ID...",
+										placeholder = "Either a Zeltra emoji name or an emoji ID...",
 										style = "short",
 										required = false,
 										max = 30
 									},
 									{
-										question = "What exportable should Ducky reply with?",
-										placeholder = "Which exportable should Ducky reply with?",
+										question = "What exportable should Zeltra reply with?",
+										placeholder = "Which exportable should Zeltra reply with?",
 										style = "short",
 										required = true,
 										max = 31
@@ -4654,7 +4654,7 @@ utils.Start = function()
 												end
 											end
 
-											local exportableInput = responses["What exportable should Ducky reply with?"]
+											local exportableInput = responses["What exportable should Zeltra reply with?"]
 											local exportable = exportableInput and import(exportableInput, nil, true)
 											if exportableInput and (not exportable or (exportable.type ~= "embed" and exportable.type ~= "message") and (exportable.type ~= "embeds")) then
 												mia:fail("You must provide a valid Embed or Message exportable.", nil, true)
@@ -4696,15 +4696,15 @@ utils.Start = function()
 												},
 												{
 													question = "What emoji should the option have?",
-													placeholder = "Either a Ducky emoji name, or the id of a custom emoji on this server.",
+													placeholder = "Either a Zeltra emoji name, or the id of a custom emoji on this server.",
 													style = "short",
 													required = false,
 													max = 30,
 													default = opt.emoji and ((emojis[opt.emoji.name] and opt.emoji.name) or opt.emoji.id)
 												},
 												{
-													question = "What exportable should Ducky reply with?",
-													placeholder = "What exportable should Ducky reply the option is selected.",
+													question = "What exportable should Zeltra reply with?",
+													placeholder = "What exportable should Zeltra reply the option is selected.",
 													style = "short",
 													required = true,
 													max = 31,
@@ -4736,7 +4736,7 @@ utils.Start = function()
 													end
 												end
 
-												local exportableInput = responses["What exportable should Ducky reply with?"]
+												local exportableInput = responses["What exportable should Zeltra reply with?"]
 												local exportable = exportableInput and import(exportableInput, nil, true)
 												if exportableInput and (not exportable or (exportable.type ~= "embed" and exportable.type ~= "message") and (exportable.type ~= "embeds")) then
 													mia:fail("You must provide a valid Embed or Message exportable.", nil, true)
@@ -6162,14 +6162,14 @@ utils.Start = function()
 		end
 
 		if not guild.me:hasPermission("manageRoles") then
-			return false, "Ducky does not have the Manage Roles permission."
+			return false, "Zeltra does not have the Manage Roles permission."
 		end
 
 		local highest = guild.me.highestRole
 		if not highest then
-			return false, "Cannot determine Ducky's highest role."
+			return false, "Cannot determine Zeltra's highest role."
 		elseif highest.position <= role.position then
-			return false, "Ducky's highest role must be higher than the target role."
+			return false, "Zeltra's highest role must be higher than the target role."
 		end
 
 		if member and member.id ~= guild.ownerId then
@@ -6512,12 +6512,12 @@ utils.Start = function()
 
 		if not table.find(recentNotifications, identifierKey) then
 			owner:send({
-				content = "## " .. emojis.warning .. " " .. title .. " Removed\n" .. emojis.right .. " The **" .. title .. "** in your server, **" .. guild.name .. "**, has been removed because " .. reason .. "\n\n" .. emojis.right .. " To reconfigure this, navigate to the **" .. setupPosition .. "** page via **`/setup`** and reconfigure the **" .. title .. "**.\n" .. emojis.right .. " If you need further assistance, contact us via our support server, " .. emojis.ducky .. " [**Ducky's Pond**](https://duckybot.xyz/support).",
+				content = "## " .. emojis.warning .. " " .. title .. " Removed\n" .. emojis.right .. " The **" .. title .. "** in your server, **" .. guild.name .. "**, has been removed because " .. reason .. "\n\n" .. emojis.right .. " To reconfigure this, navigate to the **" .. setupPosition .. "** page via **`/setup`** and reconfigure the **" .. title .. "**.\n" .. emojis.right .. " If you need further assistance, contact us via our support server, " .. emojis.ducky .. " [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 
 				components = discordia.Components():button({
-					url = "https://discord.gg/w2dNr7vuKP",
+					url = "https://github.com/dtxdex1020/Zeltra/issues",
 					style = "link",
-					label = "Ducky's Pond",
+					label = "Zeltra Support",
 					emoji = resolvedEmojis.ducky
 				}):raw()
 			})
@@ -6680,7 +6680,7 @@ utils.Start = function()
 						return true
 					end
 				elseif (not exceeding and amount >= normalLimit) or (amount > normalLimit) then
-					fail("You have already created " .. amount .. "/" .. normalLimit .. " " .. item .. ".\n-# " .. emojis.right .. " You can create up to " .. duckyPlusLimit .. " " .. item .. " with " .. emojis.duckyplus .. " **Ducky Plus+**.")
+					fail("You have already created " .. amount .. "/" .. normalLimit .. " " .. item .. ".\n-# " .. emojis.right .. " You can create up to " .. duckyPlusLimit .. " " .. item .. " with " .. emojis.duckyplus .. " **Zeltra Plus+**.")
 					return true
 				end
 			else
@@ -6690,7 +6690,7 @@ utils.Start = function()
 						return true
 					end
 				else
-					fail(item .. " is a " .. emojis.duckyplus .. " **Ducky Plus+** only feature.")
+					fail(item .. " is a " .. emojis.duckyplus .. " **Zeltra Plus+** only feature.")
 					return true
 				end
 			end
@@ -6855,7 +6855,7 @@ utils.Start = function()
 			transcripts = config.transcripts
 		}, "TICKET_TRANSCRIPT_SAVE")
 
-		local url = "https://duckybot.xyz/transcripts/" .. channel.guild.id .. "/" .. channel.id
+		local url = _G.ZELTRA_WEB_URL .. "/transcripts/" .. channel.guild.id .. "/" .. channel.id
 		channel._delete_protection = false
 		return transcript, url
 	end
@@ -6972,7 +6972,7 @@ utils.Start = function()
 			["1388258365976612894"] = "Stable",
 			["1284586408945647727"] = "Dev",
 			["1305166672172417157"] = "Experimental"
-		})[Client.user.id]
+		})[Client.user.id] or "Zeltra" -- Zeltra: label for any other application
 	end
 
 	_G.runtime = runtime
@@ -6980,7 +6980,7 @@ utils.Start = function()
 	local function updateActivity(state, status)
 		Client:setActivity({
 			name = "statistics",
-			state = state or "🐤 Powering " .. formatNumber(#Client.guilds) .. " servers・duckybot.xyz",
+			state = state or "⚡ Powering " .. formatNumber(#Client.guilds) .. " servers・github.com/dtxdex1020/Zeltra",
 			type = 4
 		})
 
@@ -7011,7 +7011,7 @@ utils.Start = function()
 		elseif class(object) == "Guild" then
 			return {
 				name = object.name .. ((includeID and (" (" .. object.id .. ")")) or ""),
-				icon_url = object.iconURL or "https://duckybot.xyz/images/misc/defaultpfp.webp"
+				icon_url = object.iconURL or "https://cdn.discordapp.com/embed/avatars/0.png"
 			}
 		end
 	end
@@ -7028,7 +7028,7 @@ utils.Start = function()
 		elseif class(object) == "Guild" then
 			return (object.iconURL and {
 				url = object.iconURL
-			}) or "https://duckybot.xyz/images/misc/defaultpfp.webp"
+			}) or "https://cdn.discordapp.com/embed/avatars/0.png"
 		end
 	end
 
@@ -9482,7 +9482,7 @@ utils.Start = function()
 			created = os.time(),
 			expires = expires,
 			code = code,
-			url = "https://duckybot.xyz/editor/" .. type .. "?session=" .. code .. (query and ("&" .. querystring.stringify(query)) or ""),
+			url = _G.ZELTRA_WEB_URL .. "/editor/" .. type .. "?session=" .. code .. (query and ("&" .. querystring.stringify(query)) or ""),
 			callback = callback
 		}
 		table.insert(webEditorSessions, session)
@@ -9504,7 +9504,7 @@ utils.Start = function()
 	local function signature(guild)
 		return discordia.Components():button({
 			style = "link",
-			url = generateGuildInvite(guild) or "https://duckybot.xyz/404",
+			url = generateGuildInvite(guild) or "https://github.com/dtxdex1020/Zeltra",
 			label = "Sent from " .. string.truncate(sanitizeGuildName(guild.name), 30) .. " (" .. guild.id .. ")",
 			emoji = resolvedEmojis.send
 		}):raw()
@@ -9524,7 +9524,7 @@ utils.Start = function()
 
 	_G.isDiscordSnowflake = isDiscordSnowflake
 
-	print("[Ducky] | Loaded utility functions in " .. (os.clock() - startl) .. " seconds.\n")
+	print("[Zeltra] | Loaded utility functions in " .. (os.clock() - startl) .. " seconds.\n")
 end
 
 utils.Stop = function()

@@ -95,12 +95,12 @@ return {
 				},
 				components = discordia.Components():button({
 					style = "link",
-					url = "https://duckybot.xyz/support",
+					url = "https://github.com/dtxdex1020/Zeltra/issues",
 					label = "Support",
 					emoji = resolvedEmojis.support
 				}):button({
 					style = "link",
-					url = "https://status.duckybot.xyz",
+					url = "https://github.com/dtxdex1020/Zeltra",
 					label = "Status",
 					emoji = resolvedEmojis.chart
 				}):raw()

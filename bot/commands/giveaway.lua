@@ -1,6 +1,6 @@
 -- giveaway.lua
 
-local slashCommand = tools.slashCommand("giveaway", "Use Ducky's giveaway module.")
+local slashCommand = tools.slashCommand("giveaway", "Use Zeltra's giveaway module.")
 local subcmd = tools.subCommand("create", "Create a giveaway.")
 subcmd = subcmd:addOption(tools.string("duration", "The duration of the giveaway (i.e. 1d, 6h, 30m)."):setRequired(true))
 subcmd = subcmd:addOption(tools.string("prize", "The prize of the giveaway."):setRequired(true))
@@ -20,7 +20,7 @@ slashCommand = slashCommand:addOption(subcmd)
 
 return {
     name = "giveaway",
-    description = "Use Ducky's giveaway module!",
+    description = "Use Zeltra's giveaway module!",
     aliases = {},
     category = "Giveaway",
     slashCommand = slashCommand,
@@ -69,15 +69,15 @@ return {
 			local requiredGroup = plusGuild and requiredGroupID and ropi.GetGroup(requiredGroupID)
 			
 			if requiredRole and (not plusGuild) then
-				return interaction:fail("Required roles on giveaways is a " .. emojis.duckyplus .. " **Ducky Plus+** feature.", nil, true)
+				return interaction:fail("Required roles on giveaways is a " .. emojis.duckyplus .. " **Zeltra Plus+** feature.", nil, true)
             elseif requiredServerID and (not plusGuild) then
-				return interaction:fail("Required servers on giveaways is a " .. emojis.duckyplus .. " **Ducky Plus+** feature.", nil, true)
+				return interaction:fail("Required servers on giveaways is a " .. emojis.duckyplus .. " **Zeltra Plus+** feature.", nil, true)
             elseif requiredInGame and (not plusGuild) then
-                return interaction:fail("Required in-game on giveaways is a " .. emojis.duckyplus .. " **Ducky Plus+** feature.", nil, true)
+                return interaction:fail("Required in-game on giveaways is a " .. emojis.duckyplus .. " **Zeltra Plus+** feature.", nil, true)
 			elseif requiredGroupID and (not plusGuild) then
-                return interaction:fail("Required Roblox Community on giveaways is a " .. emojis.duckyplus .. " **Ducky Plus+** feature.", nil, true)
+                return interaction:fail("Required Roblox Community on giveaways is a " .. emojis.duckyplus .. " **Zeltra Plus+** feature.", nil, true)
 			elseif requiredServerID and (not requiredServer) then
-				return interaction:fail("Ducky must be in the required server.", nil, true)
+				return interaction:fail("Zeltra must be in the required server.", nil, true)
             elseif requiredInGame and (not config.apikey) then
                 return interaction:fail("This server does not have an ERLC server linked, and therefore cannot use the in-game requirement feature.", nil, true)
 			elseif requiredGroupID and not requiredGroup then

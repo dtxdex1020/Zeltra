@@ -13,7 +13,7 @@ end
 
 local watcher = {
 	name = "watcher",
-	description = "Watches for abusive usage of Ducky.",
+	description = "Watches for abusive usage of Zeltra.",
 }
 
 local Clock = discordia.Clock()

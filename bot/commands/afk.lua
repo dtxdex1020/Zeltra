@@ -67,7 +67,7 @@ return {
 		if succ then
 			interaction:success("I set your " .. ((userSettings.globalafk and "Global ") or "") .. "AFK: " .. reason .. "")
 		else
-			interaction:fail(err .. "\n-# " .. emojis.right .. " If this error continues, contact us in the [Ducky support server](https://discord.gg/j4w5ZcbRyh).")
+			interaction:fail(err .. "\n-# " .. emojis.right .. " If this error continues, contact us in the [Zeltra issue tracker](https://github.com/dtxdex1020/Zeltra/issues).")
 		end
 	end
 }

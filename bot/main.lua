@@ -1,4 +1,4 @@
-print("[Ducky] | Starting...")
+print("[Zeltra] | Starting...")
 local startl = 0
 local startdeps = os.clock()
 
@@ -29,77 +29,87 @@ end
 
 _G.prettyLog = prettyLog
 ----------------------------------------------------------------------------------------------------------------
--- print("[Ducky] | Initializing profiler...")
+-- print("[Zeltra] | Initializing profiler...")
 -- startl = os.clock()
 -- local profilerUtil = require("utils/profiler")
 -- local profiler = profilerUtil.new(5, 10, 10000)
 -- profiler:start()
 -- _G.profiler = profiler
--- print("[Ducky] | Initialized profiler in " .. (os.clock() - startl) .. " seconds.\n")
+-- print("[Zeltra] | Initialized profiler in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
--- print("[Ducky] | Initializing MemProfiler...")
+-- print("[Zeltra] | Initializing MemProfiler...")
 -- startl = os.clock()
 -- local MemProfiler = require("mem_profiler")
 -- _G.MemProfiler = MemProfiler
--- print("[Ducky] | Initialized MemProfiler in " .. (os.clock() - startl) .. " seconds.\n")
+-- print("[Zeltra] | Initialized MemProfiler in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing SECRETS...")
+print("[Zeltra] | Initializing SECRETS...")
 startl = os.clock()
 local SECRETS = require("secrets")
 _G.SECRETS = SECRETS
-print("[Ducky] | Initialized SECRETS in " .. (os.clock() - startl) .. " seconds.\n")
+-- Zeltra: public source link (AGPL-3.0 section 13) and optional web dashboard base URL.
+-- Ducky's web features (Roblox OAuth linking, transcripts viewer, web editor) lived on duckybot.xyz;
+-- Zeltra doesn't host them, so links fall back to the source repository unless WEB_BASE_URL is set.
+_G.ZELTRA_SOURCE_URL = "https://github.com/dtxdex1020/Zeltra"
+_G.ZELTRA_WEB_URL = (type(SECRETS.WEB_BASE_URL) == "string" and SECRETS.WEB_BASE_URL ~= "" and SECRETS.WEB_BASE_URL:gsub("/$", "")) or (_G.ZELTRA_SOURCE_URL .. "#web-features")
+print("[Zeltra] | Initialized SECRETS in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing Discordia...")
+print("[Zeltra] | Initializing Discordia...")
 startl = os.clock()
 local discordia = require("discordia")
 _G.discordia = discordia
-print("[Ducky] | Initialized Discordia in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized Discordia in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-components...")
+print("[Zeltra] | Initializing discordia-components...")
 startl = os.clock()
 require("discordia-components")
-print("[Ducky] | Initialized discordia-components in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-components in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-textchat...")
+print("[Zeltra] | Initializing discordia-textchat...")
 startl = os.clock()
 require("discordia-textchat")
-print("[Ducky] | Initialized discordia-textchat in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-textchat in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-voice-plus...")
+print("[Zeltra] | Initializing discordia-voice-plus...")
 startl = os.clock()
 require("discordia-voice-plus")
-print("[Ducky] | Initialized discordia-voice-plus in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-voice-plus in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-modals...")
+print("[Zeltra] | Initializing discordia-modals...")
 startl = os.clock()
 local dmodals = require("discordia-modals")
 _G.dmodals = dmodals
-print("[Ducky] | Initialized discordia-modals in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-modals in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-slash...")
+print("[Zeltra] | Initializing discordia-slash...")
 startl = os.clock()
 local dslash = require("discordia-slash")
 _G.dslash = dslash
-print("[Ducky] | Initialized discordia-slash in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-slash in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing discordia-slash tools...")
+print("[Zeltra] | Initializing discordia-slash tools...")
 startl = os.clock()
 local tools = dslash.util.tools()
 _G.tools = tools
-print("[Ducky] | Initialized discordia-slash tools in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized discordia-slash tools in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing Discordia.extensions()...")
+print("[Zeltra] | Initializing Discordia.extensions()...")
 startl = os.clock()
 discordia.extensions()
-print("[Ducky] | Initialized Discordia.extensions() in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized Discordia.extensions() in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing querystring...")
+print("[Zeltra] | Initializing Zeltra compatibility layer...")
+startl = os.clock()
+require("zeltra-compat")
+print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
+------------------------------------------------------------------------------------------------------------------
+print("[Zeltra] | Initializing querystring...")
 startl = os.clock()
 local querystring = require("querystring")
 _G.querystring = querystring
-print("[Ducky] | Initialized querystring in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized querystring in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing Client...")
+print("[Zeltra] | Initializing Client...")
 startl = os.clock()
 local Client = discordia.Client({
 	logFile = "",
@@ -113,39 +123,39 @@ Client:useApplicationCommands()
 Client:enableAllIntents()
 Client:disableIntents(discordia.enums.gatewayIntent.guildPresences)
 _G.Client = Client
-print("[Ducky] | Initialized Client in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized Client in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing fs...")
+print("[Zeltra] | Initializing fs...")
 startl = os.clock()
 local fs = require("fs")
 _G.fs = fs
-print("[Ducky] | Initialized fs in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized fs in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing json...")
+print("[Zeltra] | Initializing json...")
 startl = os.clock()
 local json = require("json")
 _G.json = json
-print("[Ducky] | Initialized json in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized json in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing cjson...")
+print("[Zeltra] | Initializing cjson...")
 startl = os.clock()
 local cjson = require("cjson")
 _G.cjson = cjson
-print("[Ducky] | Initialized cjson in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized cjson in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing timer...")
+print("[Zeltra] | Initializing timer...")
 startl = os.clock()
 local timer = require("timer")
 _G.timer = timer
-print("[Ducky] | Initialized timer in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized timer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing coro-spawn...")
+print("[Zeltra] | Initializing coro-spawn...")
 startl = os.clock()
 local spawn = require("coro-spawn")
 _G.spawn = spawn
-print("[Ducky] | Initialized coro-spawn in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized coro-spawn in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing ERLua...")
+print("[Zeltra] | Initializing ERLua...")
 startl = os.clock()
 local erlua = require("erlua")
 local ERLC = erlua.Client({
@@ -157,86 +167,86 @@ local ERLC = erlua.Client({
 })
 _G.erlua = erlua
 _G.ERLC = ERLC
-print("[Ducky] | Initialized ERLua in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized ERLua in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing ropi...")
+print("[Zeltra] | Initializing ropi...")
 startl = os.clock()
 local ropi = require("ropi")
 ropi.SetCookie(SECRETS.ROBLOSECURITY)
 _G.ropi = ropi
-print("[Ducky] | Initialized ropi in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized ropi in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing querystring...")
+print("[Zeltra] | Initializing querystring...")
 startl = os.clock()
 local querystring = require("querystring")
 _G.querystring = querystring
-print("[Ducky] | Initialized querystring in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized querystring in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing uv...")
+print("[Zeltra] | Initializing uv...")
 startl = os.clock()
 local uv = require("uv")
 _G.uv = uv
-print("[Ducky] | Initialized uv in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized uv in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing base64...")
+print("[Zeltra] | Initializing base64...")
 startl = os.clock()
 local base64 = require("base64")
 _G.base64 = base64
-print("[Ducky] | Initialized base64 in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized base64 in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing path...")
+print("[Zeltra] | Initializing path...")
 startl = os.clock()
 local luvitPath = require("path")
 _G.luvitPath = luvitPath
-print("[Ducky] | Initialized path in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized path in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing coro-http...")
+print("[Zeltra] | Initializing coro-http...")
 startl = os.clock()
 local http = require("coro-http")
 _G.http = http
-print("[Ducky] | Initialized coro-http in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized coro-http in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing luvit-http...")
+print("[Zeltra] | Initializing luvit-http...")
 startl = os.clock()
 local luvithttp = require("http")
 _G.luvithttp = luvithttp
-print("[Ducky] | Initialized luvit-http in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized luvit-http in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
-print("[Ducky] | Initializing sqlite3...")
+print("[Zeltra] | Initializing sqlite3...")
 startl = os.clock()
 local sqlite3 = require("sqlite3")
 _G.sqlite3 = sqlite3
-print("[Ducky] | Initialized sqlite3 in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized sqlite3 in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
-print("[Ducky] | Initializing sqlite3 database...")
+print("[Zeltra] | Initializing sqlite3 database...")
 local sqldb = require("sqldb")
 _G.sqldb = sqldb
-print("[Ducky] | Initialized sqlite3 database in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized sqlite3 database in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
-print("[Ducky] | Initializing badwords...")
+print("[Zeltra] | Initializing badwords...")
 local badwords = require("utils/badwords")
 _G.badwords = badwords
-print("[Ducky] | Initialized badwords in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized badwords in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
-print("[Ducky] | Initializing bit...")
+print("[Zeltra] | Initializing bit...")
 local bit = require("bit")
 _G.bit = bit
-print("[Ducky] | Initialized bit in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized bit in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
-print("[Ducky] | Initializing bit64...")
+print("[Zeltra] | Initializing bit64...")
 local bit64 = require("bit64")
 _G.bit64 = bit64
-print("[Ducky] | Initialized bit64 in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized bit64 in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
-print("[Ducky] | Initializing snowflake...")
+print("[Zeltra] | Initializing snowflake...")
 local snowflake = require("snowflake")
 _G.snowflake = snowflake
-print("[Ducky] | Initialized snowflake in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized snowflake in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 
 _G.uptime = 0
@@ -245,7 +255,7 @@ _G.version = "v1.7.0"
 local commands = {}
 local modules = {}
 
-print("[Ducky] | Initializing enums and other dependencies...")
+print("[Zeltra] | Initializing enums and other dependencies...")
 startl = os.clock()
 
 math.randomseed(os.time() + math.floor(math.random() * 10000))
@@ -583,9 +593,19 @@ local emojis = {
 	license = "<:license:1486364562583322874>"
 }
 
+-- Zeltra: Zeltra's custom application emojis only render for Zeltra's own bot, so swap them for Unicode
+if not SECRETS.KEEP_CUSTOM_EMOJIS then
+	require("zeltra-emojis")(emojis)
+end
+
 local function resolveEmoji(emojistr)
 	if (not emojistr) or (type(emojistr) ~= "string") then
 		return
+	end
+	-- Zeltra: support plain Unicode emojis (used by the Unicode fallbacks above)
+	if not emojistr:find("^<a?:[%w_]+:%d+>$") then
+		if emojistr:match("^%s*$") then return end
+		return { name = emojistr, hash = emojistr, raw = emojistr, animated = false }
 	end
 	local emojisplit = string.split(emojistr, ":")
 	if not emojisplit or not emojisplit[1] or (emojisplit[1] == "") or not emojisplit[2] or (emojisplit[2] == "") or not emojisplit[3] or (emojisplit[3] == "") then
@@ -625,10 +645,10 @@ _G.resolveEmoji = resolveEmoji
 local ERLCsolutions = {
 	[1001] = "An error occurred communicating with the Roblox server. This is most likely a Roblox issue.",
 	[1002] = "An internal PRC API system error has occurred.",
-	[2000] = "You have not provided a PRC API key to Ducky. Run `/setup` to provide one.",
+	[2000] = "You have not provided a PRC API key to Zeltra. Run `/setup` to provide one.",
 	[2001] = "The PRC API key provided is invalid. Check to make sure it matches the one in your private server's settings.",
 	[2002] = "The PRC API key provided is invalid or has expired. It has been removed from our database. Please make sure you use the one in your private server's settings.",
-	[2003] = "Internal Error | Ducky's Global key is incorrect.",
+	[2003] = "Internal Error | Zeltra's Global key is incorrect.",
 	[2004] = "Your PRC API key is banned from using the PRC API.",
 	[3001] = "You provided an invalid command.",
 	[3002] = "The server has no players, and is therefore offline.",
@@ -644,9 +664,9 @@ _G.ERLCsolutions = ERLCsolutions
 
 local utilityChannels = {}
 
-print("[Ducky] | Initialized enums and other dependencies in " .. (os.clock() - startl) .. " seconds.\n")
-print("[Ducky] | Dependencies loaded in " .. (os.clock() - startdeps) .. " seconds.")
-print("[Ducky] | Loading utility functions...")
+print("[Zeltra] | Initialized enums and other dependencies in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Dependencies loaded in " .. (os.clock() - startdeps) .. " seconds.")
+print("[Zeltra] | Loading utility functions...")
 startl = os.clock()
 
 local function loadCommands(loadSlash, slashToLoad, loadModules)
@@ -799,16 +819,58 @@ local function loadCommands(loadSlash, slashToLoad, loadModules)
 	return c, errors
 end
 
-print("[Ducky] | Loading events...")
+print("[Zeltra] | Loading events...")
 startl = os.clock()
 
 Client:once("ready", function()
 	_G.uptime = os.time()
-	_G.duckysPond = Client:getGuild("")
+	-- Zeltra: Zeltra's home server ("Zeltra Support") is hardcoded throughout. Use SECRETS.HOME_GUILD_ID if set,
+	-- otherwise a harmless placeholder whose lookups all return nil (staff-role checks, Plus roles, etc.).
+	_G.duckysPond = (SECRETS.HOME_GUILD_ID and SECRETS.HOME_GUILD_ID ~= "" and Client:getGuild(SECRETS.HOME_GUILD_ID)) or setmetatable({
+		id = "0",
+		name = "Zeltra",
+		members = {},
+		roles = {},
+		channels = {},
+		textChannels = {}
+	}, {
+		__index = function()
+			return function() return nil end
+		end
+	})
 
-	print("[Ducky] | Loading commands...")
+	print("[Zeltra] | Loading commands...")
 
 	loadCommands(false, nil, true)
+
+	-- Zeltra: upstream only registered slash commands through the dev-only /sync command.
+	-- Bulk-overwrite the global command list on startup whenever it changed (one request, idempotent).
+	if SECRETS.SYNC_COMMANDS_ON_START ~= false and os.getenv("ZELTRA_SKIP_COMMAND_SYNC") ~= "1" then
+		coroutine.wrap(function()
+			local payloads = {}
+			for _, command in ipairs(_G.commands or {}) do
+				if command.slashCommand then
+					table.insert(payloads, command.slashCommand)
+				end
+			end
+			table.sort(payloads, function(a, b) return tostring(a.name) < tostring(b.name) end)
+
+			local encoded = json.encode(payloads)
+			local cacheFile = ".slash-commands.cache.json"
+			if fs.existsSync(cacheFile) and fs.readFileSync(cacheFile) == encoded then
+				prettyLog("SLSH", "cyan", "Slash commands unchanged (" .. #payloads .. " commands), skipping sync")
+				return
+			end
+
+			local data, err = Client._api:bulkOverwriteGlobalApplicationCommands(Client.user.id, payloads)
+			if data then
+				fs.writeFileSync(cacheFile, encoded)
+				prettyLog("SLSH", "cyan", "Registered " .. #data .. " global slash commands")
+			else
+				prettyLog("SLSH", "red", "Failed to register slash commands: " .. tostring(err))
+			end
+		end)()
+	end
 
 	print("Setting activity...")
 
@@ -816,19 +878,31 @@ Client:once("ready", function()
 
 	print("Setting utility channels...")
 
+	-- Zeltra: Ducky logged to channels in its own server. Route them all to SECRETS.LOG_CHANNEL_ID if set,
+	-- otherwise use a no-op channel so logging calls are silently skipped instead of crashing.
+	local logChannel = SECRETS.LOG_CHANNEL_ID and SECRETS.LOG_CHANNEL_ID ~= "" and Client:getChannel(SECRETS.LOG_CHANNEL_ID)
+	local nullChannel = setmetatable({ id = "0", name = "null" }, {
+		__index = function()
+			return function() return nil end
+		end
+	})
+	local function utilityChannel()
+		return logChannel or nullChannel
+	end
+
 	utilityChannels = {
-		development = duckysPond:getChannel(""),
-		status = duckysPond:getChannel(""),
-		supporters = duckysPond:getChannel(""),
-		receipts = duckysPond:getChannel(""),
-		database = duckysPond:getChannel(""),
-		errors = duckysPond:getChannel(""),
-		api = duckysPond:getChannel(""),
-		guilds = duckysPond:getChannel(""),
-		boots = duckysPond:getChannel(""),
-		shards = duckysPond:getChannel(""),
-		commands = duckysPond:getChannel(""),
-		watcher = duckysPond:getChannel("")
+		development = utilityChannel(),
+		status = utilityChannel(),
+		supporters = utilityChannel(),
+		receipts = utilityChannel(),
+		database = utilityChannel(),
+		errors = utilityChannel(),
+		api = utilityChannel(),
+		guilds = utilityChannel(),
+		boots = utilityChannel(),
+		shards = utilityChannel(),
+		commands = utilityChannel(),
+		watcher = utilityChannel()
 	}
 
 	_G.utilityChannels = utilityChannels
@@ -895,12 +969,12 @@ Client:once("ready", function()
 	end)()
 
 	utilityChannels.boots:send(emojis.success .. " **" .. Client.user.name .. "** has booted in " .. os.clock() .. " seconds and is now ready.\n-# " .. emojis.clock .. " <t:" .. os.time() .. ":T>")
-	print("Fully loaded Ducky " .. version .. " in " .. os.clock() .. " seconds.")
+	print("Fully loaded Zeltra " .. version .. " in " .. os.clock() .. " seconds.")
 end)
 
 local function getCommand(query)
 	if not commands or not next(commands) then
-		return nil, emojis.ducky .. " **Ducky** is currently booting. Please try again in a few seconds."
+		return nil, emojis.ducky .. " **Zeltra** is currently booting. Please try again in a few seconds."
 	end
 
 	for i, command in pairs(commands) do
@@ -923,7 +997,7 @@ local function getCommand(query)
 		end
 	end
 
-	return nil, "The command you are attempting to use has been removed or merged into another command. Please open a support thread via [**Ducky's Pond**](https://duckybot.xyz/support) for further assistance."
+	return nil, "The command you are attempting to use has been removed or merged into another command. Please open a support thread via [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance."
 end
 
 _G.getCommand = getCommand
@@ -944,7 +1018,8 @@ end
 
 local perms = {
 	["FOUNDER"] = function(member)
-		return member.id == "598958193032560642" or "You are not the **Ducky Founder**."
+		-- Zeltra: was Zeltra's founder's user ID; now anyone listed in SECRETS.DEV_ACCESS_IDS (the bot owner)
+		return isdev(member) or "You are not the **Zeltra Founder**."
 	end,
 	["EXECUTIVE"] = function(member)
 		if isdev(member) then
@@ -957,10 +1032,10 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Executive** team."
+		return "You are not a member of the **Zeltra Executive** team."
 	end,
 	["BOT_DEVELOPER"] = function(member)
-		return isdev(member) or "You are not a member of the **Ducky Development** team."
+		return isdev(member) or "You are not a member of the **Zeltra Development** team."
 	end,
 	["WEB_DEVELOPER"] = function(member)
 		if isdev(member) then
@@ -974,7 +1049,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Web Development** team."
+		return "You are not a member of the **Zeltra Web Development** team."
 	end,
 	["SUPPORT"] = function(member)
 		if isdev(member) then
@@ -987,7 +1062,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Support** team."
+		return "You are not a member of the **Zeltra Support** team."
 	end,
 	["MANAGEMENT"] = function(member)
 		if isdev(member) then
@@ -1000,7 +1075,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Management** team."
+		return "You are not a member of the **Zeltra Management** team."
 	end,
 	["DUCKY_STAFF"] = function(member)
 		if isdev(member) then
@@ -1013,7 +1088,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Staff** team."
+		return "You are not a member of the **Zeltra Staff** team."
 	end,
 	["DUCKY_PLUS_MEMBER"] = function(member)
 		local active = sqldb:plusMember(member)
@@ -1021,7 +1096,7 @@ local perms = {
 		if active then
 			return true
 		else
-			return "You are not a " .. emojis.duckyplus .. " **Ducky Plus+** member."
+			return "You are not a " .. emojis.duckyplus .. " **Zeltra Plus+** member."
 		end
 	end,
 	["DUCKY_PLUS_GUILD"] = function(member)
@@ -1030,7 +1105,7 @@ local perms = {
 		if active then
 			return true
 		else
-			return "This server is not a " .. emojis.duckyplus .. " **Ducky Plus+** server."
+			return "This server is not a " .. emojis.duckyplus .. " **Zeltra Plus+** server."
 		end
 	end,
 	["QUALITY_ASSURANCE"] = function(member)
@@ -1044,7 +1119,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Quality Assurance** team."
+		return "You are not a member of the **Zeltra Quality Assurance** team."
 	end,
 	["DOCWRITER"] = function(member)
 		if isdev(member) then
@@ -1057,7 +1132,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Ducky Docwriters** team."
+		return "You are not a member of the **Zeltra Docwriters** team."
 	end,
 	["MANAGE_SERVER"] = function(member)
 		return member:hasPermission("manageGuild") or "You do not have the **Manage Server** permission."
@@ -1310,7 +1385,7 @@ local function blacklisted(object, interaction)
 				if interaction then
 					interaction:reply({
 						embed = {
-							description = emojis.ban .. " This server is **blacklisted** from " .. emojis.ducky .. " **Ducky**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Ducky's Pond**](https://duckybot.xyz/support).",
+							description = emojis.ban .. " This server is **blacklisted** from " .. emojis.ducky .. " **Zeltra**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 							color = colors.error
 						}
 					}, true)
@@ -1322,7 +1397,7 @@ local function blacklisted(object, interaction)
 				if interaction then
 					interaction:reply({
 						embed = {
-							description = emojis.ban .. " This server's owner is **blacklisted** from " .. emojis.ducky .. " **Ducky**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Ducky's Pond**](https://duckybot.xyz/support).",
+							description = emojis.ban .. " This server's owner is **blacklisted** from " .. emojis.ducky .. " **Zeltra**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 							color = colors.error
 						}
 					}, true)
@@ -1336,7 +1411,7 @@ local function blacklisted(object, interaction)
 		if interaction then
 			interaction:reply({
 				embed = {
-					description = emojis.ban .. " You are **blacklisted** from " .. emojis.ducky .. " **Ducky**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Ducky's Pond**](https://duckybot.xyz/support).",
+					description = emojis.ban .. " You are **blacklisted** from " .. emojis.ducky .. " **Zeltra**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 					color = colors.error
 				}
 			}, true)
@@ -1441,12 +1516,12 @@ Client:on("messageCreate", function(message)
 	local config = sqldb:get(message.guild.id) or {}
 
 	if not isBlacklisted and message.content == Client.user.mentionString or message.content == Client.user.mentionString .. " " then
-		local botName = emojis.ducky .. " **Ducky**"
-		if Client.user.name == "Ducky Dev" then
-			botName = emojis.duckyoutline .. " **Ducky Dev**"
+		local botName = emojis.ducky .. " **Zeltra**"
+		if Client.user.name == "Zeltra Dev" then
+			botName = emojis.duckyoutline .. " **Zeltra Dev**"
 		end
 		if sqldb:plusGuild(message.guild) then
-			botName = emojis.duckyplus .. " **Ducky Plus+**"
+			botName = emojis.duckyplus .. " **Zeltra Plus+**"
 		end
 		message:reply(emojis.hiya .. " **Hiya,** I'm " .. botName .. ".\n-# " .. emojis.right .. " My prefix in this server is `" .. ((config and config.prefix) or "d!") .. "`.")
 	end
@@ -1615,7 +1690,7 @@ Client:on("messageCreate", function(message)
 		message:reply({
 			embed = {
 				title = emojis.error .. " Whoops...",
-				description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[Ducky's Pond](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
+				description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[Zeltra Support](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
 				color = colors.error
 			}
 		})
@@ -1662,7 +1737,7 @@ Client:on("slashCommand", function(interaction, command, args)
 	end
 
 	if (not interaction.guild) or not interaction.member or not interaction.member.guild then
-		interaction:fail("Ducky does not function in DMs.", nil, true)
+		interaction:fail("Zeltra does not function in DMs.", nil, true)
 		return
 	end
 
@@ -1805,7 +1880,7 @@ Client:on("slashCommand", function(interaction, command, args)
 			interaction:reply({
 				embed = {
 					title = emojis.error .. " Whoops...",
-					description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[Ducky's Pond](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
+					description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[Zeltra Support](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
 					color = colors.error
 				}
 			})
@@ -1908,11 +1983,11 @@ Client:on("slashCommand", function(interaction, command, args)
 	end
 end)
 
-print("[Ducky] | Initialized events in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Initialized events in " .. (os.clock() - startl) .. " seconds.\n")
 
-print("[Ducky] | Running client...")
+print("[Zeltra] | Running client...")
 startl = os.clock()
 Client:run("Bot " .. SECRETS.TOKEN)
-print("[Ducky] | Ran client in " .. (os.clock() - startl) .. " seconds.\n")
+print("[Zeltra] | Ran client in " .. (os.clock() - startl) .. " seconds.\n")
 
-print("[Ducky] | Completed main.lua in " .. os.clock() .. " seconds.")
+print("[Zeltra] | Completed main.lua in " .. os.clock() .. " seconds.")

@@ -1,6 +1,6 @@
 -- link.lua
 
-local slashCommand = tools.slashCommand("link", "Link your Roblox account with Ducky, or unlink it if you are already linked.")
+local slashCommand = tools.slashCommand("link", "Link your Roblox account with Zeltra, or unlink it if you are already linked.")
 
 
 
@@ -12,7 +12,7 @@ local slashCommand = tools.slashCommand("link", "Link your Roblox account with D
 
 local words = {
 	"Waddle",
-	"Ducky",
+	"Zeltra",
 	"Duck",
 	"Versus",
 	"Geese",
@@ -44,7 +44,7 @@ end
 
 return {
 	name = "link",
-	description = "Link your Roblox account with Ducky, or unlink it if you are already linked.",
+	description = "Link your Roblox account with Zeltra, or unlink it if you are already linked.",
 	aliases = { "verify" },
 	category = "Roblox",
 	slashCommand = slashCommand,
@@ -95,7 +95,7 @@ return {
 				end
 			end)
 		else
-			local authurl = "https://duckybot.xyz/link"
+			local authurl = _G.ZELTRA_WEB_URL .. "/link"
 			r:update({
 				embed = {
 					title = emojis.roblox .. " Roblox Verification",
