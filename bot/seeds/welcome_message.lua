@@ -8,7 +8,7 @@
 	Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).
 ]]
 
-return function(Client, sqldb)
+return function(Client, sqldb, timer)
 	local W = require("zeltra-welcome-tsrp")
 	local function say(msg) print("[seed] welcome: " .. msg) end
 
@@ -26,6 +26,8 @@ return function(Client, sqldb)
 	local ok, err = sqldb:set(W.GUILD_ID, { joinchannel = W.CHANNEL, joinmessage = W.message() }, "SEED_WELCOME")
 	if not ok then return say("could not save: " .. tostring(err)) end
 
+	-- sqldb writes keys one per tick, so give the queue a moment before reading the database back
+	if timer then timer.sleep(2000) end
 	local fresh = sqldb:get(W.GUILD_ID, true) or {}
 	if fresh.joinchannel == W.CHANNEL and fresh.joinmessage and fresh.joinmessage.content == W.message().content then
 		say("verified: welcome messages go to #" .. channel.name .. " (" .. W.CHANNEL .. "), member count now " .. tostring(guild.totalMemberCount))
