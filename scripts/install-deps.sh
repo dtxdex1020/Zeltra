@@ -18,10 +18,21 @@ if [ "${SKIP_APT:-0}" != "1" ] && command -v apt-get >/dev/null; then
   $SUDO apt-get install -y -q git openssl ca-certificates lua-cjson libsqlite3-dev sqlite3 procps imagemagick libssl-dev wget make curl
 fi
 
+# retry <cmd...>: the lit registry (lit.luvit.io) occasionally answers 502, so retry network steps
+retry() {
+  local n=1
+  until "$@"; do
+    [ "$n" -ge 6 ] && { echo "failed after $n attempts: $*" >&2; return 1; }
+    echo "attempt $n failed, retrying in $((n * 5))s: $*" >&2
+    sleep $((n * 5)); n=$((n + 1))
+  done
+}
+
 # luvit / lit / luvi
 if [ ! -x "$LUVIT_DIR/luvit" ]; then
   mkdir -p "$LUVIT_DIR"
-  (cd "$LUVIT_DIR" && curl -fsSL https://github.com/luvit/lit/raw/master/get-lit.sh | sh)
+  retry sh -c 'cd "$1" && curl -fsSL -o get-lit.sh https://github.com/luvit/lit/raw/master/get-lit.sh && sh get-lit.sh; rc=$?; rm -f get-lit.sh lit.zip; exit $rc' _ "$LUVIT_DIR"
+  [ -x "$LUVIT_DIR/luvit" ] || { echo "luvit was not installed" >&2; exit 1; }
 fi
 LIT="$LUVIT_DIR/lit"
 
@@ -39,7 +50,7 @@ for pkg in \
   truemedian/bit64@1.0.0 \
   SinisterRectus/sqlite3@1.0.1
 do
-  "$LIT" install "$pkg"
+  retry "$LIT" install "$pkg"
 done
 
 # Git dependencies, pinned (these override any registry copies pulled in above)
@@ -48,7 +59,7 @@ clone() { # <repo> <commit> <deps dir name>
   tmp="$(mktemp -d)"
   git -C "$tmp" init -q
   git -C "$tmp" remote add origin "https://github.com/$repo"
-  git -C "$tmp" fetch -q --depth 1 origin "$commit"
+  retry git -C "$tmp" fetch -q --depth 1 origin "$commit"
   git -C "$tmp" checkout -q FETCH_HEAD
   rm -rf "$tmp/.git" "$dest"
   mv "$tmp" "$dest"
