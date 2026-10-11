@@ -11,7 +11,8 @@
 	    server setting edits, @everyone pings, mass mentions and message bursts
 	  * raid/nuke keywords (.nuke, !raid, "raid", "nuke" ...) from anyone, owners included: alert,
 	    delete the message, DM + time out the sender where Discord allows, and a full lockdown whose
-	    exact previous overwrites are saved so /security unlock (bot owners only) restores them
+	    exact previous overwrites are saved so /security unlock (bot owners only) restores them; in ticket
+	    channels only prefix commands count, so reports that mention "raid" don't lock the server
 	Alerts are posted as cards (libs/zeltra-dmstyle.lua) to the security log channel.
 	Settings live in the guild config key `security` (see libs/zeltra-security-core.lua).
 
@@ -730,6 +731,17 @@ local function onMessage(message)
 	-- raid/nuke keywords apply to everyone, owners and whitelisted users included
 	if sec.keywords.enabled then
 		local match = S.detectRaidKeyword(message.content, sec.keywords.custom)
+		-- ticket channels: reports often mention "raid", so only prefix commands count there
+		if match and sec.keywords.ignoretickets ~= false then
+			local ch = message.channel
+			local parentId = ch and (ch._parent_id or (ch.category and ch.category.id))
+			if S.isTicketChannel(sqldb:get(guild.id), ch and ch.id, parentId, sec.keywords.ignorecategories) then
+				if match.kind ~= "command" or sec.keywords.ticketcommands == false then
+					print("[security] ignored raid keyword in ticket channel " .. tostring(ch and ch.id) .. ": " .. match.kind)
+					match = nil
+				end
+			end
+		end
 		if match then return onKeyword(message, sec, match) end
 	end
 

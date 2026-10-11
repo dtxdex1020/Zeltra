@@ -29,7 +29,11 @@ M.CATEGORIES = {
 }
 
 M.ROLES = {
-	staff = "1522997818531512542", -- TSRP | Staff Team
+	staff = "1522997818531512542", -- TSRP | Staff Team (base staff role, position 91)
+	moderation = "1522997818510278864", -- TSRP I Moderation Team
+	admin = "1522997818476855384", -- TSRP I Administration Team
+	management = "1522997818426527853", -- TSRP | Management Board
+	bod = "1522997818384580629", -- TSRP I Board Of Directors
 	highrank = "1522997818476855376", -- TSRP I High Rank
 	shr = "1522997818447626452", -- TSRP I Senior High Rank
 	leadership = "1522997818384580634", -- TSRP I Community Leadership
@@ -50,6 +54,13 @@ M.ROLES = {
 M.OWNER_USERS = { "1307878235383795732", "1514313618827510011" }
 
 local R = M.ROLES
+
+local function copy(t)
+	if type(t) ~= "table" then return t end
+	local o = {}
+	for k, v in pairs(t) do o[k] = copy(v) end
+	return o
+end
 
 local function card(title, intro, format, note)
 	local lines = {}
@@ -75,8 +86,8 @@ M.TYPES = {
 			"Help with in-game issues in ER:LC",
 			"Claiming supporter or booster perks",
 		},
-		category = "general", support = { R.staff }, mention = { R.staff },
-		open = card("❓ General Support", "Thanks for reaching out, {opener.mention}. A member of the Staff Team will help you soon.",
+		category = "general", support = { R.admin }, mention = { R.admin },
+		open = card("❓ General Support", "Thanks for reaching out, {opener.mention}. The Administration Team will help you soon.",
 			{ "Roblox username", "What do you need help with", "Screenshots or extra details (if any)" }),
 	},
 	{
@@ -87,8 +98,8 @@ M.TYPES = {
 			"Clips or screenshots are required",
 			"__No proof means the ticket will be closed__",
 		},
-		category = "report", support = { R.staff }, mention = { R.staff },
-		open = card("🛑 Member Report", "Thanks for the report, {opener.mention}. The Staff Team will look into it.",
+		category = "report", support = { R.moderation, R.admin }, mention = { R.moderation },
+		open = card("🛑 Member Report", "Thanks for the report, {opener.mention}. The Moderation Team will look into it.",
 			{ "Your Roblox username", "Who you are reporting (Roblox or Discord name)", "In-game or Discord", "What rule they broke",
 				"Date and time", "Proof (clips or screenshots)" },
 			"**No proof means this ticket will be closed.**"),
@@ -101,7 +112,7 @@ M.TYPES = {
 			"Handled privately by Internal Affairs",
 			"Include the staff member's name and your proof",
 		},
-		category = "hr", support = { R.iaboard, R.highrank }, mention = { R.iaboard },
+		category = "hr", support = { R.iaboard }, mention = { R.iaboard },
 		open = card("🕵️ Staff Report", "Thanks, {opener.mention}. Internal Affairs will handle this privately.",
 			{ "Your Roblox username", "Staff member's name", "What happened", "Date and time", "Proof (clips or screenshots)" }),
 	},
@@ -113,7 +124,7 @@ M.TYPES = {
 			"Include the date and the reason you were given",
 			"Media evidence is highly recommended",
 		},
-		category = "hr", support = { R.highrank, R.iaboard }, mention = { R.highrank },
+		category = "hr", support = { R.highrank }, mention = { R.highrank },
 		open = card("📝 Appeal", "Thanks, {opener.mention}. A High Rank will review your appeal.",
 			{ "Roblox username", "What you were punished for (warning, kick, ban or Discord action)", "Who punished you (if you know)",
 				"Date", "Why it should be removed" }),
@@ -149,7 +160,7 @@ M.TYPES = {
 			"Must have enough media proof",
 			"__No proof means the ticket is closed right away__",
 		},
-		category = "shr", support = { R.shr, R.leadership }, mention = { R.leadership },
+		category = "shr", support = { R.shr, R.leadership }, mention = { R.shr, R.leadership },
 		open = card("💼 High Rank Report", "Thanks, {opener.mention}. Senior leadership will handle this privately.",
 			{ "Your Roblox username", "Who you are reporting and their rank", "What happened", "Date and time", "Proof (clips or screenshots)" },
 			"**No proof means this ticket will be closed right away.**"),
@@ -167,6 +178,44 @@ M.TYPES = {
 			{ "Roblox username", "What this is about", "Why it needs ownership" }),
 	},
 }
+
+-- Escalation tiers for the Escalate button, lowest to highest. The handler sorts them by the live role position
+-- and only offers tiers above the presser's highest staff role and above the ticket's current tier.
+-- role: compared by position, roles: given view and send in the ticket, ping: pinged in the escalation card.
+M.TIERS = {
+	{ key = "admin", name = "Administration Team", role = R.admin, roles = { R.admin }, ping = { R.admin } },
+	{ key = "highrank", name = "High Rank", role = R.highrank, roles = { R.highrank }, ping = { R.highrank } },
+	{ key = "ia", name = "Internal Affairs Board", role = R.iaboard, roles = { R.iaboard }, ping = { R.iaboard } },
+	{ key = "shr", name = "Senior High Rank", role = R.shr, roles = { R.shr }, ping = { R.shr } },
+	{ key = "management", name = "Management Board", role = R.management, roles = { R.management }, ping = { R.management } },
+	{ key = "leadership", name = "Community Leadership", role = R.leadership, roles = { R.leadership }, ping = { R.leadership } },
+	{ key = "bod", name = "Board of Directors", role = R.bod, roles = { R.bod }, ping = { R.bod } },
+	{ key = "ownership", name = "Ownership", role = R.oboard, roles = { R.owner, R.coowner, R.aowner, R.oboard }, ping = { R.owner, R.oboard } },
+}
+
+-- Escalation settings saved on the panel (config.panels[id].escalation).
+function M.escalation()
+	local tiers = {}
+	for _, t in ipairs(M.TIERS) do
+		tiers[#tiers + 1] = { key = t.key, name = t.name, role = t.role, roles = copy(t.roles), ping = copy(t.ping) }
+	end
+	return {
+		tiers = tiers,
+		staffrole = R.staff, -- this role or anything above it (by position) counts as staff
+		ownerrole = R.owner, -- roles above this one (bots, bypass roles) are ignored when ranking someone
+		-- roles that sit high in the list but are not ranks
+		ignoreroles = {
+			"1522997818426527846", -- Staff Of The Week
+			"1522997818384580636", -- Currently Moderating
+			"1522997818384580637", -- Currently On Break
+			"1522997818531512551", -- Leave of Absence
+			"1558858413885100153", -- "-"
+			"1522997818330058779", -- Quarantine
+		},
+		cooldown = 120, -- seconds between escalations of one ticket
+		logchannel = M.LOG_CHANNEL,
+	}
+end
 
 local function shared(t)
 	return {
@@ -191,13 +240,6 @@ local function shared(t)
 			color = M.COLOR,
 		} },
 	}
-end
-
-local function copy(t)
-	if type(t) ~= "table" then return t end
-	local o = {}
-	for k, v in pairs(t) do o[k] = copy(v) end
-	return o
 end
 
 --- Ducky subject tables, in panel order (the dropdown value is the index).

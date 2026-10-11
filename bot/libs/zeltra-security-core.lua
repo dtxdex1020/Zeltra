@@ -50,6 +50,11 @@ M.DEFAULTS = {
 		timeoutminutes = 60,   -- time out the sender (0 = off); skipped where Discord doesn't allow it
 		cooldown = 60,         -- seconds after a lockdown before another match can lock again
 		custom = {},           -- extra keywords added with /security config keyword
+		-- ticket channels (any channel in a ticket category, or an open ticket) skip word matches so reports that
+		-- mention "raid" don't lock the server; prefix commands like .nuke at the start of a message still count
+		ignoretickets = true,
+		ticketcommands = true,
+		ignorecategories = {}, -- extra category ids treated like ticket categories
 		pingusers = { "1307878235383795732", "1514313618827510011" }, -- pinged 3 times once per lockdown
 		-- ownership roles pinged too: Owner, Co-Owner, Assistant Owner, Ownership Board
 		pingroles = { "1522997818330058781", "1522997818363740160", "1522997818363740161", "1522997818363740163" },
@@ -360,6 +365,24 @@ function M.raidTokens(content)
 	end
 	flush()
 	return out
+end
+
+--- True when the channel is a ticket: its category is used by a ticket panel subject (or listed in
+--- keywords.ignorecategories), or it is an open ticket channel.
+function M.isTicketChannel(config, channelId, parentId, extraCategories)
+	channelId, parentId = tostring(channelId or ""), parentId and tostring(parentId) or nil
+	for _, c in pairs(extraCategories or {}) do
+		if parentId and tostring(c) == parentId then return true end
+	end
+	for _, panel in pairs((config and config.panels) or {}) do
+		for _, sub in pairs(panel.subjects or {}) do
+			if parentId and sub.category and tostring(sub.category) == parentId then return true end
+			for _, t in pairs(sub.tickets or {}) do
+				if tostring(t.channel) == channelId then return true end
+			end
+		end
+	end
+	return false
 end
 
 --- Returns { kind = "command"|"word"|"typo"|"custom", text = what matched } or nil.

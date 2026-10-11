@@ -2,7 +2,8 @@
 -- Zeltra changes (AGPL-3.0, see NOTICE.md): ticket channels are created with their permissions in one call
 -- (category overwrites + @everyone hidden + support roles/users + opener), {ticket.number} gives zero padded
 -- names like general-0001, pings are limited to the opener and the subject's mentionables, and the Web
--- Transcript button is only shown when a web URL is configured.
+-- Transcript button is only shown when a web URL is configured. Welcome cards have an Escalate button for staff
+-- (rules in libs/zeltra-ticket-escalation.lua, settings in config.panels[id].escalation).
 
 local tickets = {
 	name = "tickets",
@@ -100,6 +101,203 @@ tickets.Start = function()
 	})
 
 	ticketActions:button(closeButton)
+
+	-- Zeltra: staff only, lets the ticket be sent up to a higher rank
+	local escalateButton = discordia.Button({
+		id = "ticketescalate",
+		label = "Escalate",
+		emoji = resolvedEmojis.greater,
+		style = "blurple",
+		actionRow = 1,
+	})
+
+	ticketActions:button(escalateButton)
+
+
+	------------------------------------------------------ Zeltra: escalation
+
+	local Esc = _G.ticketEscalation
+
+	local function findTicket(config, channelId)
+		for pi, v in pairs(config.panels or {}) do
+			for si, sub in pairs(v.subjects or {}) do
+				for ti, t in pairs(sub.tickets or {}) do
+					if t.channel == channelId then
+						return v, sub, t, pi, si, ti
+					end
+				end
+			end
+		end
+	end
+
+	local function rolePosition(guild, id)
+		local r = id and guild:getRole(id)
+		return r and tonumber(r.position) or nil
+	end
+
+	local function memberRoles(guild, member)
+		local out = {}
+		if member.roles and member.roles.iter then
+			for r in member.roles:iter() do out[#out + 1] = { id = r.id, position = r.position } end
+		else
+			for _, id in ipairs(member._roles or {}) do
+				local r = guild:getRole(id)
+				if r then out[#out + 1] = { id = r.id, position = r.position } end
+			end
+		end
+		return out
+	end
+
+	--- Checks shared by the button, the tier select and the reason modal. Returns state or nil, message.
+	local function escalationState(interaction, config)
+		local panel, subject, ticket, pi, si, ti = findTicket(config, interaction.channel and interaction.channel.id)
+		if not ticket then return nil, "This ticket is closed or isn't a ticket." end
+		local esc = panel.escalation
+		if not esc or not esc.tiers then return nil, "Escalation isn't set up for this ticket panel." end
+		local guild, member = interaction.guild, interaction.member
+		local roles = memberRoles(guild, member)
+		local staffPos, ownerPos = rolePosition(guild, esc.staffrole), rolePosition(guild, esc.ownerrole)
+		local staff = Esc.isStaff(roles, esc, panel.subjects, staffPos, ownerPos) or member:hasPermission("manageGuild") == true
+		if not staff then return nil, "Only staff can escalate." end
+		local left = Esc.cooldownLeft(ticket, os.time(), esc.cooldown)
+		if left > 0 then
+			return nil, "This ticket was escalated a moment ago. You can escalate it again in " .. math.ceil(left) .. " seconds."
+		end
+		local rank = Esc.rank(roles, esc, ownerPos)
+		local current = Esc.currentPosition(ticket)
+		local options = Esc.options(esc, function(id) return rolePosition(guild, id) end, rank, current)
+		if #options == 0 then
+			if ticket.escalation then
+				return nil, "This ticket is already escalated to " .. tostring(ticket.escalation.name) .. ", and there's no higher tier you can send it to."
+			end
+			return nil, "There's no tier above your rank to escalate this ticket to."
+		end
+		return { panel = panel, subject = subject, ticket = ticket, esc = esc, options = options, pi = pi, si = si, ti = ti }
+	end
+
+	local function tierMentions(tier)
+		local list = {}
+		for _, r in ipairs(tier.ping or {}) do list[#list + 1] = "<@&" .. r .. ">" end
+		return table.concat(list, " ")
+	end
+
+	local function onEscalateButton(interaction)
+		local config = sqldb:get(interaction.guild.id) or {}
+		local st, msg = escalationState(interaction, config)
+		if not st then return interaction:fail(msg, nil, true) end
+		local opts = {}
+		for _, o in ipairs(st.options) do
+			opts[#opts + 1] = {
+				label = string.truncate(o.tier.name, 100),
+				value = o.tier.key,
+				description = string.truncate("Gives them access and pings them in this ticket", 100),
+			}
+		end
+		local intro = "Who should this ticket go to? You can only pick a tier above your own rank."
+		if st.ticket.escalation then
+			intro = intro .. "\n-# Already escalated to " .. tostring(st.ticket.escalation.name) .. ", so only higher tiers are listed."
+		end
+		return interaction:reply({
+			content = intro,
+			components = { { type = 1, components = { {
+				type = 3,
+				custom_id = "ticketescalatetier",
+				placeholder = "Pick a tier",
+				min_values = 1,
+				max_values = 1,
+				options = opts,
+			} } } },
+			allowed_mentions = { parse = {} },
+		}, true)
+	end
+
+	local function applyEscalation(guild, channel, st, tier, user, reason)
+		-- view and send for every role of the tier, keeping whatever else the overwrite had
+		local raw = Client._api:getChannel(channel.id)
+		local existing = {}
+		for _, o in ipairs((raw and raw.permission_overwrites) or {}) do existing[o.id] = o end
+		local failedRoles = 0
+		for _, roleId in ipairs(tier.roles or {}) do
+			local o = existing[tostring(roleId)]
+			local allow, deny = Esc.allowBits(o and o.allow, o and o.deny, Esc.ACCESS)
+			local ok, res = pcall(function()
+				return Client._api:editChannelPermissions(channel.id, tostring(roleId), { allow = allow, deny = deny, type = 0 })
+			end)
+			if not ok or not res then failedRoles = failedRoles + 1 end
+		end
+
+		local reasonText = (reason and reason ~= "") and reason or "No reason given"
+		channel:send({
+			content = "-# " .. emojis.pings .. " " .. tierMentions(tier),
+			embeds = { {
+				title = "Ticket Escalated",
+				description = "> Ticket escalated to **" .. tier.name .. "** by " .. user.mentionString .. ".\n> **Reason:** " .. reasonText,
+				color = colors.warning,
+			} },
+			allowed_mentions = { parse = {}, roles = tier.ping or {} },
+		})
+		if failedRoles > 0 then
+			channel:send({ content = "I couldn't give " .. failedRoles .. " of the " .. tier.name .. " roles access to this channel. Please add them by hand.", allowed_mentions = { parse = {} } })
+		end
+
+		local logId = st.esc.logchannel or st.subject.transcriptschannel
+		local logCh = logId and guild:getChannel(logId)
+		if logCh then
+			logCh:send({
+				embed = {
+					title = emojis.greater .. " Ticket Escalated",
+					description = emojis.right .. " **Ticket:** " .. channel.mentionString .. " (" .. tostring(channel.name) .. ")\n"
+						.. emojis.right .. " **Ticket ID:** `" .. tostring(st.ticket.id) .. "`\n"
+						.. emojis.right .. " **Ticket Subject:** " .. tostring(st.subject.name) .. "\n"
+						.. emojis.right .. " **Ticket Opener:** <@" .. tostring(st.ticket.owner) .. ">\n"
+						.. emojis.right .. " **Escalated To:** " .. tier.name .. "\n"
+						.. emojis.right .. " **Escalated By:** " .. user.mentionString .. "\n"
+						.. emojis.right .. " **Reason:** " .. reasonText,
+					color = colors.warning,
+				},
+				allowed_mentions = { parse = {} },
+			})
+		end
+		print("[tickets] " .. user.id .. " escalated " .. channel.id .. " to " .. tier.key .. (failedRoles > 0 and (" (" .. failedRoles .. " overwrite(s) failed)") or ""))
+	end
+
+	local function onEscalateTier(interaction, key)
+		local config = sqldb:get(interaction.guild.id) or {}
+		local st, msg = escalationState(interaction, config)
+		if not st then return interaction:fail(msg, nil, true) end
+		local tier
+		for _, o in ipairs(st.options) do if o.tier.key == key then tier = o.tier end end
+		if not tier then return interaction:fail("You can't escalate this ticket to that tier.", nil, true) end
+
+		prompt(interaction, string.truncate("Escalate to " .. tier.name, 45), {
+			{
+				question = "Reason (optional)",
+				placeholder = "Why does this need " .. tier.name .. "?",
+				required = false,
+				max_length = 300,
+				style = "paragraph",
+			},
+		}, function(mia, responses)
+			-- check again: someone else may have escalated while the form was open
+			local fresh = sqldb:get(interaction.guild.id) or {}
+			local st2, msg2 = escalationState(interaction, fresh)
+			local still
+			for _, o in ipairs((st2 and st2.options) or {}) do if o.tier.key == key then still = o end end
+			if not st2 or not still then
+				return mia:update({ content = msg2 or "This ticket was already escalated to that tier or higher.", components = {} })
+			end
+			local reason = responses and responses["Reason (optional)"]
+			reason = reason and string.truncate(tostring(reason), 300) or nil
+			local t = fresh.panels[st2.pi].subjects[st2.si].tickets[st2.ti]
+			t.escalation = { tier = tier.key, name = tier.name, position = still.position, by = interaction.user.id, at = os.time(), reason = reason }
+			t.escalatedroles = t.escalatedroles or {}
+			for _, r in ipairs(tier.roles or {}) do table.insert(t.escalatedroles, r) end
+			sqldb:set(interaction.guild.id, { panels = fresh.panels }, "TICKET_ESCALATE")
+			mia:update({ content = emojis.success .. " Escalated this ticket to **" .. tier.name .. "**.", components = {} })
+			st2.ticket = t
+			applyEscalation(interaction.guild, interaction.channel, st2, tier, interaction.user, reason)
+		end)
+	end
 
 	------------------------------------------------------
 
@@ -611,6 +809,14 @@ tickets.Start = function()
 												overwrite:denyPermissions(discordia.enums.permission.sendMessages)
 											end
 										end
+										-- Zeltra: roles added by an escalation lose send too
+										for _, v in pairs(ticket.escalatedroles or {}) do
+											local role = interaction.guild:getRole(v)
+											local overwrite = role and interaction.channel:getPermissionOverwriteFor(role)
+											if overwrite then
+												overwrite:denyPermissions(discordia.enums.permission.sendMessages)
+											end
+										end
 
 										local transcript, webTranscriptLink, transcriptCount = transcriptChannel(interaction.channel)
 										local embed = {
@@ -855,6 +1061,18 @@ tickets.Start = function()
 
 						if not s then
 							interaction:fail(tostring(e))
+						end
+					elseif id == "ticketescalate" then
+						local ok, e = pcall(onEscalateButton, interaction)
+						if not ok then
+							print("[tickets] escalate error: " .. tostring(e))
+							interaction:fail("Something went wrong opening the escalation menu.", nil, true)
+						end
+					elseif id == "ticketescalatetier" then
+						local ok, e = pcall(onEscalateTier, interaction, selection)
+						if not ok then
+							print("[tickets] escalate error: " .. tostring(e))
+							interaction:fail("Something went wrong escalating this ticket.", nil, true)
 						end
 					elseif id == "ticketdelete" then
 						if interaction.channel._delete_protection then

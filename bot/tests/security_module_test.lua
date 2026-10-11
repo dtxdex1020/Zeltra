@@ -276,6 +276,36 @@ handlers.messageCreate(kwMsg("4242", ".nuke", regular))
 check("keyword detection can be turned off", #posts == before)
 sqldb.store.g1.security.keywords = nil
 
+-- ticket channels: words like "raid" in a report are ignored, prefix commands still count
+sqldb.store.g1.security.flagged.mentions = false -- keep spam burst alerts out of these counts
+sqldb.store.g1.panels = { p1 = { subjects = { { category = "ticketcat", tickets = { { channel = "tk2" } } } } } }
+local function ticketMsg(content, channelId, parentId)
+	local m = kwMsg("4242", content, regular)
+	m.channel = { id = channelId, _parent_id = parentId, mentionString = "<#" .. channelId .. ">" }
+	return m
+end
+before = #posts
+handlers.messageCreate(ticketMsg("he said he would raid us and nuke the server", "tk1", "ticketcat"))
+check("raid words in a ticket category don't trigger", #posts == before)
+handlers.messageCreate(ticketMsg("raid", "tk2", nil))
+check("raid words in an open ticket channel don't trigger", #posts == before)
+handlers.messageCreate(ticketMsg("raid", "general", "othercat"))
+check("raid words outside tickets still trigger", #posts == before + 1)
+before = #posts
+handlers.messageCreate(ticketMsg(".nuke", "tk1", "ticketcat"))
+check("prefix commands in tickets still trigger", #posts == before + 1)
+sqldb.store.g1.security.keywords = { ignoretickets = false }
+before = #posts
+handlers.messageCreate(ticketMsg("raid", "tk1", "ticketcat"))
+check("ticket exemption can be turned off", #posts == before + 1)
+sqldb.store.g1.security.keywords = { ignorecategories = { "extracat" } }
+before = #posts
+handlers.messageCreate(ticketMsg("raid", "x1", "extracat"))
+check("extra ignored categories work", #posts == before)
+sqldb.store.g1.security.keywords = nil
+sqldb.store.g1.panels = nil
+sqldb.store.g1.security.flagged.mentions = nil
+
 -- buttons
 local function btn(userId, customId)
 	local ia = { guild = guild, member = makeMember(userId), user = { id = userId, mentionString = "<@" .. userId .. ">" }, data = { custom_id = customId }, log = {} }

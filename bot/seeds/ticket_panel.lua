@@ -8,6 +8,8 @@
 	  * Registers it in the `panels` config key the way /setup's Ticket Panel Builder does
 	    (panels[<message id>] = { channel, subjects, embeds }). Other panels are not touched, except bot panels
 	    already registered for #assistance, which this one replaces.
+	  * Saves the escalation settings (panels[<message id>].escalation) and adds the Escalate button to the
+	    welcome card of tickets that were opened before it existed.
 
 	Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).
 ]]
@@ -75,6 +77,7 @@ return function(Client, sqldb, timer)
 		channel = T.PANEL_CHANNEL,
 		subjects = subjects,
 		embeds = T.panelEmbeds(),
+		escalation = T.escalation(),
 	}
 	local ok, err = sqldb:set(T.GUILD_ID, { panels = panels }, "SEED_TICKETS")
 	if not ok then return say("could not save panels: " .. tostring(err)) end
@@ -87,7 +90,52 @@ return function(Client, sqldb, timer)
 			table.insert(parts, i .. "=" .. s.name .. "->" .. tostring(s.category))
 		end
 		say("verified panel " .. messageId .. " in the database: " .. table.concat(parts, ", "))
+		for i, s in ipairs(saved.subjects) do
+			local function names(list)
+				local out = {}
+				for _, id in ipairs(list or {}) do
+					local r = guild:getRole(id)
+					table.insert(out, r and r.name or ("missing " .. id))
+				end
+				return table.concat(out, " + ")
+			end
+			say(i .. " " .. s.name .. ": access " .. names(s.support) .. "; ping " .. names(s.mentionables) .. "; open tickets " .. #(s.tickets or {}))
+		end
+		local tiers = {}
+		for _, t in ipairs((saved.escalation and saved.escalation.tiers) or {}) do
+			local r = guild:getRole(t.role)
+			table.insert(tiers, t.name .. "@" .. tostring(r and r.position or "missing"))
+		end
+		say("escalation tiers: " .. table.concat(tiers, ", "))
 	else
 		say("warning: panel " .. messageId .. " not found in the database after saving")
+		return
 	end
+
+	-- add the Escalate button to welcome cards of tickets opened before it existed
+	local updated = 0
+	for _, s in ipairs(saved.subjects) do
+		for _, t in ipairs(s.tickets or {}) do
+			local ok2, e2 = pcall(function()
+				local ch = guild:getChannel(t.channel)
+				local pins = ch and ch:getPinnedMessages()
+				if not pins then return end
+				for m in pins:iter() do
+					local row = m.author and m.author.id == Client.user.id and m.components and m.components[1]
+					local btns = row and row.components
+					if btns and btns[1] and btns[1].custom_id == "ticketclaim" then
+						local has = false
+						for _, b in ipairs(btns) do if b.custom_id == "ticketescalate" then has = true end end
+						if not has then
+							table.insert(btns, { type = 2, custom_id = "ticketescalate", label = "Escalate", style = 1, emoji = { name = "⬆️" } })
+							Client._api:editMessage(ch.id, m.id, { components = m.components })
+							updated = updated + 1
+						end
+					end
+				end
+			end)
+			if not ok2 then say("warning: could not update ticket " .. tostring(t.channel) .. ": " .. tostring(e2)) end
+		end
+	end
+	say("added the Escalate button to " .. updated .. " open ticket(s)")
 end
