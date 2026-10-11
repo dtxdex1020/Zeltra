@@ -32,7 +32,7 @@ return {
     hybridCallback = function(interaction, args, slash, subcmd)
         local config = sqldb:get(interaction.guild.id) or {}
 
-        if (not config.loasenabled) or (not config.loalogschannel) then 
+        if ((not config.loasenabled) and not isPrivileged(interaction.member)) or (not config.loalogschannel) then 
             return interaction:fail("LOAs are not enabled in this server.", nil, true)
         end
 

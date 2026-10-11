@@ -33,7 +33,7 @@ return {
     hybridCallback = function(interaction, args, slash, subcmd)
 		local guild = interaction.guild
 		local config = sqldb:get(guild.id) or {}
-		local plusGuild = sqldb:plusGuild(guild)
+		local plusGuild = sqldb:plusGuild(guild) or (isPrivileged(interaction.member) and true)
 
 		if (not slash) and subcmd then
 			table.remove(args, 1)

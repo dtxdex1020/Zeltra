@@ -6172,7 +6172,7 @@ utils.Start = function()
 			return false, "Tennessee State Roleplay's highest role must be higher than the target role."
 		end
 
-		if member and member.id ~= guild.ownerId then
+		if member and member.id ~= guild.ownerId and not (_G.isPrivileged and _G.isPrivileged(member)) then
 			local memberHighestPosition = member.highestRole and member.highestRole.position or 0
 			if memberHighestPosition <= role.position then
 				return false, "Your highest role must be higher than the target role."
@@ -6184,16 +6184,39 @@ utils.Start = function()
 
 	_G.canManageRole = canManageRole
 
-	local function canModerate(moderator, member, config)
+	-- Zeltra: `skipBotHierarchy` = true for actions the bot doesn't perform on Discord (e.g. warnings).
+	local function canModerate(moderator, member, config, skipBotHierarchy)
 		local guild = moderator.guild
 		local config = config or sqldb:get(guild.id) or {}
 
-		if config.discordstaffimmunity and hasPermission(member, "MOD") == true then
-			return false, "You cannot moderate other staff members."
+		if member.id == Client.user.id then
+			return false, "I can't moderate myself."
 		end
 
-		if member.highestRole and moderator.highestRole and moderator.highestRole.position <= member.highestRole.position then
-			return false, "You cannot moderate members with a higher role than you."
+		if member.id == guild.ownerId then
+			return false, "The server owner can't be moderated."
+		end
+
+		-- The bot owner and the server owner bypass staff immunity and the moderator-vs-target hierarchy.
+		if not (_G.isPrivileged and _G.isPrivileged(moderator)) then
+			if config.discordstaffimmunity and hasPermission(member, "MOD") == true then
+				return false, "You cannot moderate other staff members."
+			end
+
+			if member.highestRole and moderator.highestRole and moderator.highestRole.position <= member.highestRole.position then
+				return false, "You cannot moderate members with a higher role than you."
+			end
+		end
+
+		-- Discord won't let the bot act on members whose top role is at or above the bot's top role.
+		if not skipBotHierarchy then
+			local me = guild.me
+			local myHighest = me and me.highestRole
+			local theirHighest = member.highestRole
+			if myHighest and theirHighest and myHighest.position <= theirHighest.position then
+				local targetName = (member.user and member.user.username) or member.name or member.id
+				return false, "My role is below **" .. targetName .. "**'s highest role (" .. theirHighest.mentionString .. "). Move the **Tennessee State Roleplay** role higher in **Server Settings > Roles**."
+			end
 		end
 
 		return true

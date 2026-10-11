@@ -96,7 +96,7 @@ return {
             local plus = sqldb:plusGuild(guild)
             local cooldownTime = (plus and 1800) or 3600
 
-            if cooldown[guild.id] and (os.time() - cooldown[guild.id] <= cooldownTime) then
+            if cooldown[guild.id] and (os.time() - cooldown[guild.id] <= cooldownTime) and not isPrivileged(interaction.member) then
                 local remainingTime = cooldownTime - (os.time() - cooldown[guild.id])
                 return interaction:fail("Please wait **" .. readable(remainingTime) .. "** before using this command again.")
             end

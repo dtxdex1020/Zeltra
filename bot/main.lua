@@ -228,6 +228,9 @@ startl = os.clock()
 print("[Zeltra] | Initializing badwords...")
 local badwords = require("utils/badwords")
 _G.badwords = badwords
+-- Zeltra: per-server command permission resolver (/permissions)
+local cmdperms = require("utils/cmdperms")
+_G.cmdperms = cmdperms
 print("[Zeltra] | Initialized badwords in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
@@ -711,6 +714,44 @@ local function isConfigCommandName(name)
 	return name:find("config") or name:find("setting") or name:find("setup")
 end
 
+-- Zeltra: /permissions is owner-only; hidden from non-admins and also enforced by user ID.
+SLASH_COMMAND_PERMISSIONS.permissions = PERM.ADMINISTRATOR
+
+-- Discordia permission names for the bits above (bot-side enforcement when a command is made visible).
+local PERM_NAMES = {
+	[PERM.ADMINISTRATOR] = "administrator", [PERM.KICK_MEMBERS] = "kickMembers", [PERM.BAN_MEMBERS] = "banMembers",
+	[PERM.MANAGE_CHANNELS] = "manageChannels", [PERM.MANAGE_GUILD] = "manageGuild", [PERM.MANAGE_MESSAGES] = "manageMessages",
+	[PERM.MANAGE_NICKNAMES] = "manageNicknames", [PERM.MANAGE_ROLES] = "manageRoles", [PERM.MODERATE_MEMBERS] = "moderateMembers"
+}
+_G.SLASH_PERMISSION_NAMES = PERM_NAMES
+
+-- Zeltra: commands that some server's /permissions overrides open up beyond the Discord default
+-- (mode everyone/roles-only or an allowed role/user). These are registered with default_member_permissions
+-- unset (visible to everyone) and the bot enforces access itself. Recomputed by computeVisibleCommands().
+_G.visibleCommands = _G.visibleCommands or {}
+
+local function computeVisibleCommands()
+	local visible = {}
+	local ok, all = pcall(function()
+		return sqldb:getAllCommandPermissions()
+	end)
+	if ok and type(all) == "table" then
+		for _, overrides in pairs(all) do
+			for key, rec in pairs(overrides) do
+				if cmdperms.needsVisible(rec) then
+					local base = tostring(key):match("^(%S+)")
+					if base and base ~= "permissions" then
+						visible[base] = true
+					end
+				end
+			end
+		end
+	end
+	_G.visibleCommands = visible
+	return visible
+end
+_G.computeVisibleCommands = computeVisibleCommands
+
 local function applySlashPermissions(command)
 	local slash = command and command.slashCommand
 	if type(slash) ~= "table" then
@@ -722,7 +763,12 @@ local function applySlashPermissions(command)
 		-- usersettings is a per-user preferences command, not bot config.
 		perm = (name ~= "usersettings" and isConfigCommandName(name)) and PERM.ADMINISTRATOR or PERM.MODERATE_MEMBERS
 	end
-	slash.default_member_permissions = perm
+	command.baseMemberPermissions = perm
+	if _G.visibleCommands[name] then
+		slash.default_member_permissions = nil -- visible; access enforced bot-side
+	else
+		slash.default_member_permissions = perm
+	end
 	slash.dm_permission = false
 	slash.contexts = { 0 } -- guild only
 end
@@ -882,6 +928,44 @@ end
 print("[Zeltra] | Loading events...")
 startl = os.clock()
 
+-- Zeltra: bulk-overwrite the global command list whenever it changed (one request, idempotent).
+-- Also called by /permissions when a command's visibility changes.
+local function syncSlashCommands(force)
+	computeVisibleCommands()
+	local payloads = {}
+	for _, command in ipairs(_G.commands or {}) do
+		if command.slashCommand then
+			applySlashPermissions(command)
+			table.insert(payloads, command.slashCommand)
+		end
+	end
+	table.sort(payloads, function(a, b) return tostring(a.name) < tostring(b.name) end)
+
+	local encoded = json.encode(payloads)
+	local cacheFile = ".slash-commands.cache.json"
+	if not force and fs.existsSync(cacheFile) and fs.readFileSync(cacheFile) == encoded then
+		prettyLog("SLSH", "cyan", "Slash commands unchanged (" .. #payloads .. " commands), skipping sync")
+		return true, #payloads
+	end
+
+	local data, err = Client._api:bulkOverwriteGlobalApplicationCommands(Client.user.id, payloads)
+	if data then
+		fs.writeFileSync(cacheFile, encoded)
+		local names = {}
+		for name in pairs(_G.visibleCommands) do
+			table.insert(names, name)
+		end
+		table.sort(names)
+		local visibleNames = table.concat(names, ", ")
+		prettyLog("SLSH", "cyan", "Registered " .. #data .. " global slash commands" .. (visibleNames ~= "" and (" (made visible by /permissions: " .. visibleNames .. ")") or ""))
+		return true, #data
+	else
+		prettyLog("SLSH", "red", "Failed to register slash commands: " .. tostring(err))
+		return false, tostring(err)
+	end
+end
+_G.syncSlashCommands = syncSlashCommands
+
 Client:once("ready", function()
 	_G.uptime = os.time()
 	-- Zeltra: Zeltra's home server ("Zeltra Support") is hardcoded throughout. Use SECRETS.HOME_GUILD_ID if set,
@@ -907,28 +991,7 @@ Client:once("ready", function()
 	-- Bulk-overwrite the global command list on startup whenever it changed (one request, idempotent).
 	if SECRETS.SYNC_COMMANDS_ON_START ~= false and os.getenv("ZELTRA_SKIP_COMMAND_SYNC") ~= "1" then
 		coroutine.wrap(function()
-			local payloads = {}
-			for _, command in ipairs(_G.commands or {}) do
-				if command.slashCommand then
-					table.insert(payloads, command.slashCommand)
-				end
-			end
-			table.sort(payloads, function(a, b) return tostring(a.name) < tostring(b.name) end)
-
-			local encoded = json.encode(payloads)
-			local cacheFile = ".slash-commands.cache.json"
-			if fs.existsSync(cacheFile) and fs.readFileSync(cacheFile) == encoded then
-				prettyLog("SLSH", "cyan", "Slash commands unchanged (" .. #payloads .. " commands), skipping sync")
-				return
-			end
-
-			local data, err = Client._api:bulkOverwriteGlobalApplicationCommands(Client.user.id, payloads)
-			if data then
-				fs.writeFileSync(cacheFile, encoded)
-				prettyLog("SLSH", "cyan", "Registered " .. #data .. " global slash commands")
-			else
-				prettyLog("SLSH", "red", "Failed to register slash commands: " .. tostring(err))
-			end
+			_G.syncSlashCommands()
 		end)()
 	end
 
@@ -1076,6 +1139,131 @@ _G.getModule = getModule
 local function isdev(member)
 	return (table.find(SECRETS.DEV_ACCESS_IDS or {}, member.id) and true) or false
 end
+
+-- Zeltra: owner bypass ----------------------------------------------------------------------------------------
+-- The bot owner (cmdperms.OWNER_ID + SECRETS.DEV_ACCESS_IDS) and the Discord server owner (guild.ownerId) bypass the
+-- bot's internal gates: staff-role permissions, Plus gates, cooldowns, module/command-disabled checks and the
+-- moderator-vs-target role hierarchy. They do NOT bypass state checks (server set up / ERLC linked) or the bot's own
+-- role hierarchy (Discord enforces that). The server owner does not get bot-developer permissions.
+local function isBotOwner(user)
+	local id = type(user) == "table" and user.id or user
+	return cmdperms.isBotOwner(id, SECRETS.DEV_ACCESS_IDS)
+end
+_G.isBotOwner = isBotOwner
+
+--- returns "bot_owner", "guild_owner" or false
+local function isPrivileged(member)
+	if type(member) ~= "table" or not member.id then
+		return false
+	end
+	if isBotOwner(member) then
+		return "bot_owner"
+	end
+	local ok, guild = pcall(function()
+		return member.guild
+	end)
+	if ok and type(guild) == "table" and guild.ownerId and tostring(guild.ownerId) == tostring(member.id) then
+		return "guild_owner"
+	end
+	return false
+end
+_G.isPrivileged = isPrivileged
+
+-- Explicit /permissions grants: while a command callback runs in this coroutine for the granted member, the bot's
+-- staff-role checks (MOD/ADMIN/ERLC_*/...) pass for that member only.
+local commandGrants = setmetatable({}, { __mode = "k" })
+
+local function hasCommandGrant(member)
+	local co = coroutine.running()
+	local grant = co and commandGrants[co]
+	if not grant or type(member) ~= "table" or tostring(member.id) ~= grant.memberId then
+		return false
+	end
+	local ok, guild = pcall(function()
+		return member.guild
+	end)
+	return (not ok) or (not guild) or tostring(guild.id) == grant.guildId
+end
+_G.hasCommandGrant = hasCommandGrant
+
+local function runWithGrant(grant, member, fn, ...)
+	if not grant then
+		return pcall(fn, ...)
+	end
+	local co = coroutine.running()
+	if not co then
+		return pcall(fn, ...)
+	end
+	local prev = commandGrants[co]
+	commandGrants[co] = { memberId = tostring(member.id), guildId = tostring(member.guild and member.guild.id) }
+	local results = { n = 0 }
+	local function capture(...)
+		results = { n = select("#", ...), ... }
+	end
+	capture(pcall(fn, ...))
+	commandGrants[co] = prev
+	return unpack(results, 1, results.n)
+end
+_G.runWithGrant = runWithGrant
+
+local STATE_PERMS = { SETUP = true, ERLC_LINKED = true }
+local GRANTABLE_PERMS = { MOD = true, ADMIN = true, MANAGE_SERVER = true, ERLC_STAFF = true, ERLC_ADMIN = true, ERLC_MANAGER = true, SESSION_STARTER = true }
+local GUILD_OWNER_PERMS = { DUCKY_PLUS_GUILD = true, DUCKY_PLUS_MEMBER = true }
+for k in pairs(GRANTABLE_PERMS) do
+	GUILD_OWNER_PERMS[k] = true
+end
+
+local DENIED_MESSAGE = "You don't have permission to use this command."
+_G.COMMAND_DENIED_MESSAGE = DENIED_MESSAGE
+
+local function slashNameOf(command)
+	return tostring((type(command.slashCommand) == "table" and command.slashCommand.name) or command.name or ""):lower()
+end
+_G.slashNameOf = slashNameOf
+
+--- Central /permissions check. Returns the cmdperms result table ({decision, privileged, granted, ...}).
+--- `isSlash` enables bot-side enforcement of the command's Discord default permission when the bot has made the
+--- command visible (default_member_permissions unset) because of an override in some server.
+local function checkCommandAccess(member, guild, command, subcmd, isSlash)
+	local name = slashNameOf(command)
+
+	if name == "permissions" then
+		if tostring(member.id) == cmdperms.OWNER_ID then
+			return { decision = "allow", privileged = "bot_owner", granted = true, reason = "owner" }
+		end
+		return { decision = "deny", privileged = false, granted = false, reason = "owner-only command" }
+	end
+
+	local roleIds = {}
+	pcall(function()
+		for role in member.roles:iter() do
+			table.insert(roleIds, role.id)
+		end
+	end)
+
+	local result = cmdperms.resolve({
+		userId = member.id,
+		guildOwnerId = guild.ownerId,
+		roleIds = roleIds,
+		devIds = SECRETS.DEV_ACCESS_IDS,
+		overrides = sqldb:getCommandPermissions(guild.id),
+		keys = cmdperms.keysFor(name, subcmd)
+	})
+
+	if result.decision == "default" and isSlash and _G.visibleCommands[name] and command.baseMemberPermissions then
+		local permName = PERM_NAMES[command.baseMemberPermissions]
+		local ok, has = pcall(function()
+			return member:hasPermission(permName)
+		end)
+		if permName and ok and not has then
+			return { decision = "deny", privileged = false, granted = false, reason = "missing Discord permission " .. permName }
+		end
+	end
+
+	return result
+end
+_G.checkCommandAccess = checkCommandAccess
+-- End owner bypass ---------------------------------------------------------------------------------------------
 
 local perms = {
 	["FOUNDER"] = function(member)
@@ -1393,6 +1581,16 @@ _G.perms = perms
 local function hasPermission(member, perm, config, interaction, message)
 	local has = perms[perm]
 	if has then
+		if not STATE_PERMS[perm] then
+			local privileged = isPrivileged(member)
+			if privileged == "bot_owner" or (privileged == "guild_owner" and GUILD_OWNER_PERMS[perm]) then
+				return true
+			end
+			if GRANTABLE_PERMS[perm] and hasCommandGrant(member) then
+				return true
+			end
+		end
+
 		if _G.bypassPermissionsEnabled and perms["BOT_DEVELOPER"](member) == true then
 			return true
 		else
@@ -1617,9 +1815,11 @@ Client:on("messageCreate", function(message)
 		table.insert(args, 2, subcmd)
 	end
 
-	if config then
+	local privileged = isPrivileged(message.member)
+	local subName = nil
+
+	if config and not privileged then
 		local baseName = command.name:lower()
-		local subName = nil
 
 		if command.subcommands and args[2] then
 			local input1 = args[2]:lower()
@@ -1728,7 +1928,17 @@ Client:on("messageCreate", function(message)
 
 	table.remove(args, 1)
 
-	local canuse, fail = parsePerms(message, command, message.member)
+	-- Zeltra: central /permissions check (same rules as slash commands).
+	local access = checkCommandAccess(message.member, message.guild, command, subName, false)
+	if access.decision == "deny" then
+		return message:fail(DENIED_MESSAGE)
+	end
+	local granted = access.decision == "allow" and access.granted
+
+	local permsOk, canuse, fail = runWithGrant(granted, message.member, parsePerms, message, command, message.member)
+		if not permsOk then
+			error(canuse, 0)
+		end
 	if not canuse then
 		Client:emit("commandUsed", message.member, {
 			name = command.name,
@@ -1743,7 +1953,7 @@ Client:on("messageCreate", function(message)
 
 	local cmdCb = ((hasPermission(message.member, "BOT_DEVELOPER") == true) and command.devCallback) or command.hybridCallback or command.callback
 	local subcmd = args and args[1]
-	local s, e = pcall(cmdCb, message, args, nil, subcmd and subcmd:lower())
+	local s, e = runWithGrant(granted, message.member, cmdCb, message, args, nil, subcmd and subcmd:lower())
 
 	if not s then
 		local errorID = "ducky_" .. junkStr(10)
@@ -1818,9 +2028,33 @@ Client:on("slashCommand", function(interaction, command, args)
 			return interaction:fail(err, nil, true)
 		end
 
+		-- Zeltra: central /permissions check (owner + server owner always pass).
+		local accessSubcmdParts = {}
+		do
+			local opts = interaction.data and interaction.data.options or {}
+			while opts and #opts == 1 and (opts[1].type == 1 or opts[1].type == 2) do
+				table.insert(accessSubcmdParts, opts[1].name)
+				opts = opts[1].options or {}
+			end
+		end
+		local access = checkCommandAccess(interaction.member, interaction.guild, command, table.concat(accessSubcmdParts, " "), true)
+		if access.decision == "deny" then
+			Client:emit("commandUsed", interaction.member, {
+				name = command.name,
+				fail = "denied by /permissions (" .. tostring(access.reason) .. ")",
+				full = "/" .. command.name,
+				timestamp = interaction.createdAt,
+				channel = interaction.channel and interaction.channel.id,
+				message = nil
+			})
+			return interaction:fail(DENIED_MESSAGE, nil, true)
+		end
+		local privileged = access.privileged
+		local granted = access.decision == "allow" and access.granted
+
 		local config = sqldb:get(interaction.guild.id)
 
-		if config then
+		if config and not privileged then
 			local disabledCommands = config.disabledcommands or {}
 
 			local fullCommandParts = {
@@ -1919,7 +2153,10 @@ Client:on("slashCommand", function(interaction, command, args)
 
 		local full = table.concat(parts, " ")
 
-		local canuse, fail = parsePerms(interaction, command, interaction.member)
+		local permsOk, canuse, fail = runWithGrant(granted, interaction.member, parsePerms, interaction, command, interaction.member)
+		if not permsOk then
+			error(canuse, 0)
+		end
 		if not canuse then
 			Client:emit("commandUsed", interaction.member, {
 				name = command.name,
@@ -1933,7 +2170,7 @@ Client:on("slashCommand", function(interaction, command, args)
 		end
 
 		local cmdCb = ((hasPermission(interaction.member, "BOT_DEVELOPER") == true) and command.devCallback) or command.hybridCallback or command.slashCallback
-		local s, e = pcall(cmdCb, interaction, args, command, subcmd and subcmd:lower())
+		local s, e = runWithGrant(granted, interaction.member, cmdCb, interaction, args, command, subcmd and subcmd:lower())
 
 		if not s then
 			local errorID = "ducky_" .. junkStr(10)

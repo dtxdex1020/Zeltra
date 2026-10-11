@@ -223,7 +223,7 @@ return {
 		if subcmd == "panel" then
 			if not hasPermission(interaction.member, "ERLC_STAFF", config, interaction) then
 				return
-			elseif not sqldb:plusGuild(interaction.guild) then
+			elseif not sqldb:plusGuild(interaction.guild) and not isPrivileged(interaction.member) then
 				return interaction:fail("This is a " .. emojis.duckyplus .. " **TSRP Plus+** feature!")
 			end
 

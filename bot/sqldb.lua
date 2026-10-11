@@ -158,6 +158,20 @@ conn:exec([[
   );
 ]])
 
+-- Zeltra: per-server command permission overrides (/permissions). Additive; safe on existing DBs.
+conn:exec([[ 
+  CREATE TABLE IF NOT EXISTS command_permissions (
+    guild_id TEXT NOT NULL,
+    command TEXT NOT NULL,
+    mode TEXT NOT NULL DEFAULT 'default',
+    roles TEXT,
+    users TEXT,
+    updated_by TEXT,
+    updated_at INTEGER,
+    PRIMARY KEY (guild_id, command)
+  );
+]])
+
 --- End Data Tables ---
 
 local sqldb = {}
@@ -169,7 +183,8 @@ sqldb.cache = {
 	linksByDiscord = {},
 	linksByRoblox = {},
 	plus = {},
-	affiliates = {}
+	affiliates = {},
+	command_permissions = {}
 }
 
 --- Helper Functions ---
@@ -2806,6 +2821,102 @@ function sqldb:getAllUserData(userId)
 	local readable = (#output > 0 and table.concat(output, "\n")) or "No data found for this user."
 	return userData, readable
 end
+
+--- Command Permission Functions (Zeltra /permissions) ---
+---@param guild_id string
+---@return table map of command key -> { mode, roles = {[roleId]=bool}, users = {[userId]=bool}, updated_by, updated_at }
+function sqldb:getCommandPermissions(guild_id, notCached)
+	if not guild_id then
+		return {}
+	end
+	guild_id = tostring(guild_id)
+
+	if not notCached and self.cache.command_permissions[guild_id] then
+		return self.cache.command_permissions[guild_id]
+	end
+
+	local success, result = self:_queryRun({
+		query = "SELECT command, mode, roles, users, updated_by, updated_at FROM command_permissions WHERE guild_id = ?",
+		values = {guild_id}
+	})
+
+	if not success then
+		log("Failed to fetch command permissions", "error", {guild_id = guild_id})
+		return {}
+	end
+
+	result.header = {"command", "mode", "roles", "users", "updated_by", "updated_at"}
+	local map = {}
+	for _, row in ipairs(transformTableRows(result)) do
+		map[row.command] = {
+			mode = row.mode or "default",
+			roles = (row.roles and decodeTable(row.roles)) or {},
+			users = (row.users and decodeTable(row.users)) or {},
+			updated_by = row.updated_by,
+			updated_at = tonumber(row.updated_at)
+		}
+	end
+
+	self.cache.command_permissions[guild_id] = map
+	return map
+end
+
+---@return table map of guild_id -> (map of command key -> record)
+function sqldb:getAllCommandPermissions()
+	local success, result = self:_queryRun({
+		query = "SELECT DISTINCT guild_id FROM command_permissions"
+	})
+	local all = {}
+	if success then
+		result.header = {"guild_id"}
+		for _, row in ipairs(transformTableRows(result)) do
+			all[tostring(row.guild_id)] = self:getCommandPermissions(tostring(row.guild_id))
+		end
+	end
+	return all
+end
+
+---@param record table { mode, roles, users }
+function sqldb:setCommandPermission(guild_id, command, record, updated_by)
+	if not guild_id or not command or type(record) ~= "table" then
+		return false, "guild_id, command and record are required"
+	end
+	guild_id, command = tostring(guild_id), tostring(command):lower()
+
+	local roles = next(record.roles or {}) and encodeTable(record.roles) or "{}"
+	local users = next(record.users or {}) and encodeTable(record.users) or "{}"
+
+	local success, err = self:_queryRun({
+		query = "INSERT OR REPLACE INTO command_permissions (guild_id, command, mode, roles, users, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		values = {guild_id, command, record.mode or "default", roles, users, tostring(updated_by or ""), os.time()}
+	})
+
+	self.cache.command_permissions[guild_id] = nil
+	if success then
+		return true
+	end
+	log("Failed to save command permission", "error", {guild_id = guild_id, command = command})
+	return false, tostring(err)
+end
+
+function sqldb:deleteCommandPermission(guild_id, command)
+	if not guild_id or not command then
+		return false, "guild_id and command are required"
+	end
+	guild_id, command = tostring(guild_id), tostring(command):lower()
+
+	local success, err = self:_queryRun({
+		query = "DELETE FROM command_permissions WHERE guild_id = ? AND command = ?",
+		values = {guild_id, command}
+	})
+
+	self.cache.command_permissions[guild_id] = nil
+	if success then
+		return true
+	end
+	return false, tostring(err)
+end
+--- End Command Permission Functions ---
 
 function sqldb:exec(query)
 	if not query or type(query) ~= "string" then

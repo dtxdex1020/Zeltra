@@ -21,7 +21,7 @@ return {
             return interaction:fail("You did not provide a reason for this softban.", nil, true)
         end
 
-        if member and member.highestRole and interaction.member.highestRole and
+        if member and member.highestRole and interaction.member.highestRole and not isPrivileged(interaction.member) and
             (member.highestRole.position >= interaction.member.highestRole.position) then
             return interaction:fail("That user has a role equal to or higher than you.", nil, true)
         end

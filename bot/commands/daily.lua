@@ -14,7 +14,7 @@ return {
         config.economy.cooldowns = config.economy.cooldowns or {}
         config.economy.limits = config.economy.limits or {}
 
-        if config.economy and config.economy.disabled then
+        if config.economy and config.economy.disabled and not isPrivileged(interaction.member) then
 			return interaction:fail("The " .. emojis.quack .. " **Economy** module is not enabled in this server.")
 		end
 
@@ -24,7 +24,7 @@ return {
         end
 
         local last = account.cooldowns.daily
-        if last and ((os.time() - last) < 86400) then
+        if last and ((os.time() - last) < 86400) and not isPrivileged(interaction.member) then
             return interaction:fail("You can claim your daily reward again in **" .. readable((last + 86400) - os.time()) .. "**.")
         else
             account.cooldowns.daily = os.time()

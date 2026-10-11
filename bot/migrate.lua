@@ -68,6 +68,12 @@ local ddl = {
 	[[CREATE TABLE IF NOT EXISTS "refreshTokens" (
 		id TEXT PRIMARY KEY, "refreshToken" TEXT
 	)]],
+	[[CREATE TABLE IF NOT EXISTS command_permissions (
+		guild_id TEXT NOT NULL, command TEXT NOT NULL,
+		mode TEXT NOT NULL DEFAULT 'default', roles TEXT, users TEXT,
+		updated_by TEXT, updated_at BIGINT,
+		PRIMARY KEY (guild_id, command)
+	)]],
 	[[CREATE TABLE IF NOT EXISTS auth_sessions (
 		"user" TEXT NOT NULL PRIMARY KEY, token TEXT NOT NULL,
 		"discordToken" TEXT NOT NULL, "refreshToken" TEXT NOT NULL
@@ -184,6 +190,11 @@ migrateTable("blacklists",
 migrateTable("affiliates",
 	{"id"},
 	{"id"}
+)
+
+migrateTable("command_permissions",
+	{"guild_id", "command", "mode", "roles", "users", "updated_by", "updated_at"},
+	{"guild_id", "command", "mode", "roles", "users", "updated_by", "updated_at"}
 )
 
 do

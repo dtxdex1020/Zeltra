@@ -22,7 +22,7 @@ return {
         local config = sqldb:get(interaction.guild.id) or {}
 		config.economy = config.economy or {}
 
-        if config.economy and config.economy.disabled then
+        if config.economy and config.economy.disabled and not isPrivileged(interaction.member) then
 			return interaction:fail("The " .. emojis.quack .. " **Economy** module is not enabled in this server.")
 		end
 

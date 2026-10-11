@@ -94,3 +94,9 @@ This is a new repository as we prefer to keep the commit history private.
 
 ## Can I propose changes?
 We will only accept bug fixes, nothing else. If you wish to make other changes, just fork the repo.
+
+## Command permissions (Tennessee State Roleplay fork)
+
+- **Owner bypass:** the bot owner (Discord ID `1307878235383795732` plus `DEV_ACCESS_IDS` in `bot/secrets.lua`) and each server's owner bypass the bot's staff-role checks, the moderator-vs-target role hierarchy, Plus gates, cooldowns and module/command-disabled checks. The bot's own role hierarchy still applies, and nobody can moderate the server owner or the bot. Server owners don't get bot-developer commands.
+- **`/permissions`** (bot owner only): `set`, `remove-role`, `add-user`, `remove-user`, `mode` (`default` | `roles-only` | `everyone` | `disabled`), `reset`, `view`, `list`, `copy`, `preset` (`moderator`, `shift`), `panel`, `role`. Rules can target a whole command (`shift`) or a single subcommand (`shift manage`), and the most specific rule wins. Rules are stored per server in the `command_permissions` table and enforced centrally in `bot/main.lua` (`checkCommandAccess`) before every command runs.
+- Tests: `cd bot && ./luvit tests/cmdperms_test.lua` (resolver) and `LUA_CPATH=... ./luvit tests/sqldb_permissions_test.lua` (DB, uses a temp database).

@@ -9,7 +9,7 @@ local option = tools.boolean("departmental",
 slashCommand = slashCommand:addOption(option)
 
 local function banMember(guild, violatorMember, violator, moderator, reason, nocase, seconds)
-    if violatorMember and violatorMember.highestRole and moderator.highestRole and
+    if violatorMember and violatorMember.highestRole and moderator.highestRole and not isPrivileged(moderator) and
         (violatorMember.highestRole.position >= moderator.highestRole.position) then
         return nil, "That user has a role equal to or higher than you."
     end
@@ -107,7 +107,7 @@ return {
             return interaction:fail("You did not provide a reason for this ban.", nil, true)
         end
 
-        if member and member.highestRole and interaction.member.highestRole and
+        if member and member.highestRole and interaction.member.highestRole and not isPrivileged(interaction.member) and
             (member.highestRole.position >= interaction.member.highestRole.position) then
             return interaction:fail("That user has a role equal to or higher than you.", nil, true)
         end

@@ -29,7 +29,7 @@ return {
 
 		local config = sqldb:get(interaction.guild.id) or {}
 
-		local moderatable, err = canModerate(interaction.member, member)
+		local moderatable, err = canModerate(interaction.member, member, config, true)
         if not moderatable then
             return interaction:fail(err)
         end

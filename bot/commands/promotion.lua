@@ -79,7 +79,7 @@ return {
 				return interaction:fail("I could not find that rank.", nil, true)
 			elseif (not reason) or (reason == "") then
 				return interaction:fail("You must provide a reason for this promotion.", nil, true)
-			elseif newrank.position >= interaction.member.highestRole.position then
+			elseif (not isPrivileged(interaction.member)) and newrank.position >= interaction.member.highestRole.position then
 				return interaction:fail("You cannot promote someone to a rank higher than or equal to your highest role.", nil, true)
 			end
 

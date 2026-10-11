@@ -129,7 +129,7 @@ return {
 					local selfHighest = (interaction.member.highestRole and interaction.member.highestRole.position) or 0
 					if member:hasRole(role.id) then
 						return interaction:warning("**" .. member.name .. "** already has the " .. role.mentionString .. " role.", nil, true)
-					elseif selfHighest <= role.position and guild.ownerId ~= interaction.member.id then
+					elseif selfHighest <= role.position and not isPrivileged(interaction.member) then
 						return interaction:fail("The " .. role.mentionString .. " role has a higher or same position than your highest role.", nil, true)
 					end
 
@@ -162,7 +162,7 @@ return {
 					local selfHighest = (interaction.member.highestRole and interaction.member.highestRole.position) or 0
 					if not member:hasRole(role.id) then
 						return interaction:warning("**" .. member.name .. "** does not have the " .. role.mentionString .. " role.", nil, true)
-					elseif selfHighest <= role.position and guild.ownerId ~= interaction.member.id then
+					elseif selfHighest <= role.position and not isPrivileged(interaction.member) then
 						return interaction:fail("The " .. role.mentionString .. " role has a higher or same position than your highest role.", nil, true)
 					end
 
@@ -268,7 +268,7 @@ return {
 
 			local cooldownTime = (plus and 1800) or 3600
 
-			if cooldown[guild.id] and (os.time() - cooldown[guild.id] <= cooldownTime) then
+			if cooldown[guild.id] and (os.time() - cooldown[guild.id] <= cooldownTime) and not isPrivileged(interaction.member) then
 				local remainingTime = cooldownTime - (os.time() - cooldown[guild.id])
 				return interaction:fail("Please wait **" .. readable(remainingTime) .. "** before using this command again.")
 			end
@@ -280,7 +280,7 @@ return {
 
 				if not succ then
 					return interaction:fail(result)
-				elseif (interaction.member.highestRole and interaction.member.highestRole.position and interaction.member.highestRole.position <= role.position) then
+				elseif (not isPrivileged(interaction.member)) and (interaction.member.highestRole and interaction.member.highestRole.position and interaction.member.highestRole.position <= role.position) then
 					return interaction:fail("You do not have permissions to manage this role.")
 				end
 

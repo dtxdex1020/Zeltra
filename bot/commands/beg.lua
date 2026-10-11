@@ -50,7 +50,7 @@ return {
 		config.economy.replies = config.economy.replies or {}
 		config.economy.limits = config.economy.limits or {}
 
-		if config.economy and config.economy.disabled then
+		if config.economy and config.economy.disabled and not isPrivileged(interaction.member) then
 			return interaction:fail("The " .. emojis.quack .. " **Economy** module is not enabled in this server.")
 		end
 
@@ -62,7 +62,7 @@ return {
 		local last = account.cooldowns and account.cooldowns.beg
 		local cooldown = (config.economy.cooldowns and config.economy.cooldowns.beg) or 60
 
-		if last and (os.time() - last) < cooldown then
+		if last and (os.time() - last) < cooldown and not isPrivileged(interaction.member) then
 			return interaction:fail("You are on cooldown. Try again in **" .. readable((last + cooldown) - os.time()) .. "**.")
 		else
 			account.cooldowns.beg = os.time()

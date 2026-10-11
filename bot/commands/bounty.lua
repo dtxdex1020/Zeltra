@@ -63,7 +63,7 @@ return {
         config.economy = config.economy or {}
         config.economy.bounties = config.economy.bounties or {}
 
-        if config.economy and config.economy.disabled then
+        if config.economy and config.economy.disabled and not isPrivileged(interaction.member) then
 			return interaction:fail("The " .. emojis.quack .. " **Economy** module is not enabled in this server.")
 		end
 

@@ -12,7 +12,7 @@ return {
         config.economy = config.economy or {}
         config.economy.collectionroles = config.economy.collectionroles or {}
 
-        if config.economy and config.economy.disabled then
+        if config.economy and config.economy.disabled and not isPrivileged(interaction.member) then
 			return interaction:fail("The " .. emojis.quack .. " **Economy** module is not enabled in this server.")
 		end
 
@@ -34,7 +34,7 @@ return {
             if interaction.member:hasRole(role) then
 
                 local last = account.cooldowns[role]
-                if not last or not cooldown or not ((os.time() - last) < cooldown) then
+                if not last or not cooldown or not ((os.time() - last) < cooldown) or isPrivileged(interaction.member) then
                     if cooldown then
                         account.cooldowns[role] = os.time()
                         needsCooldownUpdate = true
