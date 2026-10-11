@@ -87,7 +87,9 @@ return {
             end
 
             for _, batch in pairs(batches) do
-                interaction.channel:bulkDelete(batch)
+                if next(batch) then -- Zeltra: an empty batch (all too old) made Discord answer 50035
+                    interaction.channel:bulkDelete(batch)
+                end
             end
 
             db:send(interaction.guild, "modlogchannel", {

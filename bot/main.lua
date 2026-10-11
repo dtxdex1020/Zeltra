@@ -56,6 +56,9 @@ print("[Zeltra] | Initialized SECRETS in " .. (os.clock() - startl) .. " seconds
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing Discordia...")
 startl = os.clock()
+-- Zeltra: patch coro-http (idle connection limit + response timeout) before Discordia captures it.
+-- See libs/zeltra-http.lua for why: stale pooled connections caused "Unknown interaction" errors.
+_G.zeltraHttp = require("zeltra-http").install()
 local discordia = require("discordia")
 _G.discordia = discordia
 print("[Zeltra] | Initialized Discordia in " .. (os.clock() - startl) .. " seconds.\n")
@@ -103,6 +106,8 @@ startl = os.clock()
 require("zeltra-compat")
 require("zeltra-dmstyle")
 _G.securityCore = require("zeltra-security-core")
+-- Zeltra: interaction timing logs, auto-defer and the event loop monitor (libs/zeltra-interactions.lua)
+_G.zeltraInteractions = require("zeltra-interactions").install(discordia.class.classes.Interaction)
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing querystring...")
@@ -980,6 +985,9 @@ end
 _G.syncSlashCommands = syncSlashCommands
 
 Client:once("ready", function()
+	if _G.zeltraInteractions and not zeltraInteractions._lagMonitor then
+		zeltraInteractions._lagMonitor = zeltraInteractions.startLagMonitor(500)
+	end
 	_G.uptime = os.time()
 	-- Zeltra: Zeltra's home server ("Zeltra Support") is hardcoded throughout. Use SECRETS.HOME_GUILD_ID if set,
 	-- otherwise a harmless placeholder whose lookups all return nil (staff-role checks, Plus roles, etc.).
@@ -2035,6 +2043,12 @@ Client:on("slashCommandAutocomplete", function(interaction, command, focused, ar
 end)
 
 Client:on("slashCommand", function(interaction, command, args)
+	-- Zeltra: time every command and send "thinking..." if it hasn't answered within ~1.5s
+	if _G.zeltraInteractions then
+		zeltraInteractions.track(interaction, command and command.name)
+		zeltraInteractions.autoDefer(interaction)
+	end
+
 	if not interaction.user then
 		interaction:fail("Interaction is invalid: Missing user object.", nil, true)
 		return
@@ -2063,6 +2077,9 @@ Client:on("slashCommand", function(interaction, command, args)
 
 		if not command then
 			return interaction:fail(err, nil, true)
+		end
+		if _G.zeltraInteractions then
+			interaction._zDeferOpts = { noAutoDefer = command.noAutoDefer, deferEphemeral = command.deferEphemeral }
 		end
 
 		-- Zeltra: central /permissions check (owner + server owner always pass).

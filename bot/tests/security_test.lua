@@ -86,5 +86,18 @@ check("lock keeps existing denies", ld2 == "309237648448")
 check("isLocked", S.isLocked("309237647424") and not S.isLocked("2048"))
 check("allowsAnyLockBit", S.allowsAnyLockBit("2048") and S.allowsAnyLockBit("64") and not S.allowsAnyLockBit("1024"))
 
+-- keyword detection must never block the event loop (runs on every message)
+do
+	local words = {}
+	for i = 1, 400 do words[i] = ({ "hello", "r a i d", "brai", "abcde", "n.u.k", "x1y2z", "lorem" })[i % 7 + 1] end
+	local long = table.concat(words, " "):sub(1, 2000)
+	local custom = {}
+	for i = 1, 50 do custom[i] = "customword" .. i end
+	local t0 = os.clock()
+	for _ = 1, 50 do S.detectRaidKeyword(long, custom) end
+	local per = (os.clock() - t0) / 50 * 1000
+	check(("2000-char message with 50 custom words checks in under 5ms (%.2fms)"):format(per), per < 5)
+end
+
 print(("\n%d passed, %d failed"):format(passed, failed))
 os.exit(failed == 0 and 0 or 1)

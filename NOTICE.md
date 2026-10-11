@@ -29,3 +29,7 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
   (bot owners only).
 - 2026-10-11: Removed ownership applications (/ownership, its module, core lib, seed and tests); the owners moved
   to a Google Form. The code is still in git history (last version at commit 7b98b83).
+- 2026-10-11: Fixed "Unknown interaction" (10062) errors. bot/libs/zeltra-http.lua replaces coro-http's request so
+  idle pooled connections are not reused and responses have a timeout; bot/libs/zeltra-interactions.lua adds
+  per-command timing logs, an auto-defer in the slash command dispatcher and an event loop monitor. /purge skips
+  empty batches.
