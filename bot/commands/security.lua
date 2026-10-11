@@ -30,6 +30,9 @@ local SETTINGS = {
 	{ "flagged.mentionlimit", "int", 3, 50, label = "Mass mention limit" },
 	{ "flagged.burst", "int", 3, 50, label = "Spam burst messages" },
 	{ "flagged.burstwindow", "int", 2, 60, label = "Spam burst window (seconds)" },
+	{ "keywords.enabled", "bool", label = "Keyword detection" },
+	{ "keywords.lock", "bool", label = "Lock on keyword" },
+	{ "keywords.timeoutminutes", "int", 0, 40320, label = "Keyword timeout (minutes, 0 = off)" },
 }
 local BY_KEY = {}
 for _, s in ipairs(SETTINGS) do BY_KEY[s[1]] = s end
@@ -45,7 +48,7 @@ subcmd = subcmd:addOption(tools.integer("minutes", "How long raid mode lasts (de
 subcmd = subcmd:addOption(tools.boolean("lock_channels", "Stop @everyone from talking in public channels."):setRequired(false))
 slashCommand:addOption(subcmd)
 
-subcmd = tools.subCommand("unlock", "End raid mode and undo its changes.")
+subcmd = tools.subCommand("unlock", "Bot owners only: end raid mode and lift a keyword lockdown.")
 slashCommand:addOption(subcmd)
 
 local group = tools.subCommandGroup("config", "Change the security settings.")
@@ -61,6 +64,19 @@ group:addOption(subcmd)
 subcmd = tools.subCommand("whitelist", "Add or remove a trusted user or role.")
 subcmd = subcmd:addOption(tools.string("action", "Add or remove."):setRequired(true)
 	:addChoice(tools.choice("add", "add")):addChoice(tools.choice("remove", "remove")))
+subcmd = subcmd:addOption(tools.user("user", "The user."):setRequired(false))
+subcmd = subcmd:addOption(tools.role("role", "The role."):setRequired(false))
+group:addOption(subcmd)
+
+subcmd = tools.subCommand("keyword", "Add or remove a custom raid keyword.")
+subcmd = subcmd:addOption(tools.string("action", "Add, remove or list."):setRequired(true)
+	:addChoice(tools.choice("add", "add")):addChoice(tools.choice("remove", "remove")):addChoice(tools.choice("list", "list")))
+subcmd = subcmd:addOption(tools.string("word", "The word or phrase."):setRequired(false))
+group:addOption(subcmd)
+
+subcmd = tools.subCommand("ping", "Choose who gets pinged when a raid keyword is detected.")
+subcmd = subcmd:addOption(tools.string("action", "Add, remove or list."):setRequired(true)
+	:addChoice(tools.choice("add", "add")):addChoice(tools.choice("remove", "remove")):addChoice(tools.choice("list", "list")))
 subcmd = subcmd:addOption(tools.user("user", "The user."):setRequired(false))
 subcmd = subcmd:addOption(tools.role("role", "The role."):setRequired(false))
 group:addOption(subcmd)
@@ -126,6 +142,8 @@ local function statusCard(guild, sec)
 			{ "System", showValue(sec.enabled) },
 			{ "Log channel", (sec.logchannel and ("<#" .. sec.logchannel .. ">")) or "Not set" },
 			{ "Raid mode", (raid.active and ("On, ends " .. dmStyle.time(raid.ends, "R"))) or "Off" },
+			{ "Keyword lockdown", (sec.lockdown and sec.lockdown.active) and ("On since " .. dmStyle.time(sec.lockdown.started, "R") .. " · " .. #(sec.lockdown.entries or {}) .. " overwrites saved") or "Off" },
+			{ "Keyword detection", showValue(sec.keywords.enabled) .. " · lock " .. showValue(sec.keywords.lock):lower() .. " · timeout " .. ((sec.keywords.timeoutminutes > 0) and (sec.keywords.timeoutminutes .. "m") or "off") .. " · " .. #sec.keywords.custom .. " custom" },
 			{ "Anti-raid", showValue(a.enabled) .. " · " .. a.joins .. " joins in " .. a.window .. "s · auto raid " .. showValue(a.autoraid):lower() .. " · " .. a.raidminutes .. "m · joiners: " .. a.raidaction },
 			{ "Raid mode changes", "verification " .. showValue(a.raiseverification):lower() .. " · channel lock " .. showValue(a.lockchannels):lower() },
 			{ "Join flags", "new accounts " .. showValue(a.flagnew):lower() .. " (under " .. a.accountage .. "d) · avatar and name checks " .. showValue(a.heuristics):lower() },
@@ -144,7 +162,7 @@ return {
 	aliases = {},
 	category = "Moderation",
 	slashCommand = slashCommand,
-	subcommands = { "status", "lockdown", "unlock", "config set", "config whitelist", "config logchannel" },
+	subcommands = { "status", "lockdown", "unlock", "config set", "config whitelist", "config keyword", "config ping", "config logchannel" },
 	requiredPermissions = {
 		"ADMIN"
 	},
@@ -174,9 +192,22 @@ return {
 			return interaction:success("Raid mode is on until " .. dmStyle.time(res.ends, "t") .. ((results and #results > 0) and (": " .. table.concat(results, ", ") .. ".") or "."))
 
 		elseif subcmd == "unlock" then
-			local ok, res = api.endRaid(guild, interaction.user.id)
-			if not ok then return interaction:fail(res, nil, true) end
-			return interaction:success("Raid mode has ended" .. ((#res > 0) and (": " .. table.concat(res, ", ") .. ".") or "."))
+			-- bot owners only, by user ID; admins and /permissions grants can't unlock
+			if not api.isOwnerId(interaction.user.id) then
+				return interaction:fail("Only the bot owners can unlock the server.", nil, true)
+			end
+			interaction:replyDeferred(true)
+			local lines = {}
+			local okL, resL = api.endLockdown(guild)
+			if okL then
+				table.insert(lines, "Lockdown lifted: " .. resL.restored .. " overwrites restored" .. ((resL.failed > 0) and (", " .. resL.failed .. " failed") or ""))
+			end
+			if sec.raid and sec.raid.active then
+				local okR, resR = api.endRaid(guild, interaction.user.id)
+				if okR then table.insert(lines, "Raid mode ended" .. ((#resR > 0) and (": " .. table.concat(resR, ", ")) or "")) end
+			end
+			if #lines == 0 then return interaction:fail("Raid mode and the keyword lockdown are both off.", nil, true) end
+			return interaction:success(table.concat(lines, ". ") .. ".")
 
 		elseif subcmd == "config set" then
 			local setting = BY_KEY[args.setting]
@@ -209,6 +240,51 @@ return {
 			end
 			api.saveSec(guild, sec, "SECURITY_WHITELIST")
 			return interaction:success(((args.action == "add") and "Added " or "Removed ") .. table.concat(changed, " and ") .. ((args.action == "add") and " to" or " from") .. " the security whitelist.")
+
+		elseif subcmd == "config keyword" then
+			local list = sec.keywords.custom
+			if args.action == "list" then
+				return interaction:reply({ content = (#list > 0) and ("Custom keywords: " .. table.concat(list, ", ")) or "No custom keywords yet.", allowed_mentions = { parse = {} } }, true)
+			end
+			local word = args.word and args.word:lower():gsub("^%s+", ""):gsub("%s+$", "")
+			if not word or word == "" or #word > 50 then
+				return interaction:fail("Give a word or phrase up to 50 characters.", nil, true)
+			end
+			local index
+			for i, v in ipairs(list) do if v == word then index = i end end
+			if args.action == "add" then
+				if index then return interaction:fail("That keyword is already on the list.", nil, true) end
+				if #list >= 50 then return interaction:fail("The list is full (50 keywords).", nil, true) end
+				table.insert(list, word)
+			else
+				if not index then return interaction:fail("That keyword isn't on the list.", nil, true) end
+				table.remove(list, index)
+			end
+			api.saveSec(guild, sec, "SECURITY_KEYWORDS")
+			return interaction:success(((args.action == "add") and "Added" or "Removed") .. " the keyword **" .. word:gsub("[*_`~|]", "") .. "**.")
+
+		elseif subcmd == "config ping" then
+			local kw = sec.keywords
+			if args.action == "list" then
+				local list = {}
+				for _, id in ipairs(kw.pingusers) do table.insert(list, "<@" .. id .. ">") end
+				for _, id in ipairs(kw.pingroles) do table.insert(list, "<@&" .. id .. ">") end
+				return interaction:reply({ content = "Pinged 3 times on a raid keyword: " .. ((#list > 0) and table.concat(list, ", ") or "nobody")
+					.. ".", allowed_mentions = { parse = {} } }, true)
+			end
+			if not args.user and not args.role then return interaction:fail("Pick a user or a role.", nil, true) end
+			local changed = {}
+			local function apply(list, id, text)
+				local index
+				for i, v in ipairs(list) do if tostring(v) == id then index = i end end
+				if args.action == "add" and not index then table.insert(list, id) table.insert(changed, text)
+				elseif args.action == "remove" and index then table.remove(list, index) table.insert(changed, text) end
+			end
+			if args.user then apply(kw.pingusers, args.user.id, "<@" .. args.user.id .. ">") end
+			if args.role then apply(kw.pingroles, args.role.id, args.role.mentionString) end
+			if #changed == 0 then return interaction:fail("Nothing changed.", nil, true) end
+			api.saveSec(guild, sec, "SECURITY_PINGS")
+			return interaction:success(((args.action == "add") and "Added " or "Removed ") .. table.concat(changed, " and ") .. ((args.action == "add") and " to" or " from") .. " the raid keyword pings.")
 
 		elseif subcmd == "config logchannel" then
 			local channel = args.channel

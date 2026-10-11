@@ -44,8 +44,19 @@ M.DEFAULTS = {
 		burst = 7,             -- messages ...
 		burstwindow = 5,       -- ... within this many seconds from one person
 	},
+	keywords = {
+		enabled = true,        -- watch messages for raid/nuke commands and words (applies to everyone)
+		lock = true,           -- start a full lockdown on a match
+		timeoutminutes = 60,   -- time out the sender (0 = off); skipped where Discord doesn't allow it
+		cooldown = 60,         -- seconds after a lockdown before another match can lock again
+		custom = {},           -- extra keywords added with /security config keyword
+		pingusers = { "1307878235383795732", "1514313618827510011" }, -- pinged 3 times once per lockdown
+		-- ownership roles pinged too: Owner, Co-Owner, Assistant Owner, Ownership Board
+		pingroles = { "1522997818330058781", "1522997818363740160", "1522997818363740161", "1522997818363740163" },
+	},
 	whitelist = { users = {}, roles = {} },
 	raid = { active = false },
+	lockdown = { active = false },
 }
 
 local function deepcopy(t)
@@ -236,6 +247,165 @@ function M.severeIn(dec)
 		if M.SEVERE[d[1]] and (bits[d[1]] or 0) == 1 then table.insert(out, d[2]) end
 	end
 	return out
+end
+
+---------------------------------------------------------------- lockdown bits
+-- Send Messages, Send Messages in Threads, Add Reactions, Create Public Threads
+M.LOCK_BITS = { 11, 38, 6, 35 }
+
+local function setBits(dec, list, on)
+	local bits = toBits(dec)
+	local n = bits.n or 0
+	for _, b in ipairs(list) do
+		bits[b] = on and 1 or 0
+		if on and b + 1 > n then n = b + 1 end
+	end
+	for i = 0, n - 1 do bits[i] = bits[i] or 0 end
+	bits.n = n
+	local out = fromBits(bits):gsub("^0+(%d)", "%1")
+	return out
+end
+
+--- New (allow, deny) with the lock permissions removed from allow and added to deny.
+function M.lockOverwrite(allow, deny)
+	return setBits(allow or "0", M.LOCK_BITS, false), setBits(deny or "0", M.LOCK_BITS, true)
+end
+
+function M.allowsAnyLockBit(allow)
+	local bits = toBits(allow)
+	for _, b in ipairs(M.LOCK_BITS) do if (bits[b] or 0) == 1 then return true end end
+	return false
+end
+
+function M.isLocked(deny)
+	local bits = toBits(deny)
+	for _, b in ipairs(M.LOCK_BITS) do if (bits[b] or 0) ~= 1 then return false end end
+	return true
+end
+
+---------------------------------------------------------------- raid keyword detection
+local LEET = { ["4"] = "a", ["@"] = "a", ["3"] = "e", ["1"] = "i", ["!"] = "i", ["0"] = "o", ["5"] = "s", ["$"] = "s", ["7"] = "t" }
+
+-- prefix commands (compared after leet mapping and collapsing repeated letters)
+M.RAID_COMMANDS = { "nuke", "nuk", "raid", "massban", "massdm", "spam", "destroy", "wipe", "purgeall", "banall",
+	"kickall", "lockall", "webhookspam" }
+M.COMMAND_PREFIXES = "[%.!%?%-/;>,%$%+]"
+-- whole words that always count
+M.RAID_WORDS = { "raid", "raids", "raided", "raiding", "nuke", "nukes", "nuked", "nuking", "nuker" }
+-- real words within one typo of "raid"/"nuke" that must not count
+M.FUZZY_STOPLIST = { "paid", "said", "maid", "laid", "braid", "rapid", "rabid", "rain", "rail", "rand", "reid", "arid",
+	"rais", "raie", "nude", "duke", "luke", "juke", "puke", "nike", "nuka", "nuked", "rid", "ride", "rad" }
+
+--- "raidddd" -> "raid" (any letter repeated in a row becomes one)
+local function collapse(word)
+	local out, last = {}, nil
+	for c in word:gmatch(".") do
+		if c ~= last then table.insert(out, c) end
+		last = c
+	end
+	return table.concat(out)
+end
+M.collapse = collapse
+
+local function setOf(list, fn)
+	local out = {}
+	for _, w in ipairs(list) do out[fn and fn(w) or w] = w end
+	return out
+end
+local COMMANDS = setOf(M.RAID_COMMANDS, collapse)
+local WORDS = setOf(M.RAID_WORDS, collapse)
+local STOP = setOf(M.FUZZY_STOPLIST, collapse)
+
+--- Optimal string alignment distance (edits + adjacent swaps), stops early above max.
+function M.editDistance(a, b, max)
+	max = max or 99
+	if math.abs(#a - #b) > max then return max + 1 end
+	local d = {}
+	for i = 0, #a do d[i] = { [0] = i } end
+	for j = 0, #b do d[0][j] = j end
+	for i = 1, #a do
+		for j = 1, #b do
+			local cost = (a:sub(i, i) == b:sub(j, j)) and 0 or 1
+			d[i][j] = math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
+			if i > 1 and j > 1 and a:sub(i, i) == b:sub(j - 1, j - 1) and a:sub(i - 1, i - 1) == b:sub(j, j) then
+				d[i][j] = math.min(d[i][j], d[i - 2][j - 2] + 1)
+			end
+		end
+	end
+	return d[#a][#b]
+end
+
+--- Lowercased, leetspeak-mapped words. Single letters in a row ("r a i d", "n.u.k.e") are joined.
+function M.raidTokens(content)
+	local text = tostring(content or ""):lower()
+	text = text:gsub("<a?:[%w_]+:%d+>", " "):gsub("<[@#][!&]?%d+>", " "):gsub("https?://%S+", function(url)
+		return " " .. url:gsub("[^%a]", " ") .. " "
+	end)
+	local tokens = {}
+	for chunk in text:gmatch("[%w@%$!]+") do
+		local hasLetter = chunk:find("%a") ~= nil
+		if hasLetter or (#chunk == 1 and LEET[chunk]) then
+			local mapped = chunk:gsub(".", function(c) return LEET[c] or c end):gsub("[^%a]", "")
+			if mapped ~= "" then table.insert(tokens, mapped) end
+		end
+	end
+	-- join runs of 3+ single letters
+	local out, run = {}, {}
+	local function flush()
+		if #run >= 3 then table.insert(out, table.concat(run)) else for _, r in ipairs(run) do table.insert(out, r) end end
+		run = {}
+	end
+	for _, t in ipairs(tokens) do
+		if #t == 1 then table.insert(run, t) else flush() table.insert(out, t) end
+	end
+	flush()
+	return out
+end
+
+--- Returns { kind = "command"|"word"|"typo"|"custom", text = what matched } or nil.
+function M.detectRaidKeyword(content, custom)
+	local raw = tostring(content or "")
+	local trimmed = raw:match("^%s*(.-)%s*$")
+
+	-- prefix commands: .nuke, !raid, ?nuke, -nuke, .massban ...
+	local prefix, word = trimmed:match("^(" .. M.COMMAND_PREFIXES .. ")%s*([%w@%$!]+)")
+	if prefix and word then
+		local mapped = collapse(word:lower():gsub(".", function(c) return LEET[c] or c end):gsub("[^%a]", ""))
+		if COMMANDS[mapped] then
+			return { kind = "command", text = prefix .. word }
+		end
+	end
+
+	local tokens = M.raidTokens(raw)
+	local customWords, customPhrases = {}, {}
+	for _, kw in ipairs(custom or {}) do
+		local ktoks = M.raidTokens(kw)
+		if #ktoks == 1 then customWords[collapse(ktoks[1])] = kw
+		elseif #ktoks > 1 then
+			for i, t in ipairs(ktoks) do ktoks[i] = collapse(t) end
+			table.insert(customPhrases, { " " .. table.concat(ktoks, " ") .. " ", kw })
+		end
+	end
+
+	local collapsed = {}
+	for i, t in ipairs(tokens) do
+		local c = collapse(t)
+		collapsed[i] = c
+		if WORDS[c] then return { kind = "word", text = t } end
+		if customWords[c] then return { kind = "custom", text = customWords[c] } end
+		if #c >= 4 and #c <= 6 and not STOP[c] and not WORDS[c] then
+			if M.editDistance(c, "raid", 1) <= 1 or M.editDistance(c, "nuke", 1) <= 1 then
+				return { kind = "typo", text = t }
+			end
+		end
+	end
+	if #customPhrases > 0 then
+		local joined = " " .. table.concat(collapsed, " ") .. " "
+		for _, p in ipairs(customPhrases) do
+			if joined:find(p[1], 1, true) then return { kind = "custom", text = p[2] } end
+		end
+	end
+	return nil
 end
 
 ---------------------------------------------------------------- misc

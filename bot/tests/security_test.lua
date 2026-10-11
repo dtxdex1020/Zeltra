@@ -57,5 +57,34 @@ check("owners protected", S.isProtectedId("1307878235383795732") and S.isProtect
 check("extra protected", S.isProtectedId("5", { "5" }))
 check("mention count unique", S.countMentions("<@1> <@!1> <@2> <@&3> hi") == 3)
 
+-- raid keywords
+local should = { ".nuk", ".raid", "Raidddd", ".nuke", "!raid", "!nuke", "?nuke", "-nuke", "/nuke", ".massban", ".massdm", ".spam",
+	".destroy", ".wipe", ".purgeall", ".banall", ".kickall", ".lockall", ".webhookspam", "raid", "nuke", "nuking", "raiding",
+	"we got nuked lol", "r4id", "nuk3", "R41D", "r a i d", "n.u.k.e", "N U K E", "r-a-i-d", "nuuuuke", "RAID NOW", "riad", "nuek", "raod", "the raids" }
+for _, text in ipairs(should) do
+	check("detects " .. text, S.detectRaidKeyword(text) ~= nil)
+end
+local shouldNot = { "Numere", "braid", "afraid", "I paid", "raider", "Raiders won the game", "rapid", "arid", "nude", "duke", "said what",
+	"rainy day", "the maid laid it down", "2024 4 1 3", "hello <@123456789012345678>", "i need help", "good morning",
+	"bookkeeper", "nuance", "I like peanuts", "paradise", "Rapid response", "aid the team", "nucleus" }
+for _, text in ipairs(shouldNot) do
+	check("ignores " .. text, S.detectRaidKeyword(text) == nil)
+end
+check("command kind", S.detectRaidKeyword(".nuk").kind == "command")
+check("typo kind", S.detectRaidKeyword("riad").kind == "typo")
+check("custom keyword", S.detectRaidKeyword("Numere", { "numere" }).kind == "custom")
+check("custom phrase", S.detectRaidKeyword("time to wipe the server", { "wipe the server" }) ~= nil)
+check("collapse", S.collapse("raidddd") == "raid")
+check("edit distance swap", S.editDistance("riad", "raid") == 1)
+
+-- lockdown bits
+local la, ld = S.lockOverwrite("3072", "0")
+check("lock removes send from allow, keeps view", la == "1024")
+check("lock denies send, send in threads, reactions, create public threads", ld == "309237647424")
+local _, ld2 = S.lockOverwrite("0", "1024")
+check("lock keeps existing denies", ld2 == "309237648448")
+check("isLocked", S.isLocked("309237647424") and not S.isLocked("2048"))
+check("allowsAnyLockBit", S.allowsAnyLockBit("2048") and S.allowsAnyLockBit("64") and not S.allowsAnyLockBit("1024"))
+
 print(("\n%d passed, %d failed"):format(passed, failed))
 os.exit(failed == 0 and 0 or 1)

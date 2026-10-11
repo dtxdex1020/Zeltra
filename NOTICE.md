@@ -24,3 +24,6 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
 - 2026-10-10: Added ownership applications: bot/libs/zeltra-ownership-core.lua, modules/server_management/ownership.lua,
   commands/ownership.lua and the one-time seed bot/seeds/ownership_channel.lua (private review channel). Ducky V1 had
   no application system to build on. bot/libs/zeltra-dmstyle.lua gained action (non-link) buttons.
+- 2026-10-11: Security system: raid/nuke keyword detection (applies to everyone) with alert, owner pings, message
+  delete, DM + timeout, and a full lockdown whose previous overwrites are saved and restored by /security unlock
+  (bot owners only).

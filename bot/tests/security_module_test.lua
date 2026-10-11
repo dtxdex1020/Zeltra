@@ -16,7 +16,10 @@ function sqldb:get(id) return self.store[id] end
 function sqldb:set(id, changes) self.store[id] = self.store[id] or {} for k, v in pairs(changes) do self.store[id][k] = v end return true end
 _G.json = require("json")
 _G.dmStyle = dofile("libs/zeltra-dmstyle.lua") or _G.dmStyle
-dmStyle.post = function(channel, opts) table.insert(posts, opts) return true end
+dmStyle.post = function(channel, opts) table.insert(posts, opts) return { id = "post" .. #posts } end
+local realSend = dmStyle.send
+local dmsSent = {}
+dmStyle.send = function(target, opts) table.insert(dmsSent, { target = target, opts = opts }) return true end
 _G.discordia = { enums = { permission = { sendMessages = 2048 } } }
 _G.isBotOwner = function() return false end
 _G.timer = { setInterval = function() return 1 end, clearInterval = function() end }
@@ -85,7 +88,13 @@ _G.Client = {
 	removeListener = function() end,
 	getGuild = function() return guild end,
 	guilds = iterOf({ guild }),
-	_api = { modifyGuildRole = function(_, g, r, p) _G.lastRoleEdit = p return true end },
+	_api = {
+		modifyGuildRole = function(_, g, r, p) _G.lastRoleEdit = p return true end,
+		getGuildChannels = function() return _G.fakeChannels end,
+		editChannelPermissions = function(_, c, id, p) table.insert(_G.permCalls, { "edit", c, id, p }) return true end,
+		deleteChannelPermission = function(_, c, id) table.insert(_G.permCalls, { "delete", c, id }) return true end,
+		editMessage = function(_, c, m, p) _G.lastEdit = { c, m, p } return true end,
+	},
 }
 sqldb.store.g1 = { security = { logchannel = "log", antiraid = { lockchannels = true } } }
 
@@ -170,6 +179,154 @@ sus.user.createdAt = os.time() - 3600
 sus.user.avatar = nil
 handlers.memberJoin(sus)
 check("new account flagged", posts[#posts].title == "Flagged account joined" and posts[#posts].fields[3][2]:find("default avatar", 1, true))
+
+-- raid keyword detection: applies to owners too, alerts, deletes, DMs, times out, locks everything
+_G.permCalls = {}
+_G.fakeChannels = {
+	{ id = "t1", type = 0, permission_overwrites = {
+		{ id = "g1", type = 0, allow = "0", deny = "1024" },
+		{ id = "staffrole", type = 0, allow = "3072", deny = "0" },   -- view + send, non-admin: gets locked
+		{ id = "adminrole", type = 0, allow = "2048", deny = "0" },   -- admin role: left alone
+		{ id = "u5", type = 1, allow = "2048", deny = "0" } } },     -- member overwrite: not a role, left alone
+	{ id = "v1", type = 2, permission_overwrites = {} },                -- voice, no @everyone overwrite yet
+	{ id = "f1", type = 15, permission_overwrites = {} },               -- forum
+	{ id = "cat", type = 4, permission_overwrites = {} },               -- category: skipped
+	{ id = "already", type = 0, permission_overwrites = { { id = "g1", type = 0, allow = "0", deny = "309237647424" } } },
+}
+local roleTable = { adminrole = { id = "adminrole", _permissions = "8" }, staffrole = { id = "staffrole", _permissions = "1024" } }
+for _, rid in ipairs({ "1522997818330058781", "1522997818363740160", "1522997818363740161", "1522997818363740163" }) do roleTable[rid] = { id = rid, _permissions = "8" } end
+_G.pingMsgs = {}
+logChannel.send = function(self, p) table.insert(_G.pingMsgs, p) return { id = "ping" .. #_G.pingMsgs } end
+guild.getRole = function(_, id) return roleTable[id] or ((id == "r1") and adminRole) or nil end
+guild.ownerId = "1307878235383795732" -- the server owner can't be timed out
+local deleted = 0
+local function kwMsg(authorId, content, ownerMember)
+	local m = ownerMember or makeMember(authorId)
+	return { guild = guild, author = { id = authorId, bot = false, username = "dex", mentionString = "<@" .. authorId .. ">" }, member = m,
+		channel = { id = "hrcmds", mentionString = "<#hrcmds>" }, content = content, link = "https://discord.com/channels/g1/hrcmds/9",
+		delete = function() deleted = deleted + 1 return true end }
+end
+-- the owner is whitelisted, exempt and the server owner, and still triggers it
+sqldb.store.g1.security.whitelist = { users = { "1307878235383795732" }, roles = {} }
+local before = #posts
+handlers.messageCreate(kwMsg("1307878235383795732", ".nuk", ownerMember))
+local kwAlert = posts[before + 1]
+check("owner .nuk triggers alert", kwAlert and kwAlert.title == "Raid command detected")
+check("alert pings nobody", dmStyle.build(kwAlert).allowed_mentions.parse[1] == nil)
+check("alert has jump, remove timeout and unlock buttons", json.encode(dmStyle.build(kwAlert)):find("sec:untimeout:1307878235383795732", 1, true)
+	and json.encode(dmStyle.build(kwAlert)):find("sec:unlock", 1, true) and json.encode(dmStyle.build(kwAlert)):find("discord.com/channels", 1, true))
+check("3 ping messages after the alert", #_G.pingMsgs == 3)
+check("pings only the owners and ownership roles", (function()
+	for _, p in ipairs(_G.pingMsgs) do
+		local am = p.allowed_mentions
+		if #am.parse ~= 0 or #am.users ~= 2 or #am.roles ~= 4 then return false end
+		if not p.content:find("<@1307878235383795732>", 1, true) or not p.content:find("<@1514313618827510011>", 1, true) or not p.content:find("<@&1522997818363740163>", 1, true) then return false end
+		if p.content:find("\226\128\148") then return false end
+	end
+	return true
+end)())
+check("message deleted", deleted == 1)
+check("DM sent in card style", #dmsSent == 1 and dmsSent[1].opts.title == "You're suspected of raiding" and dmsSent[1].opts.intro == "Please be patient while we review the report.")
+local finalCard = json.encode(_G.lastEdit[3])
+check("server owner timeout skipped and noted", finalCard:find("Skipped: Discord can't time out the server owner", 1, true) ~= nil)
+check("alert edited with lockdown result", finalCard:find("Lockdown** · On", 1, true) ~= nil)
+local ld = api.getSec(guild).lockdown
+check("lockdown active and saved", ld.active == true and #ld.entries == 4)
+local touched = {}
+for _, c in ipairs(_G.permCalls) do touched[c[2] .. ":" .. c[3]] = c[4] end
+check("@everyone locked in text, voice and forum", touched["t1:g1"] and touched["v1:g1"] and touched["f1:g1"])
+check("non-admin role with allow locked", touched["t1:staffrole"] and touched["t1:staffrole"].allow == "1024")
+check("admin role, member overwrite, category untouched", not touched["t1:adminrole"] and not touched["t1:u5"] and not touched["cat:g1"])
+check("channel already locked is skipped", not touched["already:g1"])
+check("lock denies send, threads, reactions, create threads", touched["v1:g1"].deny == "309237647424" and touched["t1:g1"].deny == "309237648448")
+check("previous overwrites saved exactly", (function()
+	for _, e in ipairs(ld.entries) do
+		if e.c == "t1" and e.id == "g1" then if not (e.e and e.a == "0" and e.d == "1024") then return false end end
+		if e.c == "v1" and e.id == "g1" then if e.e then return false end end
+		if e.c == "t1" and e.id == "staffrole" then if not (e.a == "3072" and e.d == "0") then return false end end
+	end
+	return true
+end)())
+
+-- a second match inside the cooldown alerts but doesn't lock again
+_G.permCalls = {}
+local regular = makeMember("4242")
+handlers.messageCreate(kwMsg("4242", "we are going to raid lol", regular))
+check("second match alerts", posts[#posts].title == "Raid command detected")
+check("no relock inside cooldown", #_G.permCalls == 0 and json.encode(_G.lastEdit[3]):find("not locking again", 1, true) ~= nil)
+check("regular member timed out 60 minutes", timeouts["4242"] == 3600)
+check("no pings on cooldown repeats", #_G.pingMsgs == 3)
+
+-- false positives don't fire
+before = #posts
+for _, text in ipairs({ "I'm afraid of that braid", "the Raiders won", "I paid for it", "rapid response" }) do
+	handlers.messageCreate(kwMsg("4242", text, regular))
+end
+check("normal words don't trigger", #posts == before)
+
+-- custom keyword
+sqldb.store.g1.security.keywords = { custom = { "numere" } }
+handlers.messageCreate(kwMsg("4242", "Numere", regular))
+check("custom keyword triggers", posts[#posts].title == "Raid command detected" and posts[#posts].fields[3][2]:find("custom", 1, true))
+
+-- detection off
+sqldb.store.g1.security.keywords = { enabled = false }
+before = #posts
+handlers.messageCreate(kwMsg("4242", ".nuke", regular))
+check("keyword detection can be turned off", #posts == before)
+sqldb.store.g1.security.keywords = nil
+
+-- buttons
+local function btn(userId, customId)
+	local ia = { guild = guild, member = makeMember(userId), user = { id = userId, mentionString = "<@" .. userId .. ">" }, data = { custom_id = customId }, log = {} }
+	function ia:reply(p) table.insert(self.log, p) return true end
+	function ia:replyDeferred() table.insert(self.log, "deferred") return true end
+	return ia
+end
+local ia = btn("4242", "sec:unlock")
+handlers.interactionCreate(ia)
+check("non-owner can't unlock from the alert", json.encode(ia.log):find("Only the bot owners", 1, true) ~= nil and api.getSec(guild).lockdown.active)
+ia = btn("4242", "sec:untimeout:4242")
+handlers.interactionCreate(ia)
+check("can't remove your own timeout", json.encode(ia.log):find("own timeout", 1, true) ~= nil)
+local mod2 = makeMember("mod2") mod2.hasPermission = function(_, p) return p == "moderateMembers" end
+ia = btn("mod2", "sec:untimeout:4242") ia.member = mod2
+handlers.interactionCreate(ia)
+check("staff can remove a timeout", timeouts["4242"] == nil and json.encode(ia.log):find("Removed the timeout", 1, true) ~= nil)
+
+-- owner unlock restores exactly
+_G.permCalls = {}
+ia = btn("1514313618827510011", "sec:unlock")
+handlers.interactionCreate(ia)
+local restored = {}
+for _, c in ipairs(_G.permCalls) do restored[c[2] .. ":" .. c[3]] = c end
+check("owner unlock lifts lockdown", api.getSec(guild).lockdown.active == false and posts[#posts].title == "Lockdown lifted")
+check("existing overwrite restored exactly", restored["t1:g1"][1] == "edit" and restored["t1:g1"][4].allow == "0" and restored["t1:g1"][4].deny == "1024")
+check("role overwrite restored exactly", restored["t1:staffrole"][4].allow == "3072" and restored["t1:staffrole"][4].deny == "0")
+check("new overwrites deleted", restored["v1:g1"][1] == "delete" and restored["f1:g1"][1] == "delete")
+
+-- /security unlock is bot-owner only (admins and /permissions grants can't use it)
+local stub = {}
+stub.__index = function(t, k) return function(self, ...) return self end end
+_G.tools = setmetatable({}, { __index = function(_, kind) return function(name) return setmetatable({ kind = kind, name = name }, stub) end end })
+local secCmd = assert(loadfile("commands/security.lua"))()
+local function cmdIa(userId)
+	local ia = { guild = guild, member = makeMember(userId), user = { id = userId }, log = {} }
+	function ia:fail(m) table.insert(self.log, { "fail", m }) return true end
+	function ia:success(m) table.insert(self.log, { "success", m }) return true end
+	function ia:reply(p) table.insert(self.log, { "reply", p }) return true end
+	function ia:replyDeferred() table.insert(self.log, { "deferred" }) return true end
+	return ia
+end
+local adminIa = cmdIa("4242") adminIa.member.hasPermission = function() return true end
+secCmd.hybridCallback(adminIa, {}, true, "unlock")
+check("admin can't use /security unlock", adminIa.log[1][1] == "fail" and adminIa.log[1][2]:find("bot owners", 1, true))
+local ownerIa = cmdIa("1307878235383795732")
+secCmd.hybridCallback(ownerIa, {}, true, "unlock")
+check("owner reaches unlock (nothing to unlock)", ownerIa.log[#ownerIa.log][1] == "fail" and ownerIa.log[#ownerIa.log][2]:find("both off", 1, true))
+local kwIa = cmdIa("1307878235383795732")
+secCmd.hybridCallback(kwIa, { action = "add", word = "Numere" }, true, "config keyword")
+check("custom keyword added via command", kwIa.log[1][1] == "success" and api.getSec(guild).keywords.custom[1] == "numere")
 
 -- every alert builds a valid V2 payload with no em dashes
 local allOk = true

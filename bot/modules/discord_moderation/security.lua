@@ -9,6 +9,9 @@
 	    and remove their dangerous roles (below the bot's role only)
 	  * flagged actions: dangerous permission grants (optional revert), bots added,
 	    server setting edits, @everyone pings, mass mentions and message bursts
+	  * raid/nuke keywords (.nuke, !raid, "raid", "nuke" ...) from anyone, owners included: alert,
+	    delete the message, DM + time out the sender where Discord allows, and a full lockdown whose
+	    exact previous overwrites are saved so /security unlock (bot owners only) restores them
 	Alerts are posted as cards (libs/zeltra-dmstyle.lua) to the security log channel.
 	Settings live in the guild config key `security` (see libs/zeltra-security-core.lua).
 
@@ -423,11 +426,314 @@ local function onAudit(entry)
 	end
 end
 
+---------------------------------------------------------------- full lockdown (raid/nuke keywords)
+local LOCK_TYPES = { [0] = true, [5] = true, [2] = true, [13] = true, [15] = true, [16] = true }
+local keywordCooldown = S.newCooldown()
+local lockdownRunning = {}
+
+local function isOwnerId(id)
+	return S.isProtectedId(id)
+end
+
+local function saveLockdown(guild, ld)
+	local cur = getSec(guild)
+	cur.lockdown = ld
+	return saveSec(guild, cur, "SECURITY_LOCKDOWN")
+end
+
+local function rolePerms(guild, id)
+	local role = guild:getRole(id)
+	return role and tostring(role._permissions_new or role._permissions or "0") or "0"
+end
+
+--- Deny Send Messages / Send in Threads / Add Reactions / Create Public Threads for @everyone and for every
+--- non-admin role with an explicit allow, in every text, announcement, voice, stage, forum and media channel.
+--- The exact previous overwrite is saved first so endLockdown can put it back.
+local function fullLockdown(guild, info)
+	if lockdownRunning[guild.id] then return nil, "a lockdown is already being applied" end
+	lockdownRunning[guild.id] = true
+	local ok, res = pcall(function()
+		local sec = getSec(guild)
+		local ld = sec.lockdown
+		if not ld or not ld.active then
+			ld = { active = true, started = now(), by = info.by, reason = info.reason, trigger = info.trigger, entries = {} }
+		end
+		ld.entries = ld.entries or {}
+		local done = {}
+		for _, e in ipairs(ld.entries) do done[e.c .. ":" .. e.id] = true end
+		saveLockdown(guild, ld)
+
+		local channels, err = Client._api:getGuildChannels(guild.id)
+		if not channels then error("could not list channels: " .. tostring(err)) end
+		local result = { channels = 0, changed = 0, failed = 0, skipped = 0 }
+		local sinceSave = 0
+		for _, ch in ipairs(channels) do
+			if LOCK_TYPES[ch.type] then
+				local touched = false
+				local targets = {}
+				local existing = {}
+				for _, ow in ipairs(ch.permission_overwrites or {}) do existing[ow.id] = ow end
+				table.insert(targets, guild.id)
+				for _, ow in ipairs(ch.permission_overwrites or {}) do
+					if ow.type == 0 and ow.id ~= guild.id and S.allowsAnyLockBit(ow.allow) and not S.hasBit(rolePerms(guild, ow.id), 3) then
+						table.insert(targets, ow.id)
+					end
+				end
+				for _, id in ipairs(targets) do
+					local key = ch.id .. ":" .. id
+					local prev = existing[id]
+					if done[key] then
+						result.skipped = result.skipped + 1
+					elseif prev and S.isLocked(prev.deny) and not S.allowsAnyLockBit(prev.allow) then
+						result.skipped = result.skipped + 1 -- already locked by someone else, leave it alone
+					else
+						local allow, deny = S.lockOverwrite(prev and prev.allow or "0", prev and prev.deny or "0")
+						local entry = { c = ch.id, id = id, t = 0, e = prev ~= nil, a = prev and tostring(prev.allow) or "0", d = prev and tostring(prev.deny) or "0" }
+						table.insert(ld.entries, entry)
+						done[key] = true
+						local okEdit = Client._api:editChannelPermissions(ch.id, id, { allow = allow, deny = deny, type = 0 })
+						if okEdit then
+							result.changed = result.changed + 1
+							touched = true
+							sinceSave = sinceSave + 1
+							if sinceSave >= 20 then saveLockdown(guild, ld) sinceSave = 0 end
+						else
+							table.remove(ld.entries) -- nothing changed, nothing to restore
+							done[key] = nil
+							result.failed = result.failed + 1
+						end
+					end
+				end
+				if touched then result.channels = result.channels + 1 end
+			end
+		end
+		saveLockdown(guild, ld)
+		result.total = #ld.entries
+		return result
+	end)
+	lockdownRunning[guild.id] = nil
+	if not ok then return nil, res end
+	return res
+end
+
+local function endLockdown(guild)
+	local sec = getSec(guild)
+	local ld = sec.lockdown
+	if not ld or not ld.active then return false, "There's no keyword lockdown in place." end
+	local restored, failed = 0, 0
+	local entries = ld.entries or {}
+	for i = #entries, 1, -1 do
+		local e = entries[i]
+		local ok
+		if e.e then
+			ok = Client._api:editChannelPermissions(e.c, e.id, { allow = e.a, deny = e.d, type = e.t or 0 })
+		else
+			ok = Client._api:deleteChannelPermission(e.c, e.id)
+		end
+		if ok then restored = restored + 1 else failed = failed + 1 end
+	end
+	saveLockdown(guild, { active = false, lastStarted = ld.started, lastEnded = now() })
+	return true, { restored = restored, failed = failed }
+end
+
+---------------------------------------------------------------- raid keywords
+local function timeoutBlocker(guild, member)
+	if not member then return "they're not in the server" end
+	if guild.ownerId == member.id then return "Discord can't time out the server owner" end
+	if member:hasPermission("administrator") then return "Discord can't time out members with Administrator" end
+	local me = guild.me
+	local top = me and me.highestRole and me.highestRole.position or 0
+	if member.highestRole and member.highestRole.position >= top then return "their role is above the bot's" end
+	return nil
+end
+
+local function keywordCard(guild, message, match, status)
+	local content = tostring(message.content or "")
+	if #content > 900 then content = content:sub(1, 900) .. "..." end
+	return {
+		guild = guild, icon = "🚨", title = "Raid command detected",
+		intro = message.author.mentionString .. " sent a message that looks like a raid or nuke command.",
+		fields = {
+			{ "User", message.author.mentionString .. " · @" .. tostring(message.author.username) .. " (`" .. message.author.id .. "`)" },
+			{ "Channel", message.channel.mentionString },
+			{ "Matched", "`" .. match.text:gsub("`", "") .. "` (" .. match.kind .. ")" },
+			{ "Lockdown", status.lockdown },
+			{ "Timeout", status.timeout },
+			{ "DM", status.dm },
+			{ "Message", status.deleted },
+		},
+		sections = { { title = "Message content", body = (content ~= "" and content) or "(no text)" } },
+		note = "Remove timeout: staff with Timeout Members. Unlock server: bot owners only.",
+		buttons = {
+			{ label = "Jump to message", url = message.link },
+			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. message.author.id, style = 2, emoji = "⏱️" },
+			{ label = "Unlock server", custom_id = "sec:unlock", style = 4, emoji = "🔓" },
+		},
+		footer = "Security",
+	}
+end
+
+--- Users and roles to ping (default: the bot owners and the ownership roles). Deleted roles are skipped.
+local function pingTargets(guild, kw)
+	local users, roles, seen = {}, {}, {}
+	for _, id in ipairs(kw.pingusers or {}) do
+		if not seen[id] then seen[id] = true table.insert(users, tostring(id)) end
+	end
+	for _, id in ipairs(kw.pingroles or {}) do
+		if not seen[id] and guild:getRole(id) then seen[id] = true table.insert(roles, tostring(id)) end
+	end
+	return users, roles
+end
+
+local function sendPings(guild, channel, kw)
+	local users, roles = pingTargets(guild, kw)
+	if #users == 0 and #roles == 0 then return 0 end
+	local parts = {}
+	for _, id in ipairs(users) do table.insert(parts, "<@" .. id .. ">") end
+	for _, id in ipairs(roles) do table.insert(parts, "<@&" .. id .. ">") end
+	local sent = 0
+	for i = 1, 3 do
+		local ok, msg = pcall(function()
+			return channel:send({
+				content = "🚨 Raid command detected, check the alert above. " .. table.concat(parts, " "),
+				allowed_mentions = { parse = {}, users = users, roles = roles },
+			})
+		end)
+		if ok and msg then sent = sent + 1 end
+	end
+	return sent
+end
+
+local function onKeyword(message, sec, match)
+	local guild, author = message.guild, message.author
+	local member = message.member or guild:getMember(author.id)
+	local t = now()
+	local kw = sec.keywords
+	local channel = sec.logchannel and guild:getChannel(sec.logchannel)
+	print("[security] raid keyword from " .. author.id .. " in " .. message.channel.id .. ": " .. match.kind .. " " .. match.text)
+
+	-- first match in the cooldown window: lock (if enabled) and ping; later matches only alert
+	local first = keywordCooldown("kwlock:" .. guild.id, t, kw.cooldown or 60)
+	local willLock = kw.lock and first
+	local status = {
+		lockdown = (not kw.lock and "Off (Lock on keyword is disabled)") or (willLock and "Starting...")
+			or "Already triggered in the last " .. (kw.cooldown or 60) .. "s, not locking again",
+		timeout = "Pending", dm = "Pending", deleted = "Pending",
+	}
+
+	local posted = channel and dmStyle.post(channel, keywordCard(guild, message, match, status))
+	if not channel then print("[security] no security log channel set, keyword alert not posted") end
+	if channel and first then sendPings(guild, channel, kw) end
+
+	-- delete the message first so it stops being visible
+	local okDel = pcall(function() return message:delete() end)
+	status.deleted = okDel and "Deleted" or "Couldn't delete it"
+
+	-- DM, then time out
+	local minutes = tonumber(kw.timeoutminutes) or 0
+	local blocker = (minutes > 0) and timeoutBlocker(guild, member) or nil
+	local sent = dmStyle.send(member or author, {
+		guild = guild, icon = "🛡️", title = "You're suspected of raiding",
+		intro = "Please be patient while we review the report.",
+		fields = {
+			{ "Channel", message.channel.mentionString },
+			{ "Timeout", (minutes > 0 and not blocker) and (minutes .. " minutes") or nil },
+		},
+		footer = "Security",
+	})
+	status.dm = sent and "Sent" or "Couldn't DM them"
+	if minutes <= 0 then
+		status.timeout = "Off"
+	elseif blocker then
+		status.timeout = "Skipped: " .. blocker
+	else
+		local okT = member and member:timeoutFor(math.min(minutes, 40320) * 60)
+		status.timeout = okT and (minutes .. " minutes, ends " .. dmStyle.time(t + minutes * 60, "R")) or "Discord refused the timeout"
+	end
+
+	if willLock then
+		local res, err = fullLockdown(guild, {
+			by = author.id, reason = "Raid keyword: " .. match.text,
+			trigger = { user = author.id, channel = message.channel.id, text = match.text },
+		})
+		if res then
+			status.lockdown = "On · " .. res.changed .. " overwrites changed in " .. res.channels .. " channels"
+				.. ((res.failed > 0) and (" · " .. res.failed .. " failed") or "")
+				.. ((res.skipped > 0) and (" · " .. res.skipped .. " already locked") or "")
+		else
+			status.lockdown = "Failed: " .. tostring(err)
+			print("[security] lockdown failed: " .. tostring(err))
+		end
+	end
+
+	if posted then
+		local ok = Client._api:editMessage(channel.id, posted.id, dmStyle.build(keywordCard(guild, message, match, status)))
+		if not ok then dmStyle.post(channel, keywordCard(guild, message, match, status)) end
+	end
+end
+
+---------------------------------------------------------------- alert buttons
+local function canRemoveTimeout(member)
+	if isOwnerId(member.id) or member.guild.ownerId == member.id then return true end
+	if member:hasPermission("administrator") or member:hasPermission("moderateMembers") then return true end
+	return _G.hasPermission and hasPermission(member, "ADMIN", nil, nil, false) == true
+end
+
+local function onButton(interaction)
+	local data = interaction.data
+	local id = data and data.custom_id
+	if type(id) ~= "string" or id:sub(1, 4) ~= "sec:" then return end
+	local guild, member = interaction.guild, interaction.member
+	if not guild or not member then return end
+
+	if id == "sec:unlock" then
+		if not isOwnerId(interaction.user.id) then
+			return interaction:reply({ content = "Only the bot owners can unlock the server." }, true)
+		end
+		interaction:replyDeferred(true)
+		local lines = {}
+		local okL, resL = endLockdown(guild)
+		if okL then table.insert(lines, "Lockdown lifted: " .. resL.restored .. " overwrites restored" .. ((resL.failed > 0) and (", " .. resL.failed .. " failed") or "")) end
+		local sec = getSec(guild)
+		if sec.raid and sec.raid.active then
+			local okR, resR = endRaid(guild, interaction.user.id)
+			if okR then table.insert(lines, "Raid mode ended" .. ((#resR > 0) and (": " .. table.concat(resR, ", ")) or "")) end
+		end
+		if okL then
+			alert(guild, getSec(guild), { icon = "🔓", title = "Lockdown lifted", intro = interaction.user.mentionString .. " unlocked the server.",
+				fields = { { "Restored", resL.restored .. " overwrites" }, { "Failed", (resL.failed > 0) and tostring(resL.failed) or nil } } })
+		end
+		return interaction:reply({ content = (#lines > 0 and table.concat(lines, ". ") .. ".") or "Nothing to unlock." }, true)
+	end
+
+	local target = id:match("^sec:untimeout:(%d+)$")
+	if target then
+		if target == member.id then
+			return interaction:reply({ content = "You can't remove your own timeout." }, true)
+		end
+		if not canRemoveTimeout(member) then
+			return interaction:reply({ content = "You need Timeout Members to remove a timeout." }, true)
+		end
+		local m = guild:getMember(target)
+		local ok = m and m:removeTimeout()
+		print("[security] " .. member.id .. " removed timeout from " .. target .. ": " .. tostring(ok))
+		return interaction:reply({ content = ok and ("Removed the timeout from <@" .. target .. ">.") or "Couldn't remove the timeout.", allowed_mentions = { parse = {} } }, true)
+	end
+end
+
 local function onMessage(message)
 	local guild = message.guild
 	if not guild or not message.author or message.author.bot or message.webhookId then return end
 	local sec = getSec(guild)
-	if not sec.enabled or not sec.flagged.enabled or not sec.flagged.mentions then return end
+	if not sec.enabled then return end
+
+	-- raid/nuke keywords apply to everyone, owners and whitelisted users included
+	if sec.keywords.enabled then
+		local match = S.detectRaidKeyword(message.content, sec.keywords.custom)
+		if match then return onKeyword(message, sec, match) end
+	end
+
+	if not sec.flagged.enabled or not sec.flagged.mentions then return end
 	local member = message.member
 	if isExempt(guild, message.author.id, sec, member) then return end
 	if member and member:hasPermission("administrator") then return end
@@ -473,10 +779,14 @@ local function safe(name, fn)
 end
 
 security.Start = function()
-	_G.zeltraSecurity = { startRaid = startRaid, endRaid = endRaid, getSec = getSec, saveSec = saveSec }
+	_G.zeltraSecurity = { startRaid = startRaid, endRaid = endRaid, getSec = getSec, saveSec = saveSec,
+		fullLockdown = fullLockdown, endLockdown = endLockdown, isOwnerId = isOwnerId }
 	connections.join = { "memberJoin", Client:on("memberJoin", safe("join", onJoin)) }
 	connections.audit = { "guildAuditLogEntryCreate", Client:on("guildAuditLogEntryCreate", safe("audit", onAudit)) }
 	connections.message = { "messageCreate", Client:on("messageCreate", safe("message", onMessage)) }
+	connections.buttons = { "interactionCreate", Client:on("interactionCreate", function(interaction)
+		coroutine.wrap(safe("button", onButton))(interaction)
+	end) }
 	interval = timer.setInterval(30000, function()
 		coroutine.wrap(safe("raid expiry", checkRaidExpiry))()
 	end)
