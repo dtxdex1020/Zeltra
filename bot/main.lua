@@ -102,6 +102,7 @@ print("[Zeltra] | Initializing Zeltra compatibility layer...")
 startl = os.clock()
 require("zeltra-compat")
 require("zeltra-dmstyle")
+_G.securityCore = require("zeltra-security-core")
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing querystring...")
@@ -693,7 +694,7 @@ _G.SLASH_PERMISSION_BITS = PERM
 local SLASH_COMMAND_PERMISSIONS = {
 	-- Bot configuration / admin
 	setup = PERM.ADMINISTRATOR, setupthree = PERM.ADMINISTRATOR, config = PERM.ADMINISTRATOR,
-	automations = PERM.ADMINISTRATOR, prefix = PERM.ADMINISTRATOR, syncbans = PERM.ADMINISTRATOR,
+	automations = PERM.ADMINISTRATOR, prefix = PERM.ADMINISTRATOR, syncbans = PERM.ADMINISTRATOR, security = PERM.ADMINISTRATOR,
 	updatemembers = PERM.ADMINISTRATOR, plus = PERM.ADMINISTRATOR, exportables = PERM.ADMINISTRATOR,
 	message = PERM.ADMINISTRATOR, say = PERM.ADMINISTRATOR, diagnose = PERM.ADMINISTRATOR,
 	-- Bans / kicks
@@ -1109,6 +1110,14 @@ Client:once("ready", function()
 		local ok, err = pcall(require("./seeds/log_channels"), Client, sqldb, require("timer"))
 		if not ok then
 			print("[seed] log channels: error: " .. tostring(err))
+		end
+	end
+
+	-- Zeltra: one-time, idempotent seed, only when SEED_SECURITY=1 (see seeds/security_channel.lua)
+	if os.getenv("SEED_SECURITY") == "1" then
+		local ok, err = pcall(require("./seeds/security_channel"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] security: error: " .. tostring(err))
 		end
 	end
 end)
