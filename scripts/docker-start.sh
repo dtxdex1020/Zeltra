@@ -27,14 +27,14 @@ fi
 unset SEED_DB_B64
 
 # one-time backup before any gated seed (bot/seeds/), seeds are skipped if the backup fails
-if { [ "${SEED_INFRACTION_TYPES:-0}" = "1" ] || [ "${SEED_LOG_CHANNELS:-0}" = "1" ] || [ "${SEED_SECURITY:-0}" = "1" ]; } && [ -f "$DATA_DIR/data.db" ]; then
+if { [ "${SEED_INFRACTION_TYPES:-0}" = "1" ] || [ "${SEED_LOG_CHANNELS:-0}" = "1" ] || [ "${SEED_SECURITY:-0}" = "1" ] || [ "${SEED_OWNERSHIP_APPS:-0}" = "1" ]; } && [ -f "$DATA_DIR/data.db" ]; then
   mkdir -p "$DATA_DIR/sqlbackups"
   BACKUP="$DATA_DIR/sqlbackups/data-$(date -u +%Y%m%d-%H%M%S)-pre-seed.db"
   if sqlite3 "$DATA_DIR/data.db" ".backup '$BACKUP'" && [ "$(sqlite3 "$BACKUP" 'PRAGMA integrity_check;')" = "ok" ]; then
     echo "[start] Backed up database to $BACKUP ($(wc -c < "$BACKUP") bytes)"
   else
     echo "[start] Database backup failed, not running seeds" >&2
-    unset SEED_INFRACTION_TYPES SEED_LOG_CHANNELS SEED_SECURITY
+    unset SEED_INFRACTION_TYPES SEED_LOG_CHANNELS SEED_SECURITY SEED_OWNERSHIP_APPS
   fi
 fi
 

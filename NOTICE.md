@@ -21,3 +21,6 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
 - 2026-10-10: Added a security system: bot/libs/zeltra-security-core.lua, modules/discord_moderation/security.lua
   and commands/security.lua (anti-raid with raid mode, anti-nuke, flagged action alerts, /security), plus the
   one-time seed bot/seeds/security_channel.lua that creates the security log channel.
+- 2026-10-10: Added ownership applications: bot/libs/zeltra-ownership-core.lua, modules/server_management/ownership.lua,
+  commands/ownership.lua and the one-time seed bot/seeds/ownership_channel.lua (private review channel). Ducky V1 had
+  no application system to build on. bot/libs/zeltra-dmstyle.lua gained action (non-link) buttons.

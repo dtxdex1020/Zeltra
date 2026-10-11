@@ -63,7 +63,7 @@ return function(Client, sqldb, timer)
 			topic = "Security alerts from the bot (anti-raid, anti-nuke, flagged actions).",
 			permission_overwrites = overwrites,
 		}
-		if guild:getChannel(CATEGORY_ID) then payload.parent_id = CATEGORY_ID end
+		if guild:getCategory(CATEGORY_ID) then payload.parent_id = CATEGORY_ID end
 		local data, err = Client._api:createGuildChannel(GUILD_ID, payload)
 		if not data then
 			return say("could not create the channel: " .. tostring(err))

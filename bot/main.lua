@@ -103,6 +103,7 @@ startl = os.clock()
 require("zeltra-compat")
 require("zeltra-dmstyle")
 _G.securityCore = require("zeltra-security-core")
+_G.ownershipCore = require("zeltra-ownership-core")
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing querystring...")
@@ -719,6 +720,10 @@ end
 -- Zeltra: /permissions is owner-only; hidden from non-admins and also enforced by user ID.
 SLASH_COMMAND_PERMISSIONS.permissions = PERM.ADMINISTRATOR
 
+-- Zeltra: commands registered visible to everyone; the bot checks access itself (e.g. /ownership apply is
+-- for the Staff Team role, which has no Discord permission to key on). /permissions still applies.
+local PUBLIC_SLASH_COMMANDS = { ownership = true }
+
 -- Discordia permission names for the bits above (bot-side enforcement when a command is made visible).
 local PERM_NAMES = {
 	[PERM.ADMINISTRATOR] = "administrator", [PERM.KICK_MEMBERS] = "kickMembers", [PERM.BAN_MEMBERS] = "banMembers",
@@ -760,6 +765,13 @@ local function applySlashPermissions(command)
 		return
 	end
 	local name = tostring(slash.name or command.name or ""):lower()
+	if PUBLIC_SLASH_COMMANDS[name] then
+		command.baseMemberPermissions = nil
+		slash.default_member_permissions = nil
+		slash.dm_permission = false
+		slash.contexts = { 0 } -- guild only
+		return
+	end
 	local perm = SLASH_COMMAND_PERMISSIONS[name] or SLASH_COMMAND_PERMISSIONS[tostring(command.name or ""):lower()]
 	if not perm then
 		-- usersettings is a per-user preferences command, not bot config.
@@ -1118,6 +1130,14 @@ Client:once("ready", function()
 		local ok, err = pcall(require("./seeds/security_channel"), Client, sqldb, require("timer"))
 		if not ok then
 			print("[seed] security: error: " .. tostring(err))
+		end
+	end
+
+	-- Zeltra: one-time, idempotent seed, only when SEED_OWNERSHIP_APPS=1 (see seeds/ownership_channel.lua)
+	if os.getenv("SEED_OWNERSHIP_APPS") == "1" then
+		local ok, err = pcall(require("./seeds/ownership_channel"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] ownership apps: error: " .. tostring(err))
 		end
 	end
 end)

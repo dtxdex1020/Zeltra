@@ -131,6 +131,24 @@ end
 		footer = "Staff Management" | false,
 	}
 ]]
+--[[
+	Button row contents. Link buttons: { label, url, emoji }.
+	Action buttons (handled by a module): { label, custom_id, style = 1 primary / 2 grey / 3 green / 4 red, emoji, disabled }.
+]]
+function dm.buttons(list)
+	local out = {}
+	for _, b in ipairs(list or {}) do
+		if type(b.url) == "string" and b.url:match("^https?://") then
+			table.insert(out, { type = 2, style = 5, label = truncate(b.label, 80), url = b.url, emoji = b.emoji and { name = b.emoji } or nil })
+		elseif type(b.custom_id) == "string" and b.custom_id ~= "" then
+			table.insert(out, { type = 2, style = b.style or 2, label = truncate(b.label, 80), custom_id = b.custom_id:sub(1, 100),
+				emoji = b.emoji and { name = b.emoji } or nil, disabled = b.disabled or nil })
+		end
+		if #out >= 5 then break end
+	end
+	return out
+end
+
 function dm.build(opts)
 	local blocks = {}
 
@@ -166,18 +184,7 @@ function dm.build(opts)
 		table.insert(components, { type = 13, file = { url = "attachment://" .. opts.file } })
 	end
 
-	local buttons = {}
-	for _, b in ipairs(opts.buttons or {}) do
-		if type(b.url) == "string" and b.url:match("^https?://") then
-			table.insert(buttons, {
-				type = 2,
-				style = 5,
-				label = truncate(b.label, 80),
-				url = b.url,
-				emoji = b.emoji and { name = b.emoji } or nil
-			})
-		end
-	end
+	local buttons = dm.buttons(opts.buttons)
 	if #buttons > 0 then
 		table.insert(components, { type = 1, components = buttons })
 	end
@@ -214,12 +221,7 @@ function dm.buildEmbed(opts)
 	end
 	if opts.note then table.insert(desc, "-# " .. opts.note) end
 
-	local buttons = {}
-	for _, b in ipairs(opts.buttons or {}) do
-		if type(b.url) == "string" and b.url:match("^https?://") then
-			table.insert(buttons, { type = 2, style = 5, label = truncate(b.label, 80), url = b.url, emoji = b.emoji and { name = b.emoji } or nil })
-		end
-	end
+	local buttons = dm.buttons(opts.buttons)
 
 	local footer = footerText(opts)
 	return {
