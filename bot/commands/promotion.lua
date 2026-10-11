@@ -136,7 +136,28 @@ return {
 				}
 			}, keys)
 
-			local msg = db:send(interaction.guild.id, "promotionschannel", tosend, nil, true)
+			local msg
+			if config.promotionembeds then
+				-- the server set its own promotion embed in /setup, keep using it
+				msg = db:send(interaction.guild.id, "promotionschannel", tosend, nil, true)
+			else
+				msg = dmStyle.postTo(interaction.guild, "promotionschannel", {
+					guild = interaction.guild,
+					icon = "🎓",
+					title = "Staff promotion",
+					intro = "Congratulations to " .. receiver.mentionString .. " on their promotion!",
+					fields = {
+						{ "Staff Member", receiver.mentionString },
+						{ "New Rank", newrank.mentionString },
+						{ "Reason", reason },
+						{ "Notes", (notes ~= "N/A" and notes) or nil },
+						{ "Promoted by", promoter.mentionString },
+						{ "Date", dmStyle.time(promotion.timestamp) },
+						{ "Promotion ID", "`" .. tostring(promotion.id) .. "`" }
+					},
+					footer = "Staff Management"
+				}, receiver.id)
+			end
 
 			if msg and msg.id then
 				promotion.msg = msg.id
@@ -150,7 +171,7 @@ return {
 					local truncatedName = string.truncate(finalThreadName, 100)
 					local thread = msg.channel:startThread(truncatedName, msg.id)
 
-					promotion.thread = thread.id
+					promotion.thread = thread and thread.id
 				end
 			end
 

@@ -72,5 +72,37 @@ check("ticket reason section", tc[3].content == "**Reason**\n> Done")
 check("ticket file + button + footer", tc[4].type == 13 and tc[5].type == 1 and tc[6].content == "-# Tennessee State Roleplay · Ticket #0725")
 check("ticket file attached", sent[1].files and sent[1].files[1][1] == "transcript.txt")
 
+-- channel post with ping
+local posted = {}
+local chan = { id = "c1", send = function(self, p) table.insert(posted, p) return { id = "m" } end }
+dm.post(chan, { guild = guild, icon = "🎓", title = "Staff promotion", fields = { { "New Rank", "<@&5>" } }, footer = "Staff Management" }, "42")
+local pc = posted[1]
+check("post ping above the card", pc.components[1].type == 10 and pc.components[1].content == "-# 🔔 <@42>" and pc.components[2].type == 17)
+check("post pings only that user", #pc.allowed_mentions.parse == 0 and pc.allowed_mentions.users[1] == "42")
+check("post keeps V2 flag", pc.flags == 32768)
+
+posted = {}
+local badChan = { id = "c2", send = function(self, p) table.insert(posted, p) if p.flags then return nil, "HTTP 400" end return { id = "m" } end }
+dm.post(badChan, { title = "Infraction issued", fields = { { "A", "b" } } }, "42")
+check("post falls back to embed with ping", #posted == 2 and posted[2].embed and posted[2].content == "-# 🔔 <@42>")
+check("post with no channel is safe", dm.post(nil, { title = "x" }) == nil)
+
+-- Discord Components V2 limits (https://discord.com/developers/docs/components/reference)
+local function countText(comps)
+	local n, total = 0, 0
+	for _, c in ipairs(comps) do
+		n = n + 1
+		if c.type == 10 then total = total + #c.content end
+		if c.components then local a, b = countText(c.components) n = n + a total = total + b end
+	end
+	return n, total
+end
+local long = dm.build({ guild = guild, icon = "⚖️", title = "t", intro = string.rep("x", 5000),
+	fields = { { "Reason", string.rep("y", 5000) } }, sections = { { title = "Reason", body = string.rep("z", 5000) } } })
+local n, total = countText(long.components)
+check("component count <= 40", n <= 40)
+check("each text display <= 4000 chars", (function() for _, c in ipairs(long.components[1].components) do if c.type == 10 and #c.content > 4000 then return false end end return true end)())
+check("accent is an integer color", math.floor(long.components[1].accent_color) == long.components[1].accent_color and long.components[1].accent_color <= 0xFFFFFF)
+
 print(("\n%d passed, %d failed"):format(passed, failed))
 os.exit(failed == 0 and 0 or 1)

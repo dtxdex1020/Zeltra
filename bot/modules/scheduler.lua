@@ -410,8 +410,26 @@ scheduler.Start = function()
 												config.infractionthread and guild:getChannel(infraction.thread)
 											) or guild:getChannel(config.infractionschannel)
 
-											if target then
+											if target and config.infractionexpireembeds then
+												-- the server set its own expire embed in /setup, keep using it
 												target:send({ embeds = embeds })
+											elseif target then
+												dmStyle.post(target, {
+													guild = guild,
+													icon = "⚖️",
+													title = "Infraction expired",
+													intro = "An infraction on <@" .. tostring(infraction.user) .. "> has expired.",
+													fields = {
+														{ "Staff Member", "<@" .. tostring(infraction.user) .. ">" },
+														{ "Punishment", infraction.type },
+														{ "Reason", infraction.reason or "No reason provided" },
+														{ "Issued by", infraction.issuer and ("<@" .. tostring(infraction.issuer) .. ">") },
+														{ "Issued", infraction.timestamp and dmStyle.time(infraction.timestamp) },
+														{ "Expired", infraction.expires and dmStyle.time(infraction.expires) },
+														{ "Case ID", "`" .. tostring(infraction.id) .. "`" },
+													},
+													footer = "Staff Management",
+												})
 											end
 										end
 

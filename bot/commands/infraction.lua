@@ -242,8 +242,30 @@ return {
 				end
 			end
 
-            if sqldb:get(guild.id).infractionthread then
-                (guild:getChannel(targetInfraction.thread) or infractionsChannel):send({ embeds = embeds })
+            local logTarget = (targetInfraction.thread and guild:getChannel(targetInfraction.thread)) or infractionsChannel
+            if logTarget then
+                if config.infractionrevokeembeds then
+                    -- the server set its own revoke embed in /setup, keep using it
+                    logTarget:send({ embeds = embeds })
+                else
+                    dmStyle.post(logTarget, {
+                        guild = guild,
+                        icon = "⚖️",
+                        title = "Infraction revoked",
+                        intro = "An infraction on <@" .. tostring(targetInfraction.user) .. "> was revoked by " .. interaction.member.mentionString .. ".",
+                        fields = {
+                            { "Staff Member", "<@" .. tostring(targetInfraction.user) .. ">" },
+                            { "Punishment", targetInfraction.type },
+                            { "Reason", targetInfraction.reason or "No reason provided" },
+                            { "Issued by", targetInfraction.issuer and ("<@" .. tostring(targetInfraction.issuer) .. ">") },
+                            { "Revoked by", interaction.member.mentionString },
+                            { "Issued", targetInfraction.timestamp and dmStyle.time(targetInfraction.timestamp) },
+                            { "Revoked", dmStyle.time(os.time()) },
+                            { "Case ID", "`" .. tostring(targetInfraction.id) .. "`" }
+                        },
+                        footer = "Staff Management"
+                    })
+                end
             end
 
             local us = sqldb:getUserSettings(member.id) or {}
@@ -528,36 +550,49 @@ return {
                     ["timestamp"] = tostring(os.time())
                 })
 
-                if sqldb:get(guild.id).infractionthread then
-                    (guild:getChannel(targetInfraction.thread) or infractionsChannel):send({ embeds = embeds })
+                local changeFields = {}
+                if oldData.type ~= newData.type then
+                    table.insert(changeFields, { "Punishment", tostring(oldData.type or "None") .. " → " .. tostring(newData.type or "None") })
+                else
+                    table.insert(changeFields, { "Punishment", targetInfraction.type })
+                end
+                if oldData.reason ~= newData.reason then
+                    table.insert(changeFields, { "Reason", tostring(oldData.reason or "None") .. " → " .. tostring(newData.reason or "None") })
+                end
+                if oldData.notes ~= newData.notes then
+                    table.insert(changeFields, { "Notes", tostring(oldData.notes or "None") .. " → " .. tostring(newData.notes or "None") })
+                end
+                if oldData.expires ~= newData.expires then
+                    table.insert(changeFields, { "Expires", (newData.expires and dmStyle.time(newData.expires)) or "Never" })
+                end
+                table.insert(changeFields, { "Updated by", interaction.member.mentionString })
+                table.insert(changeFields, { "Case ID", "`" .. tostring(targetInfraction.id) .. "`" })
+
+                local logTarget = (targetInfraction.thread and guild:getChannel(targetInfraction.thread)) or infractionsChannel
+                if config.infractioneditembeds then
+                    -- the server set its own edit embed in /setup, keep using it
+                    logTarget:send({ embeds = embeds })
+                else
+                    local postFields = { { "Staff Member", member.mentionString } }
+                    for _, f in ipairs(changeFields) do table.insert(postFields, f) end
+                    dmStyle.post(logTarget, {
+                        guild = guild,
+                        icon = "⚖️",
+                        title = "Infraction updated",
+                        intro = "An infraction on " .. member.mentionString .. " was updated by " .. interaction.member.mentionString .. ".",
+                        fields = postFields,
+                        footer = "Staff Management"
+                    })
                 end
 
                 local us = sqldb:getUserSettings(targetInfraction.user) or {}
                 if us.infractionnotifications then
-                    local dmFields = {}
-                    if oldData.type ~= newData.type then
-                        table.insert(dmFields, { "Punishment", tostring(oldData.type or "None") .. " → " .. tostring(newData.type or "None") })
-                    else
-                        table.insert(dmFields, { "Punishment", targetInfraction.type })
-                    end
-                    if oldData.reason ~= newData.reason then
-                        table.insert(dmFields, { "Reason", tostring(oldData.reason or "None") .. " → " .. tostring(newData.reason or "None") })
-                    end
-                    if oldData.notes ~= newData.notes then
-                        table.insert(dmFields, { "Notes", tostring(oldData.notes or "None") .. " → " .. tostring(newData.notes or "None") })
-                    end
-                    if oldData.expires ~= newData.expires then
-                        table.insert(dmFields, { "Expires", (newData.expires and dmStyle.time(newData.expires)) or "Never" })
-                    end
-                    table.insert(dmFields, { "Updated by", interaction.member.mentionString })
-                    table.insert(dmFields, { "Case ID", "`" .. tostring(targetInfraction.id) .. "`" })
-
                     dmStyle.send(member, {
                         guild = guild,
                         icon = "⚖️",
                         title = "Your infraction was updated",
                         intro = "An infraction you received in **" .. dmStyle.serverName(guild) .. "** has been updated.",
-                        fields = dmFields,
+                        fields = changeFields,
                         footer = "Staff Management"
                     })
                 end

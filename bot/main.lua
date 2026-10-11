@@ -1103,6 +1103,14 @@ Client:once("ready", function()
 			print("[seed] infraction types: error: " .. tostring(err))
 		end
 	end
+
+	-- Zeltra: one-time, idempotent seed, only when SEED_LOG_CHANNELS=1 (see seeds/log_channels.lua)
+	if os.getenv("SEED_LOG_CHANNELS") == "1" then
+		local ok, err = pcall(require("./seeds/log_channels"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] log channels: error: " .. tostring(err))
+		end
+	end
 end)
 
 local function getCommand(query)

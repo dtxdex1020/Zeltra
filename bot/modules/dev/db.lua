@@ -310,10 +310,33 @@ dbModule.Start = function()
 				end
 			end
 
-			local msg = db:send(guild, "infractionschannel", {
-				content = "-# " .. _G.emojis.pings .. " " .. member.mentionString,
-				embeds = embeds
-			}, nil, true)
+			local msg
+			if config.infractionembeds then
+				-- the server set its own infraction embed in /setup, keep using it
+				msg = db:send(guild, "infractionschannel", {
+					content = "-# " .. _G.emojis.pings .. " " .. member.mentionString,
+					embeds = embeds
+				}, nil, true)
+			else
+				local expiresAt = expires and (currentTime + expires)
+				msg = dmStyle.postTo(guild, "infractionschannel", {
+					guild = guild,
+					icon = "⚖️",
+					title = "Infraction issued",
+					intro = member.mentionString .. " received an infraction from " .. issuer.mentionString .. ".",
+					fields = {
+						{ "Staff Member", member.mentionString },
+						{ "Punishment", infractionType.name },
+						{ "Reason", reason or "No reason provided" },
+						{ "Notes", notes },
+						{ "Issued by", issuer.mentionString },
+						{ "Issued", dmStyle.time(currentTime) },
+						{ "Expires", (expiresAt and (dmStyle.time(expiresAt) .. " (" .. dmStyle.time(expiresAt, "R") .. ")")) or "Never" },
+						{ "Case ID", "`" .. tostring(infractionID) .. "`" }
+					},
+					footer = "Staff Management"
+				}, member.id)
+			end
 
 			local usersettings = sqldb:getUserSettings(member.id)
 

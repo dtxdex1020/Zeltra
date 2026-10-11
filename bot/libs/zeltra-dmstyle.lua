@@ -100,7 +100,7 @@ local function fieldLines(fields)
 	for _, f in ipairs(fields or {}) do
 		local label, value = f[1], f[2]
 		if value ~= nil and value ~= false and tostring(value) ~= "" then
-			value = tostring(value):gsub("\r", ""):gsub("\n", " ")
+			value = truncate(tostring(value):gsub("\r", ""):gsub("\n", " "), 900)
 			table.insert(lines, "> **" .. label .. "** · " .. value)
 		end
 	end
@@ -258,9 +258,63 @@ function dm.send(target, opts)
 	end)
 
 	if not ok then
-		return nil, msg
+		err = msg
+		msg = nil
+	end
+	if not msg then
+		print("[dm] could not DM " .. tostring(target and target.id) .. " (" .. tostring(opts.title) .. "): " .. tostring(err))
 	end
 	return msg, err
+end
+
+--[[
+	Same card style for a log channel post (e.g. #infractions, #promotions).
+	ping = user ID to mention above the card (only that user is pinged, roles are not).
+]]
+function dm.post(channel, opts, ping)
+	if not channel or not channel.send then
+		return nil, "no channel"
+	end
+
+	local ok, msg, err = pcall(function()
+		local payload = dm.build(opts)
+		if ping then
+			table.insert(payload.components, 1, { type = 10, content = "-# 🔔 <@" .. ping .. ">" })
+			payload.allowed_mentions = { parse = {}, users = { tostring(ping) } }
+		end
+
+		local m, e = channel:send(payload)
+		if m then return m end
+
+		local fallback = dm.buildEmbed(opts)
+		if ping then
+			fallback.content = "-# 🔔 <@" .. ping .. ">"
+			fallback.allowed_mentions = { parse = {}, users = { tostring(ping) } }
+		end
+		local m2, e2 = channel:send(fallback)
+		if m2 then return m2 end
+		return nil, tostring(e) .. " / fallback: " .. tostring(e2)
+	end)
+
+	if not ok then
+		err = msg
+		msg = nil
+	end
+	if not msg then
+		print("[dm] could not post " .. tostring(opts.title) .. " to channel " .. tostring(channel.id) .. ": " .. tostring(err))
+	end
+	return msg, err
+end
+
+--- Post a card to the channel stored under a guild config key (e.g. "infractionschannel").
+function dm.postTo(guild, key, opts, ping)
+	local config = guild and sqldb and sqldb:get(guild.id)
+	local channelId = config and config[key]
+	local channel = channelId and guild:getChannel(channelId)
+	if not channel then
+		return nil, "channel not configured"
+	end
+	return dm.post(channel, opts, ping)
 end
 
 --[[
