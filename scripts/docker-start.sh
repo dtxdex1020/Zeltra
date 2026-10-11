@@ -26,6 +26,18 @@ if [ ! -f "$DATA_DIR/data.db" ] && [ -n "${SEED_DB_B64:-}" ]; then
 fi
 unset SEED_DB_B64
 
+# one-time backup before the infraction type seed (bot/seeds/infraction_types.lua)
+if [ "${SEED_INFRACTION_TYPES:-0}" = "1" ] && [ -f "$DATA_DIR/data.db" ]; then
+  mkdir -p "$DATA_DIR/sqlbackups"
+  BACKUP="$DATA_DIR/sqlbackups/data-$(date -u +%Y%m%d-%H%M%S)-pre-infraction-seed.db"
+  if sqlite3 "$DATA_DIR/data.db" ".backup '$BACKUP'" && [ "$(sqlite3 "$BACKUP" 'PRAGMA integrity_check;')" = "ok" ]; then
+    echo "[start] Backed up database to $BACKUP ($(wc -c < "$BACKUP") bytes)"
+  else
+    echo "[start] Database backup failed, not seeding infraction types" >&2
+    unset SEED_INFRACTION_TYPES
+  fi
+fi
+
 if [ -f "$DATA_DIR/data.db" ]; then
   echo "[start] Using database $DATA_DIR/data.db ($(wc -c < "$DATA_DIR/data.db") bytes)"
 else

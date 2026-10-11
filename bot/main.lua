@@ -1095,6 +1095,14 @@ Client:once("ready", function()
 
 	utilityChannels.boots:send(emojis.success .. " **" .. Client.user.name .. "** has booted in " .. os.clock() .. " seconds and is now ready.\n-# " .. emojis.clock .. " <t:" .. os.time() .. ":T>")
 	print("Fully loaded Tennessee State Roleplay " .. version .. " in " .. os.clock() .. " seconds.")
+
+	-- Zeltra: one-time, idempotent seed, only when SEED_INFRACTION_TYPES=1 (see seeds/infraction_types.lua)
+	if os.getenv("SEED_INFRACTION_TYPES") == "1" then
+		local ok, err = pcall(require("./seeds/infraction_types"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] infraction types: error: " .. tostring(err))
+		end
+	end
 end)
 
 local function getCommand(query)
