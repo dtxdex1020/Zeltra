@@ -103,7 +103,6 @@ startl = os.clock()
 require("zeltra-compat")
 require("zeltra-dmstyle")
 _G.securityCore = require("zeltra-security-core")
-_G.ownershipCore = require("zeltra-ownership-core")
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing querystring...")
@@ -720,9 +719,9 @@ end
 -- Zeltra: /permissions is owner-only; hidden from non-admins and also enforced by user ID.
 SLASH_COMMAND_PERMISSIONS.permissions = PERM.ADMINISTRATOR
 
--- Zeltra: commands registered visible to everyone; the bot checks access itself (e.g. /ownership apply is
--- open to every member, /ownership config is owner-only). /permissions still applies.
-local PUBLIC_SLASH_COMMANDS = { ownership = true }
+-- Zeltra: commands registered visible to everyone; the bot checks access itself. /permissions still applies.
+-- Empty since /ownership was removed on 2026-10-11 (applications moved to a Google Form).
+local PUBLIC_SLASH_COMMANDS = {}
 
 -- Discordia permission names for the bits above (bot-side enforcement when a command is made visible).
 local PERM_NAMES = {
@@ -1130,14 +1129,6 @@ Client:once("ready", function()
 		local ok, err = pcall(require("./seeds/security_channel"), Client, sqldb, require("timer"))
 		if not ok then
 			print("[seed] security: error: " .. tostring(err))
-		end
-	end
-
-	-- Zeltra: one-time, idempotent seed, only when SEED_OWNERSHIP_APPS=1 (see seeds/ownership_channel.lua)
-	if os.getenv("SEED_OWNERSHIP_APPS") == "1" then
-		local ok, err = pcall(require("./seeds/ownership_channel"), Client, sqldb, require("timer"))
-		if not ok then
-			print("[seed] ownership apps: error: " .. tostring(err))
 		end
 	end
 end)

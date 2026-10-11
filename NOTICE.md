@@ -27,3 +27,5 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
 - 2026-10-11: Security system: raid/nuke keyword detection (applies to everyone) with alert, owner pings, message
   delete, DM + timeout, and a full lockdown whose previous overwrites are saved and restored by /security unlock
   (bot owners only).
+- 2026-10-11: Removed ownership applications (/ownership, its module, core lib, seed and tests); the owners moved
+  to a Google Form. The code is still in git history (last version at commit 7b98b83).
