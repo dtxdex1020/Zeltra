@@ -147,7 +147,22 @@ check("needs review channel", last(ia)[1] == "fail" and last(ia)[2]:find("set up
 sqldb.store.g1.ownershipapps = { channel = "rev" }
 ia = newInteraction(outsider)
 cmd.hybridCallback(ia, {}, true, "apply")
-check("non-staff refused", last(ia)[1] == "fail" and last(ia)[2]:find("Only staff", 1, true))
+check("non-staff member can apply", last(ia)[1] == "reply" and json.encode(last(ia)[2]):find("ownapp:form:1", 1, true))
+api.drafts["g1:777"] = nil
+-- an old stored staff role is ignored
+sqldb.store.g1.ownershipapps.staffrole = "1522997818531512542"
+ia = newInteraction(outsider)
+cmd.hybridCallback(ia, {}, true, "apply")
+check("stored staffrole no longer restricts", last(ia)[1] == "reply" and api.getConf(guild).staffrole == nil)
+api.drafts["g1:777"] = nil
+sqldb.store.g1.ownershipapps.staffrole = nil
+
+-- /permissions deny is still honoured (checked by main.lua before the callback)
+local cp = require("../utils/cmdperms")
+local denied = cp.resolve({ userId = "777", guildOwnerId = "1", roleIds = {}, devIds = {}, overrides = { ownership = { mode = "disabled" } }, keys = cp.keysFor("ownership", "apply") })
+check("/permissions can deny /ownership apply", denied.decision == "deny")
+local deniedUser = cp.resolve({ userId = "777", guildOwnerId = "1", roleIds = {}, devIds = {}, overrides = { ownership = { mode = "default", users = { ["777"] = false } } }, keys = cp.keysFor("ownership", "apply") })
+check("/permissions can deny one user", deniedUser.decision == "deny")
 
 ia = newInteraction(outsider)
 cmd.hybridCallback(ia, {}, true, "config")
@@ -162,7 +177,7 @@ sqldb.store.g1.ownershipapps.minrole = nil
 
 ia = newInteraction(applicant)
 cmd.hybridCallback(ia, {}, true, "apply")
-check("staff gets start panel (ephemeral V2)", last(ia)[1] == "reply" and last(ia)[3] == true and last(ia)[2].flags == 32768)
+check("member gets start panel (ephemeral V2)", last(ia)[1] == "reply" and last(ia)[3] == true and last(ia)[2].flags == 32768)
 local startJson = json.encode(last(ia)[2])
 check("start panel has Start button", startJson:find("ownapp:form:1", 1, true) ~= nil)
 
@@ -190,6 +205,7 @@ local rec = sqldb.store.g1.ownershipapps.apps["555"]
 check("record pending", rec and rec.status == "pending" and rec.message)
 check("review posts: header + answer cards + decision", #channelPosts >= 5)
 local reviewJson = json.encode(channelPosts)
+check("review card shows staff status", reviewJson:find("**Staff** · Yes", 1, true) ~= nil)
 check("review header has applicant info", reviewJson:find("Account created", 1, true) and reviewJson:find("Infractions", 1, true) and reviewJson:find("Joined server", 1, true))
 check("review footer", reviewJson:find("Tennessee State Roleplay · Ownership Applications", 1, true) ~= nil)
 check("decision buttons", reviewJson:find("ownapp:decide:accept:555", 1, true) and reviewJson:find("ownapp:decide:deny:555", 1, true))
@@ -261,6 +277,18 @@ ia = newInteraction(applicant, { custom_id = "ownapp:submit:4", components = {
 	{ type = 18, component = { type = 4, custom_id = "hours", value = "10" } } } }, { message = msg })
 run(ia)
 check("under 13 stopped", json.encode(last(ia)[2]):find("13 or older", 1, true) ~= nil and api.drafts["g1:555"] == nil)
+
+-- a community member (no roles) goes all the way through
+channelPosts = {}
+for n = 1, #O.FORMS do
+	local comps = {}
+	for _, q in ipairs(O.FORMS[n].questions) do table.insert(comps, { type = 18, component = { type = 4, custom_id = q.id, value = (q.id == "age") and "15" or "a fair answer here" } }) end
+	if n == 1 then run(newInteraction(outsider)) cmd.hybridCallback(newInteraction(outsider), {}, true, "apply") end
+	run(newInteraction(outsider, { custom_id = "ownapp:submit:" .. n, components = comps }, { message = msg }))
+end
+local commJson = json.encode(channelPosts)
+check("community member application posted", sqldb.store.g1.ownershipapps.apps["777"] and sqldb.store.g1.ownershipapps.apps["777"].status == "pending")
+check("labelled as community member, no roles", commJson:find("No, community member", 1, true) and commJson:find("No roles yet", 1, true))
 
 -- no em dashes anywhere the module or command shows text
 local srcOk = true

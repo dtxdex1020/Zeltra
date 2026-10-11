@@ -83,7 +83,6 @@ return function(Client, sqldb, timer)
 	timer.setTimeout(5000, coroutine.wrap(function()
 		local fresh = sqldb:get(GUILD_ID, true) or {}
 		local c = fresh.ownershipapps
-		say("read back from database: channel=" .. tostring(c and c.channel) .. ", cooldowndays=" .. tostring(c and c.cooldowndays)
-			.. ", staffrole=" .. tostring(c and c.staffrole))
+		say("read back from database: channel=" .. tostring(c and c.channel) .. ", cooldowndays=" .. tostring(c and c.cooldowndays))
 	end))
 end

@@ -47,15 +47,6 @@ local function getDraft(guild, user)
 end
 
 ---------------------------------------------------------------- access
-local function isStaff(member, conf)
-	if _G.isPrivileged and isPrivileged(member) then return true end
-	if _G.hasCommandGrant and hasCommandGrant(member) then return true end
-	if conf.staffrole and member:hasRole(conf.staffrole) then return true end
-	if member:hasPermission("manageGuild") then return true end
-	if _G.hasPermission and hasPermission(member, "MOD", nil, nil, false) == true then return true end
-	return false
-end
-
 local function meetsMinRole(member, conf)
 	if not conf.minrole then return true end
 	if _G.isPrivileged and isPrivileged(member) then return true end
@@ -125,9 +116,6 @@ local function start(interaction)
 	if not conf.channel or not guild:getChannel(conf.channel) then
 		return interaction:fail("Ownership applications aren't set up yet. Ask an owner to set a review channel.", nil, true)
 	end
-	if not isStaff(member, conf) then
-		return interaction:fail("Only staff members can apply for ownership.", nil, true)
-	end
 	local okRole, role = meetsMinRole(member, conf)
 	if not okRole then
 		return interaction:fail("You need the " .. role.mentionString .. " role or higher to apply for ownership.", nil, true)
@@ -170,7 +158,7 @@ local function roleList(member)
 		end
 		table.insert(out, role.mentionString)
 	end
-	return (#out > 0 and table.concat(out, " ")) or "None"
+	return (#out > 0 and table.concat(out, " ")) or "No roles yet"
 end
 
 local function decisionCard(guild, userId, record)
@@ -216,6 +204,7 @@ local function postApplication(guild, member, answers, conf)
 			{ "Applicant", user.mentionString .. " · @" .. user.username .. " (`" .. user.id .. "`)" },
 			{ "Account created", dmStyle.time(created, "D") .. " (" .. O.humanAge(now() - created) .. " old)" },
 			{ "Joined server", joined and (dmStyle.time(joined, "D") .. " (" .. O.humanAge(now() - joined) .. " ago)") or "Unknown" },
+			{ "Staff", member:hasRole(O.STAFF_ROLE) and "Yes" or "No, community member" },
 			{ "Roles", roleList(member) },
 			{ "Infractions", total .. " total · " .. active .. " active" },
 			{ "Age", answers.age },

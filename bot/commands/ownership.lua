@@ -1,12 +1,11 @@
 --[[
 	/ownership (added by Zeltra; not part of upstream Ducky V1).
 	Front end for modules/server_management/ownership.lua.
-	  apply  - staff only (Staff Team role, Ducky moderator/admin roles, Manage Server, or a /permissions grant)
-	  config - owners only: review channel, staff role, minimum role, cooldown, open/closed
+	  apply  - any member (a /permissions deny still blocks someone; an optional minimum role can be set)
+	  config - owners only: review channel, minimum role, cooldown, open/closed
 	  reset  - owners only: clear someone's application record so they can apply again
-	The command is registered visible to everyone (see PUBLIC_SLASH_COMMANDS in main.lua) because the staff
-	roles in this server don't have a Discord permission to key on; access is checked by the bot. It can be
-	narrowed further in Server Settings > Integrations, or with /permissions.
+	The command is registered visible to everyone (see PUBLIC_SLASH_COMMANDS in main.lua) because every member
+	can apply. Owner-only subcommands are checked by the bot. /permissions can still deny it for a role or user.
 
 	Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).
 ]]
@@ -18,7 +17,6 @@ slashCommand:addOption(subcmd)
 
 subcmd = tools.subCommand("config", "Owners only: change ownership application settings.")
 subcmd = subcmd:addOption(tools.channel("channel", "Where applications are posted for review."):setRequired(false))
-subcmd = subcmd:addOption(tools.role("staff_role", "The role that counts as staff for applying."):setRequired(false))
 subcmd = subcmd:addOption(tools.role("minimum_role", "Applicants need this role or higher."):setRequired(false))
 subcmd = subcmd:addOption(tools.boolean("clear_minimum_role", "Remove the minimum role."):setRequired(false))
 subcmd = subcmd:addOption(tools.integer("cooldown_days", "Days before someone can apply again after a denial."):setRequired(false))
@@ -37,7 +35,7 @@ return {
 	name = "ownership",
 	description = "Apply for ownership.",
 	aliases = {},
-	category = "Staff Management",
+	category = "General",
 	slashCommand = slashCommand,
 	subcommands = { "apply", "config", "reset" },
 	hybridCallback = function(interaction, args, slash, subcmd)
@@ -67,10 +65,6 @@ return {
 				conf.channel = args.channel.id
 				table.insert(changes, "review channel " .. args.channel.mentionString)
 			end
-			if args.staff_role then
-				conf.staffrole = args.staff_role.id
-				table.insert(changes, "staff role " .. args.staff_role.mentionString)
-			end
 			if args.minimum_role then
 				conf.minrole = args.minimum_role.id
 				table.insert(changes, "minimum role " .. args.minimum_role.mentionString)
@@ -98,7 +92,7 @@ return {
 					fields = {
 						{ "Status", conf.enabled and "Open" or "Closed" },
 						{ "Review channel", conf.channel and ("<#" .. conf.channel .. ">") or "Not set" },
-						{ "Staff role", conf.staffrole and ("<@&" .. conf.staffrole .. ">") or "Not set" },
+						{ "Who can apply", "Every member" },
 						{ "Minimum role", conf.minrole and ("<@&" .. conf.minrole .. ">") or "None" },
 						{ "Cooldown after denial", conf.cooldowndays .. " days" },
 						{ "Waiting for review", tostring(pending) },

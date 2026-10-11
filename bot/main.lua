@@ -721,7 +721,7 @@ end
 SLASH_COMMAND_PERMISSIONS.permissions = PERM.ADMINISTRATOR
 
 -- Zeltra: commands registered visible to everyone; the bot checks access itself (e.g. /ownership apply is
--- for the Staff Team role, which has no Discord permission to key on). /permissions still applies.
+-- open to every member, /ownership config is owner-only). /permissions still applies.
 local PUBLIC_SLASH_COMMANDS = { ownership = true }
 
 -- Discordia permission names for the bits above (bot-side enforcement when a command is made visible).

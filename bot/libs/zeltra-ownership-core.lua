@@ -11,13 +11,14 @@ local M = {}
 M.OWNERS = { "1307878235383795732", "1514313618827510011" }
 M.DEFAULTS = {
 	channel = nil,          -- review channel ID
-	staffrole = "1522997818531512542", -- TSRP | Staff Team
 	minrole = nil,          -- optional: applicant's top role must be at or above this role
 	cooldowndays = 14,      -- after a denial
 	enabled = true,
 	apps = {},              -- [userId] = { status, submitted, decided, by, reason, message }
 }
 M.DRAFT_TTL = 2 * 3600
+-- Shown on the review card only ("Staff: Yes/No"); any member can apply.
+M.STAFF_ROLE = "1522997818531512542" -- TSRP | Staff Team
 
 local DEF_HINT = "Explain each term in your own words. A sentence or two each is fine."
 
@@ -92,6 +93,7 @@ function M.withDefaults(stored)
 		if out[k] == nil then out[k] = deepcopy(v) end
 	end
 	if type(out.apps) ~= "table" then out.apps = {} end
+	out.staffrole = nil -- no longer used: every member can apply (older configs may still store it)
 	return out
 end
 
