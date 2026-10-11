@@ -1141,6 +1141,14 @@ Client:once("ready", function()
 		end
 	end
 
+	-- Zeltra: one-time, idempotent seed, only when SEED_WELCOME=1 (see seeds/welcome_message.lua)
+	if os.getenv("SEED_WELCOME") == "1" then
+		local ok, err = pcall(require("./seeds/welcome_message"), Client, sqldb)
+		if not ok then
+			print("[seed] welcome: error: " .. tostring(err))
+		end
+	end
+
 	-- Zeltra: one-time, idempotent seed, only when SEED_SECURITY=1 (see seeds/security_channel.lua)
 	if os.getenv("SEED_SECURITY") == "1" then
 		local ok, err = pcall(require("./seeds/security_channel"), Client, sqldb, require("timer"))

@@ -44,3 +44,6 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
   Raid keyword detection ignores keyword words in ticket channels (prefix commands still count).
 - 2026-10-11: TSRP Staff Report tickets go to High Rank (access and ping) instead of the IA Board. The ticket seed now
   edits an already posted panel's text in place.
+- 2026-10-11: TSRP join message on Ducky's welcome feature (bot/libs/zeltra-welcome-tsrp.lua, one-time seed
+  bot/seeds/welcome_message.lua). The welcome module skips welcomes during security raid mode, pings only the new
+  member, no longer errors without a join message, and only sends the join DM when DM on join is on.

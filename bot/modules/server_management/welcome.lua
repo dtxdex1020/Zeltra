@@ -1,4 +1,7 @@
 -- modules/welcome.lua
+-- Zeltra changes (AGPL-3.0, see NOTICE.md): no welcome message or DM while security raid mode is active, the
+-- channel message only pings the member who joined, a missing join message no longer errors, and the join DM
+-- is only sent when DM on join is turned on.
 local welcome = {
 	name = "welcome",
 	description = "Handles all welcome related interactions."
@@ -31,8 +34,15 @@ welcome.Start = function()
 			end
 		end
 
+		-- Zeltra: during raid mode joiners are being timed out or kicked, so they aren't welcomed
+		local raid = config.security and config.security.raid
+		if raid and raid.active and (not raid.ends or os.time() < raid.ends) then
+			print("[welcome] raid mode is on, not welcoming " .. tostring(member.id))
+			return
+		end
+
 		if (config.joinmessage and config.joinchannel) or (config.dmjoin and config.dmjoinmessage) then
-			local ch = member.guild:getChannel(config.joinchannel)
+			local ch = config.joinchannel and config.joinmessage and member.guild:getChannel(config.joinchannel)
 			if ch then
 				local tosend = config.joinmessage
 
@@ -132,11 +142,9 @@ welcome.Start = function()
 					end
 				end
 
-				tosend.allowedMentions = {
-					users = {
-						m.id
-					}
-				}
+				-- Zeltra: only the member who joined is pinged
+				tosend.allowedMentions = nil
+				tosend.allowed_mentions = { parse = {}, users = { m.id } }
 
 				if tosend.components then
 					for _, row in ipairs(tosend.components) do
@@ -165,7 +173,7 @@ welcome.Start = function()
 				end
 			end
 
-			local tosendDM = config.dmjoinmessage
+			local tosendDM = config.dmjoin and config.dmjoinmessage -- Zeltra: only when DM on join is turned on
 
 			local m = member
 			local g = member.guild
