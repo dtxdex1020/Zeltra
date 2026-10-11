@@ -1,5 +1,8 @@
-local db_filename = "data.db"
-local backup_folder = "sqlbackups"
+-- Zeltra: DATA_DIR (e.g. /data on a Railway volume) relocates the database and its backups; defaults to the bot folder.
+local data_dir = os.getenv("DATA_DIR")
+if data_dir == "" then data_dir = nil end
+local db_filename = data_dir and (data_dir .. "/data.db") or "data.db"
+local backup_folder = data_dir and (data_dir .. "/sqlbackups") or "sqlbackups"
 
 local function timestamp() -- db gets used before utils are loaded
 	return discordia.Date:fromSeconds(os.time()):toString("%x @ %I:%M:%S%p")
@@ -716,7 +719,7 @@ function sqldb:loadGuildConfigFromBackup(guild_id, backupFile, push)
 		return false, "Backup file path not provided or invalid"
 	end
 
-	backupFile = "sqlbackups/".. backupFile
+	backupFile = backup_folder .. "/" .. backupFile
 
 	if not string.match(backupFile, "%.db$") then
 		log("Backup file must be a .db file", "error", {backup_file = backupFile, guild_id = tostring(guild_id)})

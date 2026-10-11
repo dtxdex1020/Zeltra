@@ -100,3 +100,17 @@ We will only accept bug fixes, nothing else. If you wish to make other changes, 
 - **Owner bypass:** the bot owner (Discord ID `1307878235383795732` plus `DEV_ACCESS_IDS` in `bot/secrets.lua`) and each server's owner bypass the bot's staff-role checks, the moderator-vs-target role hierarchy, Plus gates, cooldowns and module/command-disabled checks. The bot's own role hierarchy still applies, and nobody can moderate the server owner or the bot. Server owners don't get bot-developer commands.
 - **`/permissions`** (bot owner only): `set`, `remove-role`, `add-user`, `remove-user`, `mode` (`default` | `roles-only` | `everyone` | `disabled`), `reset`, `view`, `list`, `copy`, `preset` (`moderator`, `shift`), `panel`, `role`. Rules can target a whole command (`shift`) or a single subcommand (`shift manage`), and the most specific rule wins. Rules are stored per server in the `command_permissions` table and enforced centrally in `bot/main.lua` (`checkCommandAccess`) before every command runs.
 - Tests: `cd bot && ./luvit tests/cmdperms_test.lua` (resolver) and `LUA_CPATH=... ./luvit tests/sqldb_permissions_test.lua` (DB, uses a temp database).
+
+## Deploying with Docker / Railway
+
+The root `Dockerfile` builds a production image (it reproduces `scripts/install-deps.sh`), and `railway.json`
+tells Railway to use it with an always-restart policy. In a container no `secrets.lua` is needed:
+`scripts/docker-start.sh` generates it from environment variables via `bot/env-secrets.lua`
+(every key of `bot/example.secrets.lua` is an environment variable of the same name; the token may be `DISCORD_TOKEN`).
+
+- `DISCORD_TOKEN`, `DEV_ACCESS_IDS` (comma-separated), `DUCKY_CLIENT_SECRET`, `DUCKY_API_KEY`, ... as needed
+- `DATA_DIR` (default `/data` in the image): where `data.db` and `sqlbackups/` live. Mount a persistent volume there.
+- `SEED_DB_B64` (optional, one-time): base64 of a gzip'd SQLite file, restored only if `$DATA_DIR/data.db` does not exist yet.
+- `BOT_HOLD=1` (optional): start the container without logging in to Discord.
+
+The bot needs no public port; its internal API listens on 127.0.0.1:8001.

@@ -12,7 +12,7 @@ local function log(msg)
 	print("[MIGRATE] " .. msg)
 end
 
-local SQLITE_FILE = "data.db"
+local SQLITE_FILE = (os.getenv("DATA_DIR") and os.getenv("DATA_DIR") ~= "" and (os.getenv("DATA_DIR") .. "/data.db")) or "data.db"
 local sqliteConn = sqlite3.open(SQLITE_FILE)
 if not sqliteConn then
 	error("Could not open SQLite database: " .. SQLITE_FILE)
