@@ -1132,6 +1132,14 @@ Client:once("ready", function()
 		end
 	end
 
+	-- Zeltra: one-time, idempotent seed, only when SEED_TICKETS=1 (see seeds/ticket_panel.lua)
+	if os.getenv("SEED_TICKETS") == "1" then
+		local ok, err = pcall(require("./seeds/ticket_panel"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] tickets: error: " .. tostring(err))
+		end
+	end
+
 	-- Zeltra: one-time, idempotent seed, only when SEED_SECURITY=1 (see seeds/security_channel.lua)
 	if os.getenv("SEED_SECURITY") == "1" then
 		local ok, err = pcall(require("./seeds/security_channel"), Client, sqldb, require("timer"))

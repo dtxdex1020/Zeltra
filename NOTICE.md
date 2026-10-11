@@ -33,3 +33,8 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
   idle pooled connections are not reused and responses have a timeout; bot/libs/zeltra-interactions.lua adds
   per-command timing logs, an auto-defer in the slash command dispatcher and an event loop monitor. /purge skips
   empty batches.
+- 2026-10-11: TSRP ticket hub on top of Ducky's ticket module. bot/libs/zeltra-tickets-tsrp.lua holds the 8 ticket
+  types and the Components V2 panel, bot/seeds/ticket_panel.lua is the one-time seed that posts it. Ticket channels
+  are now created with their permission overwrites in one request (category overwrites, @everyone hidden, support
+  roles and the opener allowed), names support {ticket.number}, welcome pings only go to the ticket's roles, and
+  the Web Transcript button is hidden when no web URL is set.

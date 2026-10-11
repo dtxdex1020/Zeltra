@@ -1,4 +1,8 @@
 -- tickets.lua
+-- Zeltra changes (AGPL-3.0, see NOTICE.md): ticket channels are created with their permissions in one call
+-- (category overwrites + @everyone hidden + support roles/users + opener), {ticket.number} gives zero padded
+-- names like general-0001, pings are limited to the opener and the subject's mentionables, and the Web
+-- Transcript button is only shown when a web URL is configured.
 
 local tickets = {
 	name = "tickets",
@@ -22,6 +26,57 @@ tickets.Start = function()
 	end
 
 	_G.isSubjectSupport = isSubjectSupport
+
+	-- Zeltra: view, send, embed links, attach files, read history, add reactions
+	local TICKET_ACCESS = 1024 + 2048 + 16384 + 32768 + 65536 + 64
+	local VIEW = 1024
+
+	-- permission values can be above 2^32 and LuaJIT's bit ops are 32-bit, so only touch the low 20 bits
+	-- (every bit we set is below 2^17) and keep the rest as plain arithmetic
+	local LOW = 2 ^ 20
+	local function setLow(v, on, off)
+		v = tonumber(v) or 0
+		local hi, lo = math.floor(v / LOW), v % LOW
+		if on then lo = bit.bor(lo, on) end
+		if off then lo = bit.band(lo, bit.bnot(off)) % LOW end
+		return hi * LOW + lo
+	end
+	local function hasWebTranscripts()
+		return not tostring(_G.ZELTRA_WEB_URL or ""):find("#web-features", 1, true)
+	end
+	local function ticketNumber(n)
+		return string.format("%04d", tonumber(n) or 0)
+	end
+
+	--- Overwrites for a new ticket channel: the category's, then @everyone hidden, support roles/users and the opener allowed.
+	local function ticketOverwrites(guild, category, subject, member)
+		local list, index = {}, {}
+		local function put(id, t, allow, deny)
+			id = tostring(id)
+			local o = index[id]
+			if not o then
+				o = { id = id, type = t, allow = "0", deny = "0" }
+				index[id] = o
+				table.insert(list, o)
+			end
+			local a, d = tonumber(o.allow) or 0, tonumber(o.deny) or 0
+			if allow then a = setLow(a, allow) d = setLow(d, nil, allow) end
+			if deny then d = setLow(d, deny) a = setLow(a, nil, deny) end
+			o.allow, o.deny = string.format("%.0f", a), string.format("%.0f", d)
+		end
+		local raw = Client._api:getChannel(category.id)
+		for _, o in ipairs((raw and raw.permission_overwrites) or {}) do
+			local io = { id = o.id, type = o.type, allow = o.allow, deny = o.deny }
+			index[o.id] = io
+			table.insert(list, io)
+		end
+		put(guild.id, 0, nil, VIEW)
+		for _, roleId in pairs(subject.support or {}) do put(roleId, 0, TICKET_ACCESS) end
+		for _, userId in pairs(subject.supportusers or {}) do put(userId, 1, TICKET_ACCESS) end
+		put(member.id, 1, TICKET_ACCESS)
+		return list
+	end
+	_G.ticketOverwrites = ticketOverwrites
 
 	--------------------------------------------------
 
@@ -309,13 +364,28 @@ tickets.Start = function()
 													["member.id"] = interaction.member.id,
 													["member.username"] = interaction.user.username,
 													["ticket.id"] = ticketid,
+													["ticket.number"] = ticketNumber(ticketid),
 												}
 												config.panels[interaction.message.id].subjects[tonumber(selection)].nextticketid = ticketid
 													+ 1
 
-												local ticket, e = category:createTextChannel(
-													parseTable({ subject.ticketname }, keys)[1]
-												)
+												-- Zeltra: create the channel with its permissions in one call so it is never visible to the wrong people
+												local ticket, e
+												do
+													local ok, data, err = pcall(function()
+														return Client._api:createGuildChannel(interaction.guild.id, {
+															name = parseTable({ subject.ticketname }, keys)[1],
+															type = 0,
+															parent_id = category.id,
+															permission_overwrites = ticketOverwrites(interaction.guild, category, subject, interaction.member),
+														})
+													end)
+													if ok and data then
+														ticket = interaction.guild._text_channels:_insert(data)
+													else
+														e = tostring((ok and err) or data or "unknown error")
+													end
+												end
 
 												if ticket then
 													updStat("Setting ticket data...", "loading")
@@ -339,23 +409,8 @@ tickets.Start = function()
 														"TICKET_CREATE"
 													)
 
-													coroutine.wrap(function()
-														pcall(function()
-															local overwrite =
-																ticket:getPermissionOverwriteFor(interaction.member)
-															if overwrite then
-																overwrite:allowPermissions(
-																	discordia.enums.permission.readMessages,
-																	discordia.enums.permission.sendMessages,
-																	discordia.enums.permission.addReactions,
-																	discordia.enums.permission.embedLinks,
-																	discordia.enums.permission.attachFiles
-																)
-															end
-														end)
-													end)()
-
 													local mentionablestr = interaction.user.mentionString .. " "
+													local pingUsers, pingRoles = { interaction.user.id }, {}
 
 													for i, v in pairs(subject.mentionables or {}) do
 														local isMember = interaction.guild:getMember(v)
@@ -364,8 +419,10 @@ tickets.Start = function()
 															mentionablestr = mentionablestr
 																.. isMember.mentionString
 																.. " "
+															table.insert(pingUsers, isMember.id)
 														else
 															mentionablestr = mentionablestr .. "<@&" .. v .. "> "
+															table.insert(pingRoles, tostring(v))
 														end
 													end
 
@@ -401,6 +458,7 @@ tickets.Start = function()
 														["roblox.profile"] = roblox.profile,
 														["roblox.hyperlink"] = roblox.hyperlink,
 														["ticket.id"] = ticketid,
+														["ticket.number"] = ticketNumber(ticketid),
 														["timestamp"] = tostring(os.time()),
 													})
 
@@ -428,6 +486,7 @@ tickets.Start = function()
 														content = "-# " .. emojis.pings .. " " .. mentionablestr,
 														embeds = tosend,
 														components = ticketActions:raw(),
+														allowed_mentions = { parse = {}, users = pingUsers, roles = pingRoles },
 													})
 
 													if openingmessage then
@@ -446,7 +505,7 @@ tickets.Start = function()
 													)
 												else
 
-													local code = e:match("(%d+)")
+													local code = tostring(e):match("(%d+)")
 													updStat(
 														"Failed to create ticket channel.\n-# " .. emojis.right .. " " .. (code and errCodes[tonumber(code)]) or e,
 														"fail"
@@ -581,13 +640,13 @@ tickets.Start = function()
 												.. (reason or emojis.fail),
 											color = colors.info,
 										}
-										local comps = discordia.Components()
+										local comps = hasWebTranscripts() and discordia.Components()
 										:button({
 											url = webTranscriptLink,
 											style = "link",
 											label = "Web Transcript",
 											emoji = resolvedEmojis.web,
-										})
+										}) or nil
 
 										local settings = sqldb:getUserSettings(ticket.owner)
 										if settings and settings.ticketnotifications ~= false then
@@ -600,7 +659,7 @@ tickets.Start = function()
 												claimer = ticketClaimer,
 												messages = transcriptCount,
 												reason = reason,
-												url = webTranscriptLink,
+												url = hasWebTranscripts() and webTranscriptLink or nil,
 												transcript = transcript,
 											})
 										end
@@ -615,7 +674,7 @@ tickets.Start = function()
 															tostring(transcript),
 														},
 													},
-													components = comps:raw(),
+													components = comps and comps:raw() or nil,
 												})
 											end
 										end
@@ -700,6 +759,7 @@ tickets.Start = function()
 												["member.username"] = (ticketOwner and ticketOwner.username) or "0",
 												["member.id"] = (ticketOwner and ticketOwner.id) or "0",
 												["ticket.id"] = ticket.id or "0",
+												["ticket.number"] = ticketNumber(ticket.id),
 											})[1])
 										end)()
 									end
@@ -756,6 +816,7 @@ tickets.Start = function()
 										["member.username"] = (ticketOwner and ticketOwner.username) or "0",
 										["member.id"] = (ticketOwner and ticketOwner.id) or "0",
 										["ticket.id"] = ticket.id or "0",
+										["ticket.number"] = ticketNumber(ticket.id),
 									})[1])
 
 									coroutine.wrap(function()
@@ -827,7 +888,7 @@ tickets.Start = function()
 									tostring(transcript),
 								},
 							},
-							components = discordia
+							components = hasWebTranscripts() and discordia
 								.Components()
 								:button({
 									url = webTranscriptLink,
@@ -835,7 +896,7 @@ tickets.Start = function()
 									label = "Web Transcript",
 									emoji = resolvedEmojis.web,
 								})
-								:raw(),
+								:raw() or nil,
 						}
 
 						if type(r) == "table" then
