@@ -1,7 +1,7 @@
 -- verification.lua
 local verificationmodule = {
     name = "verificationmodule",
-    description = "Processes Roblox verification for Zeltra."
+    description = "Processes Roblox verification for Tennessee State Roleplay."
 }
 
 local connections = {
@@ -97,7 +97,7 @@ verificationmodule.Start = function()
                                 components = discordia.Components():button({
                                     url = "https://github.com/dtxdex1020/Zeltra/issues",
                                     style = "link",
-                                    label = "Zeltra Support",
+                                    label = "TSRP Support",
                                     emoji = resolvedEmojis.ducky
                                 }):raw()
                             })
@@ -143,9 +143,9 @@ verificationmodule.Start = function()
                                     content = emojis.pings .. " Your " .. emojis.roblox .. " **Roblox** profile, **" ..
                                         robloxUser.hyperlink ..
                                         "**, has been fetched from the **Bloxlink API**. Would like to have this profile saved on " ..
-                                        emojis.ducky .. " **Zeltra** as well?\n-# " .. emojis.right ..
+                                        emojis.ducky .. " **Tennessee State Roleplay** as well?\n-# " .. emojis.right ..
                                         " By denying this request, your profile will not be stored nor processed by " ..
-                                        emojis.ducky .. " **Zeltra**.",
+                                        emojis.ducky .. " **Tennessee State Roleplay**.",
                                     components = comps:raw()
                                 })
 
@@ -160,9 +160,9 @@ verificationmodule.Start = function()
                                             content = emojis.pings .. " Your " .. emojis.roblox ..
                                                 " **Roblox** profile, **" .. robloxUser.hyperlink ..
                                                 "**, has been fetched from the **Bloxlink API**. Would like to have this profile saved on " ..
-                                                emojis.ducky .. " **Zeltra** as well?\n-# " .. emojis.right ..
+                                                emojis.ducky .. " **Tennessee State Roleplay** as well?\n-# " .. emojis.right ..
                                                 " By denying this request, your profile will not be stored nor processed by " ..
-                                                emojis.ducky .. " **Zeltra**.",
+                                                emojis.ducky .. " **Tennessee State Roleplay**.",
                                             components = comps:raw()
                                         })
                                     end
@@ -240,7 +240,7 @@ verificationmodule.Start = function()
                             components = discordia.Components():button({
                                 url = "https://github.com/dtxdex1020/Zeltra/issues",
                                 style = "link",
-                                label = "Zeltra Support",
+                                label = "TSRP Support",
                                 emoji = resolvedEmojis.ducky
                             }):raw()
                         })
@@ -258,7 +258,7 @@ verificationmodule.Start = function()
                 local member = guild:getMember(user.id)
 
                 if member then
-                    updateMember(member, "user linked with Zeltra")
+                    updateMember(member, "user linked with Tennessee State Roleplay")
                 end
             end
         end
@@ -270,7 +270,7 @@ verificationmodule.Start = function()
                 local member = guild:getMember(user.id)
 
                 if member then
-                    updateMember(member, "user unlinked from Zeltra")
+                    updateMember(member, "user unlinked from Tennessee State Roleplay")
                 end
             end
         end

@@ -1,11 +1,11 @@
 -- say.lua
 
-local slashCommand = tools.slashCommand("say", "Say a message with Zeltra.")
+local slashCommand = tools.slashCommand("say", "Say a message with Tennessee State Roleplay.")
 slashCommand = slashCommand:addOption(tools.string("message", "The message to say."):setRequired(true))
 
 return {
     name = "say",
-    description = "Say something with Zeltra!",
+    description = "Say something with Tennessee State Roleplay!",
     aliases = {},
     category = "Fun",
     slashCommand = slashCommand,

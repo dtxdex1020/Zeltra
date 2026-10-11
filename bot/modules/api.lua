@@ -1,7 +1,7 @@
 -- api.lua
 local api = {
 	name = "api",
-	description = "The Zeltra HTTP API (local only unless SECRETS.API_HOST is set)."
+	description = "The Tennessee State Roleplay HTTP API (local only unless SECRETS.API_HOST is set)."
 }
 
 local http = _G.luvithttp
@@ -17,7 +17,7 @@ local DUCKY_API_KEY = SECRETS.DUCKY_API_KEY
 
 local connection = nil
 
-local host = SECRETS.API_HOST or "127.0.0.1" -- Zeltra: local-only by default (was 0.0.0.0)
+local host = SECRETS.API_HOST or "127.0.0.1" -- Tennessee State Roleplay: local-only by default (was 0.0.0.0)
 local port = 8001
 
 _G.DuckyAPI = _G.DuckyAPI or discordia.Emitter()
@@ -89,7 +89,7 @@ local function authSession(discordCode, origin)
 		return false, "Invalid discordCode provided."
 	end
 
-	origin = origin or (_G.ZELTRA_WEB_URL:gsub("^https?://", "")) -- Zeltra: was Ducky's website
+	origin = origin or (_G.ZELTRA_WEB_URL:gsub("^https?://", "")) -- Tennessee State Roleplay: was Ducky's website
 
 	local discordToken, refreshToken = getDiscordTokens(discordCode, origin .. "/login") -- If error: false, error
 
@@ -364,7 +364,7 @@ local function updateLinkedRoleMetadata(discordCode, userId, redirectUri)
 	local member = userId and pondMember(userId)
 
 	if not member then
-		return false, "You are not a member of Zeltra Support."
+		return false, "You are not a member of TSRP Support."
 	end
 
 	if refreshToken then
@@ -384,7 +384,7 @@ local function updateLinkedRoleMetadata(discordCode, userId, redirectUri)
 		{ "Authorization", "Bearer " .. accessToken },
 		{ "Content-Type", "application/json" }
 	}, json.encode({
-		platform_name = "Zeltra Dev",
+		platform_name = "TSRP Dev",
 		metadata = metadata
 	}))
 
@@ -412,7 +412,7 @@ _G.endpoints = {
 
 					return finish({
 						code = 200,
-						message = "The Zeltra API is online.",
+						message = "The TSRP API is online.",
 						data = {
 							version = {
 								name = version,
@@ -610,7 +610,7 @@ _G.endpoints = {
 
 					return finish({
 						code = 200,
-						message = "All Zeltra Team members have been successfully fetched.",
+						message = "All TSRP Team members have been successfully fetched.",
 						data = allDuckyTeamMembers
 					})
 				end
@@ -642,7 +642,7 @@ _G.endpoints = {
 							if blacklisted(ID) then
 								return finish({
 									code = 403,
-									message = "You are blacklisted from Zeltra."
+									message = "You are blacklisted from Tennessee State Roleplay."
 								})
 							end
 						else
@@ -810,7 +810,7 @@ _G.endpoints = {
 						if blacklisted(DiscordID) then
 							return finish({
 								code = 403,
-								message = "You are blacklisted from Zeltra."
+								message = "You are blacklisted from Tennessee State Roleplay."
 							})
 						end
 
@@ -1043,7 +1043,7 @@ _G.endpoints = {
 						if blacklisted(DiscordID) then
 							return finish({
 								code = 403,
-								message = "You are blacklisted from Zeltra."
+								message = "You are blacklisted from Tennessee State Roleplay."
 							})
 						end
 
@@ -1070,7 +1070,7 @@ _G.endpoints = {
 								if blacklisted(Guild) then
 									return finish({
 										code = 403,
-										message = "The target guild is blacklisted from Zeltra."
+										message = "The target guild is blacklisted from Tennessee State Roleplay."
 									})
 								end
 
@@ -2000,7 +2000,7 @@ _G.endpoints = {
 							else
 								return finish({
 									code = 404,
-									message = "Guild '" .. GuildID .. "' was not found, or is inaccessible by Zeltra."
+									message = "Guild '" .. GuildID .. "' was not found, or is inaccessible by Tennessee State Roleplay."
 								})
 							end
 						else
@@ -2273,7 +2273,7 @@ _G.endpoints = {
 					end
 
 					utilityChannels.supporters:send({
-						content = "💛 " .. user.mentionString .. " has voted for " .. emojis.ducky .. " **Zeltra** on [top.gg](https://top.gg/bot/" .. Client.user.id .. "/vote)!\n"
+						content = "💛 " .. user.mentionString .. " has voted for " .. emojis.ducky .. " **Tennessee State Roleplay** on [top.gg](https://top.gg/bot/" .. Client.user.id .. "/vote)!\n"
 						.. "-# " .. emojis.right .. " Thank you for your support!"
 					})
 

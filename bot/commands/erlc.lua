@@ -1,5 +1,5 @@
 -- erlc.lua
-local slashCommand = tools.slashCommand("erlc", "Use Zeltra's ERLC integration.")
+local slashCommand = tools.slashCommand("erlc", "Use Tennessee State Roleplay's ERLC integration.")
 -----------------------------------------------------------------------------------------------------------
 local subcmd = tools.subCommand("players", "View in-game players.")
 subcmd = subcmd:addOption(
@@ -109,7 +109,7 @@ local teams = {
 
 return {
 	name = "erlc",
-	description = "Use Zeltra's ERLC integration.",
+	description = "Use Tennessee State Roleplay's ERLC integration.",
 	aliases = {
 		"emergencyresponselibertycounty",
 		"libertycounty",
@@ -224,7 +224,7 @@ return {
 			if not hasPermission(interaction.member, "ERLC_STAFF", config, interaction) then
 				return
 			elseif not sqldb:plusGuild(interaction.guild) then
-				return interaction:fail("This is a " .. emojis.duckyplus .. " **Zeltra Plus+** feature!")
+				return interaction:fail("This is a " .. emojis.duckyplus .. " **TSRP Plus+** feature!")
 			end
 
 			local username = (slash and args and args.player) or ((not slash) and args and args[1] and args[1] ~= "" and args[1])

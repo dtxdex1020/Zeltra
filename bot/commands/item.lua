@@ -1,5 +1,5 @@
 -- item.lua
-local slashCommand = tools.slashCommand("item", "Use Zeltra's shop module.")
+local slashCommand = tools.slashCommand("item", "Use Tennessee State Roleplay's shop module.")
 
 local subcmd = tools.subCommand("shop", "View the item shop.")
 slashCommand = slashCommand:addOption(subcmd)
@@ -21,7 +21,7 @@ slashCommand = slashCommand:addOption(subcmd)
 
 return {
     name = "item",
-    description = "Use Zeltra's shop module.",
+    description = "Use Tennessee State Roleplay's shop module.",
     category = "Economy",
     subcommands = {
         "shop",

@@ -1,7 +1,7 @@
 -- message.lua
 
 local slashCommand = tools.slashCommand("message", "Open the Message Editor and create a message.")
-slashCommand = slashCommand:addOption(tools.string("import", "A Zeltra Exportable code to import the message from."):setRequired(false))
+slashCommand = slashCommand:addOption(tools.string("import", "A TSRP Exportable code to import the message from."):setRequired(false))
 
 return {
     name = "message",
@@ -44,7 +44,7 @@ return {
 				if result and response and result.code == 200 and response and response.data and response.data.messages and response.data.messages[1] and response.data.messages[1].data then
 
 					if containsComponentsV2(response.data.messages[1].data.components) then
-						return interaction:fail("Your Discohook message uses **Components v2**, which is not supported by " .. emojis.ducky .. " **Zeltra**.", nil, true)
+						return interaction:fail("Your Discohook message uses **Components v2**, which is not supported by " .. emojis.ducky .. " **Tennessee State Roleplay**.", nil, true)
 					end
 
 					sanitizeButtons(response.data.messages[1].data.components)

@@ -108,7 +108,7 @@ return {
 
 				return interaction:success("Your feedback on **" .. staff.name .. "** has been submitted successfully.", nil, true)
 			else
-				return interaction:fail("An error occurred while attempting to submit your feedback. Check Zeltra's permissions and try again.\n-# " .. emojis.right .. " " .. e, nil, true)
+				return interaction:fail("An error occurred while attempting to submit your feedback. Check Tennessee State Roleplay's permissions and try again.\n-# " .. emojis.right .. " " .. e, nil, true)
 			end
 		elseif subcmd == "view" then
 			local staff = fetchMemberFromInteraction(interaction, args, slash, "staff")

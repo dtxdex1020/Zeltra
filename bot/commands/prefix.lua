@@ -18,7 +18,7 @@ return {
             return interaction:reply({
                 embed = {
                     description = _G.emojis.fail ..
-                    " Zeltra is not setup in this server. Run the `/setup` command to setup Zeltra.",
+                    " Tennessee State Roleplay is not setup in this server. Run the `/setup` command to setup Tennessee State Roleplay.",
                     color = _G.colors.fail
                 }
             })

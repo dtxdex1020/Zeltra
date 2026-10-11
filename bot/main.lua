@@ -285,8 +285,8 @@ local colors = {
 	error = 0xB51A00, -- alias for heavyred
 	duckypluspink = 0xFF54F9,
 	pink = 0xFF54F9, -- alias for duckypluspink
-	duckyyellow = 0xF5FF82,
-	yellow = 0xF5FF82, -- alias for duckyyellow
+	duckyyellow = 0x2E9BFF,
+	yellow = 0x2E9BFF, -- alias for duckyyellow
 	pond = 0x38B6FF
 }
 
@@ -645,10 +645,10 @@ _G.resolveEmoji = resolveEmoji
 local ERLCsolutions = {
 	[1001] = "An error occurred communicating with the Roblox server. This is most likely a Roblox issue.",
 	[1002] = "An internal PRC API system error has occurred.",
-	[2000] = "You have not provided a PRC API key to Zeltra. Run `/setup` to provide one.",
+	[2000] = "You have not provided a PRC API key to Tennessee State Roleplay. Run `/setup` to provide one.",
 	[2001] = "The PRC API key provided is invalid. Check to make sure it matches the one in your private server's settings.",
 	[2002] = "The PRC API key provided is invalid or has expired. It has been removed from our database. Please make sure you use the one in your private server's settings.",
-	[2003] = "Internal Error | Zeltra's Global key is incorrect.",
+	[2003] = "Internal Error | Tennessee State Roleplay's Global key is incorrect.",
 	[2004] = "Your PRC API key is banned from using the PRC API.",
 	[3001] = "You provided an invalid command.",
 	[3002] = "The server has no players, and is therefore offline.",
@@ -828,7 +828,7 @@ Client:once("ready", function()
 	-- otherwise a harmless placeholder whose lookups all return nil (staff-role checks, Plus roles, etc.).
 	_G.duckysPond = (SECRETS.HOME_GUILD_ID and SECRETS.HOME_GUILD_ID ~= "" and Client:getGuild(SECRETS.HOME_GUILD_ID)) or setmetatable({
 		id = "0",
-		name = "Zeltra",
+		name = "Tennessee State Roleplay",
 		members = {},
 		roles = {},
 		channels = {},
@@ -873,8 +873,9 @@ Client:once("ready", function()
 	end
 
 	print("Setting activity...")
-
+	print("Authenticated as " .. tostring(Client.user.username) .. "#" .. tostring(Client.user.discriminator) .. " (" .. tostring(Client.user.id) .. ")")
 	updateActivity()
+	print("Presence set to: ⚡ Powering Tennessee State Roleplay")
 
 	print("Setting utility channels...")
 
@@ -969,12 +970,12 @@ Client:once("ready", function()
 	end)()
 
 	utilityChannels.boots:send(emojis.success .. " **" .. Client.user.name .. "** has booted in " .. os.clock() .. " seconds and is now ready.\n-# " .. emojis.clock .. " <t:" .. os.time() .. ":T>")
-	print("Fully loaded Zeltra " .. version .. " in " .. os.clock() .. " seconds.")
+	print("Fully loaded Tennessee State Roleplay " .. version .. " in " .. os.clock() .. " seconds.")
 end)
 
 local function getCommand(query)
 	if not commands or not next(commands) then
-		return nil, emojis.ducky .. " **Zeltra** is currently booting. Please try again in a few seconds."
+		return nil, emojis.ducky .. " **Tennessee State Roleplay** is currently booting. Please try again in a few seconds."
 	end
 
 	for i, command in pairs(commands) do
@@ -997,7 +998,7 @@ local function getCommand(query)
 		end
 	end
 
-	return nil, "The command you are attempting to use has been removed or merged into another command. Please open a support thread via [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance."
+	return nil, "The command you are attempting to use has been removed or merged into another command. Please open a support thread via [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance."
 end
 
 _G.getCommand = getCommand
@@ -1019,7 +1020,7 @@ end
 local perms = {
 	["FOUNDER"] = function(member)
 		-- Zeltra: was Zeltra's founder's user ID; now anyone listed in SECRETS.DEV_ACCESS_IDS (the bot owner)
-		return isdev(member) or "You are not the **Zeltra Founder**."
+		return isdev(member) or "You are not the **Tennessee State Roleplay Founder**."
 	end,
 	["EXECUTIVE"] = function(member)
 		if isdev(member) then
@@ -1032,10 +1033,10 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Executive** team."
+		return "You are not a member of the **TSRP Executive** team."
 	end,
 	["BOT_DEVELOPER"] = function(member)
-		return isdev(member) or "You are not a member of the **Zeltra Development** team."
+		return isdev(member) or "You are not a member of the **TSRP Development** team."
 	end,
 	["WEB_DEVELOPER"] = function(member)
 		if isdev(member) then
@@ -1049,7 +1050,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Web Development** team."
+		return "You are not a member of the **TSRP Web Development** team."
 	end,
 	["SUPPORT"] = function(member)
 		if isdev(member) then
@@ -1062,7 +1063,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Support** team."
+		return "You are not a member of the **TSRP Support** team."
 	end,
 	["MANAGEMENT"] = function(member)
 		if isdev(member) then
@@ -1075,7 +1076,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Management** team."
+		return "You are not a member of the **TSRP Management** team."
 	end,
 	["DUCKY_STAFF"] = function(member)
 		if isdev(member) then
@@ -1088,7 +1089,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Staff** team."
+		return "You are not a member of the **TSRP Staff** team."
 	end,
 	["DUCKY_PLUS_MEMBER"] = function(member)
 		local active = sqldb:plusMember(member)
@@ -1096,7 +1097,7 @@ local perms = {
 		if active then
 			return true
 		else
-			return "You are not a " .. emojis.duckyplus .. " **Zeltra Plus+** member."
+			return "You are not a " .. emojis.duckyplus .. " **TSRP Plus+** member."
 		end
 	end,
 	["DUCKY_PLUS_GUILD"] = function(member)
@@ -1105,7 +1106,7 @@ local perms = {
 		if active then
 			return true
 		else
-			return "This server is not a " .. emojis.duckyplus .. " **Zeltra Plus+** server."
+			return "This server is not a " .. emojis.duckyplus .. " **TSRP Plus+** server."
 		end
 	end,
 	["QUALITY_ASSURANCE"] = function(member)
@@ -1119,7 +1120,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Quality Assurance** team."
+		return "You are not a member of the **TSRP Quality Assurance** team."
 	end,
 	["DOCWRITER"] = function(member)
 		if isdev(member) then
@@ -1132,7 +1133,7 @@ local perms = {
 			end
 		end
 
-		return "You are not a member of the **Zeltra Docwriters** team."
+		return "You are not a member of the **TSRP Docwriters** team."
 	end,
 	["MANAGE_SERVER"] = function(member)
 		return member:hasPermission("manageGuild") or "You do not have the **Manage Server** permission."
@@ -1385,7 +1386,7 @@ local function blacklisted(object, interaction)
 				if interaction then
 					interaction:reply({
 						embed = {
-							description = emojis.ban .. " This server is **blacklisted** from " .. emojis.ducky .. " **Zeltra**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
+							description = emojis.ban .. " This server is **blacklisted** from " .. emojis.ducky .. " **Tennessee State Roleplay**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 							color = colors.error
 						}
 					}, true)
@@ -1397,7 +1398,7 @@ local function blacklisted(object, interaction)
 				if interaction then
 					interaction:reply({
 						embed = {
-							description = emojis.ban .. " This server's owner is **blacklisted** from " .. emojis.ducky .. " **Zeltra**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
+							description = emojis.ban .. " This server's owner is **blacklisted** from " .. emojis.ducky .. " **Tennessee State Roleplay**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 							color = colors.error
 						}
 					}, true)
@@ -1411,7 +1412,7 @@ local function blacklisted(object, interaction)
 		if interaction then
 			interaction:reply({
 				embed = {
-					description = emojis.ban .. " You are **blacklisted** from " .. emojis.ducky .. " **Zeltra**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**Zeltra Support**](https://github.com/dtxdex1020/Zeltra/issues).",
+					description = emojis.ban .. " You are **blacklisted** from " .. emojis.ducky .. " **Tennessee State Roleplay**.\n-# " .. emojis.right .. " In order to appeal, open a " .. emojis.settings .. " **Management** ticket in [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 					color = colors.error
 				}
 			}, true)
@@ -1516,12 +1517,12 @@ Client:on("messageCreate", function(message)
 	local config = sqldb:get(message.guild.id) or {}
 
 	if not isBlacklisted and message.content == Client.user.mentionString or message.content == Client.user.mentionString .. " " then
-		local botName = emojis.ducky .. " **Zeltra**"
-		if Client.user.name == "Zeltra Dev" then
-			botName = emojis.duckyoutline .. " **Zeltra Dev**"
+		local botName = emojis.ducky .. " **Tennessee State Roleplay**"
+		if Client.user.name == "TSRP Dev" then
+			botName = emojis.duckyoutline .. " **TSRP Dev**"
 		end
 		if sqldb:plusGuild(message.guild) then
-			botName = emojis.duckyplus .. " **Zeltra Plus+**"
+			botName = emojis.duckyplus .. " **TSRP Plus+**"
 		end
 		message:reply(emojis.hiya .. " **Hiya,** I'm " .. botName .. ".\n-# " .. emojis.right .. " My prefix in this server is `" .. ((config and config.prefix) or "d!") .. "`.")
 	end
@@ -1690,7 +1691,7 @@ Client:on("messageCreate", function(message)
 		message:reply({
 			embed = {
 				title = emojis.error .. " Whoops...",
-				description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[Zeltra Support](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
+				description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[TSRP Support](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
 				color = colors.error
 			}
 		})
@@ -1737,7 +1738,7 @@ Client:on("slashCommand", function(interaction, command, args)
 	end
 
 	if (not interaction.guild) or not interaction.member or not interaction.member.guild then
-		interaction:fail("Zeltra does not function in DMs.", nil, true)
+		interaction:fail("Tennessee State Roleplay does not function in DMs.", nil, true)
 		return
 	end
 
@@ -1880,7 +1881,7 @@ Client:on("slashCommand", function(interaction, command, args)
 			interaction:reply({
 				embed = {
 					title = emojis.error .. " Whoops...",
-					description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[Zeltra Support](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
+					description = emojis.right .. " An unexpected error occurred while executing that command. Please join **[TSRP Support](https://discord.com/invite/w2dNr7vuKP)** and create a support thread.\n-# " .. emojis.right .. " **Error ID:** `" .. errid .. "`",
 					color = colors.error
 				}
 			})

@@ -118,7 +118,7 @@ return {
 						},
 						{
 							label = "Toggle Track Playtime",
-							description = "Track your playtime across all ERLC servers linked with Zeltra",
+							description = "Track your playtime across all ERLC servers linked with Tennessee State Roleplay",
 							value = "trackplaytime",
 							emoji = resolvedEmojis.game
 						},

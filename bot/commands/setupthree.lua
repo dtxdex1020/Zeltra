@@ -1,9 +1,9 @@
 -- setupthree.lua
-local slashCommand = tools.slashCommand("config", "Setup/configure Zeltra for your server's needs.")
+local slashCommand = tools.slashCommand("config", "Setup/configure Tennessee State Roleplay for your server's needs.")
 
 return {
 	name = "setupthree",
-	description = "Setup/configure Zeltra for your server's needs.",
+	description = "Setup/configure Tennessee State Roleplay for your server's needs.",
 	aliases = {
 		"setup3",
 		"setupv3"

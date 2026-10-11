@@ -1,5 +1,5 @@
 -- color.lua
-local slashCommand = tools.slashCommand("color", "Use Zeltra's color utility.")
+local slashCommand = tools.slashCommand("color", "Use Tennessee State Roleplay's color utility.")
 local subcmd = tools.subCommand("view", "View a color via hex code.")
 local option = tools.string("hexcode", "The hex code of the color to view."):setRequired(true)
 subcmd = subcmd:addOption(option)
@@ -35,7 +35,7 @@ end
 
 return {
     name = "color",
-    description = "Use Zeltra's color utility.",
+    description = "Use Tennessee State Roleplay's color utility.",
     aliases = {
 		"colour"
 	},

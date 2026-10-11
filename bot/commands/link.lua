@@ -1,6 +1,6 @@
 -- link.lua
 
-local slashCommand = tools.slashCommand("link", "Link your Roblox account with Zeltra, or unlink it if you are already linked.")
+local slashCommand = tools.slashCommand("link", "Link your Roblox account with Tennessee State Roleplay, or unlink it if you are already linked.")
 
 
 
@@ -12,7 +12,7 @@ local slashCommand = tools.slashCommand("link", "Link your Roblox account with Z
 
 local words = {
 	"Waddle",
-	"Zeltra",
+	"Tennessee State Roleplay",
 	"Duck",
 	"Versus",
 	"Geese",
@@ -44,7 +44,7 @@ end
 
 return {
 	name = "link",
-	description = "Link your Roblox account with Zeltra, or unlink it if you are already linked.",
+	description = "Link your Roblox account with Tennessee State Roleplay, or unlink it if you are already linked.",
 	aliases = { "verify" },
 	category = "Roblox",
 	slashCommand = slashCommand,

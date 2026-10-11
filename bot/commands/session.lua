@@ -80,7 +80,7 @@ return {
 			local kickAll = slash and args and args.kick
 
 			if kickAll and not config.apikey then
-				return interaction:fail("The kick all feature requires for you to link your ERLC API Key with Zeltra via the " .. emojis.game .. " **ERLC Integration** page in `/setup`.")
+				return interaction:fail("The kick all feature requires for you to link your ERLC API Key with Tennessee State Roleplay via the " .. emojis.game .. " **ERLC Integration** page in `/setup`.")
 			end
 
 			local s, e = db:sessionEnd(interaction.member)

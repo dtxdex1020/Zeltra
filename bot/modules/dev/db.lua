@@ -152,7 +152,7 @@ dbModule.Start = function()
 								components = discordia.Components():button({
 									url = "https://github.com/dtxdex1020/Zeltra/issues",
 									style = "link",
-									label = "Zeltra Support",
+									label = "TSRP Support",
 									emoji = resolvedEmojis.ducky
 								}):raw()
 							})
@@ -432,7 +432,7 @@ dbModule.Start = function()
 										icon_url = issuer.user.avatarURL
 									},
 									title = emojis.success .. " Infraction Action Executed",
-									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. Therefore, Zeltra has executed the infraction action `" .. ac.cmd .. "`.",
+									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. Therefore, Tennessee State Roleplay has executed the infraction action `" .. ac.cmd .. "`.",
 									color = colors.success,
 									thumbnail = {
 										url = issuer.user.avatarURL
@@ -449,7 +449,7 @@ dbModule.Start = function()
 										icon_url = issuer.user.avatarURL
 									},
 									title = emojis.fail .. " Infraction Action Failed",
-									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. However, Zeltra was unable to execute the infraction action `" .. ac.cmd .. "`: ```" .. err .. "```",
+									description = "> **@" .. member.username .. "** was infracted by **@" .. issuer.name .. "**. However, Tennessee State Roleplay was unable to execute the infraction action `" .. ac.cmd .. "`: ```" .. err .. "```",
 									color = colors.fail,
 									thumbnail = {
 										url = issuer.user.avatarURL

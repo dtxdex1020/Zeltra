@@ -4,7 +4,7 @@ local colors, emojis = _G.colors, _G.emojis
 
 return {
     name = "reboot",
-    description = "Reboot Zeltra.",
+    description = "Reboot Tennessee State Roleplay.",
     aliases = {"rbt", "restart"},
     category = "Utility",
     slashCommand = nil,

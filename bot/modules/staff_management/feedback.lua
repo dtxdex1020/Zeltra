@@ -41,7 +41,7 @@ feedback.Start = function()
 						components = {}
 					})
 
-					submitter:send(emojis.success .. " **Good news!** Your feedback on " .. emojis.ducky .. " **Zeltra** was approved. Thank you!")
+					submitter:send(emojis.success .. " **Good news!** Your feedback on " .. emojis.ducky .. " **Tennessee State Roleplay** was approved. Thank you!")
 					return mia:updateDeferred(true)
 				end
 			end
@@ -85,7 +85,7 @@ feedback.Start = function()
 								components = {}
 							})
 
-							submitter:send(emojis.fail .. " **Bad news.** Your feedback on " .. emojis.ducky .. " **Zeltra** was denied: **" .. reason .. "**.")
+							submitter:send(emojis.fail .. " **Bad news.** Your feedback on " .. emojis.ducky .. " **Tennessee State Roleplay** was denied: **" .. reason .. "**.")
 							return mia:updateDeferred(true)
 						else
 							return mia:fail("You did not provide a reason for the denial of this feedback.", nil, true)

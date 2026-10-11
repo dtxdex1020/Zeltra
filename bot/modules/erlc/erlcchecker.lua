@@ -314,7 +314,7 @@ erlcchecker.Start = function()
 						}, member, type.name, true)
 						if shift then
 							member:success("Your " .. shift.type .. " shift has been automatically started in **" .. member.guild.name .. "**.")
-							server:execute(":pm " .. player.name .. " ✅・Zeltra has automatically started your " .. type.name .. " shift.")
+							server:execute(":pm " .. player.name .. " ✅・Tennessee State Roleplay has automatically started your " .. type.name .. " shift.")
 						else
 							member:fail("An error occurred while automatically starting your **" .. type.name .. "** shift in **" .. member.guild.name .. "**:\n" .. emojis.right .. " " .. err)
 							server:execute(":pm " .. player.name .. " ❌・" .. (igerr or err))
@@ -2001,7 +2001,7 @@ erlcchecker.Start = function()
 				Client:emit("inGameCommand", player, full, command, message)
 
 				if not member then
-					return fail("You are not linked with Zeltra.", "You must use the **`/link`** command to link your Roblox account with Zeltra in order to use in-game commands.")
+					return fail("You are not linked with Tennessee State Roleplay.", "You must use the **`/link`** command to link your Roblox account with Tennessee State Roleplay in order to use in-game commands.")
 				end
 
 				table.remove(args, 1)

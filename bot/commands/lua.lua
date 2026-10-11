@@ -424,7 +424,7 @@ return {
 			for _, member in pairs(duckysPond:getRole("1267239172444262490").members:toArray()) do
 				if member and member.id then
 					if not sqldb:plusMember(member) then
-						member:removeRole("1267239172444262490", "Zeltra Plus+ role synchronization")
+						member:removeRole("1267239172444262490", "TSRP Plus+ role synchronization")
 						removeCount = removeCount + 1
 					end
 				end
@@ -436,7 +436,7 @@ return {
 			for _, member in pairs(duckysPond.members) do
 				if member and member.id then
 					if sqldb:plusMember(member) and not member:hasRole("1267239172444262490") then
-						member:addRole("1267239172444262490", "Zeltra Plus+ role synchronization")
+						member:addRole("1267239172444262490", "TSRP Plus+ role synchronization")
 						addCount = addCount + 1
 					end
 				end
@@ -465,23 +465,23 @@ return {
 			local tosend = {
 				embed = {
 					author = {
-						name = authorName .. " & Zeltra",
+						name = authorName .. " & Tennessee State Roleplay",
 						icon_url = authorIcon
 					},
-					description = "# " .. emojis.ducky .. " Zeltra\n" .. emojis.right .. "*Power your server with " .. emojis.ducky .. " **Zeltra**, a multipurpose bot focused on seamlessly integrating Discord and ERLC server automation for effortless management.*\n\n" .. "### " .. emojis.inspiration .. " Key Features\n" .. emojis.automation .. " **Automations**\n" .. emojis.right .. "Seamless ERLC automation with over 30+ triggers, actions, and conditions for effortless management.\n\n" .. emojis.permission .. " **Staff Management**\n" .. emojis.right .. "Manage your staff team with ease using infractions, promotions, LOAs, feedback, and more.\n\n" .. emojis.developer .. " **Multipurpose**\n" .. emojis.right ..
-									"Features for every server, such as Discord Moderation, Roblox Verification, Reaction Boards, and more.\n\n" .. "*❤️ Thank you, **" .. emoji.mentionString .. " " .. authorName .. "**, for choosing " .. emojis.ducky .. " **Zeltra***.",
+					description = "# " .. emojis.ducky .. " Tennessee State Roleplay\n" .. emojis.right .. "*Power your server with " .. emojis.ducky .. " **Tennessee State Roleplay**, a multipurpose bot focused on seamlessly integrating Discord and ERLC server automation for effortless management.*\n\n" .. "### " .. emojis.inspiration .. " Key Features\n" .. emojis.automation .. " **Automations**\n" .. emojis.right .. "Seamless ERLC automation with over 30+ triggers, actions, and conditions for effortless management.\n\n" .. emojis.permission .. " **Staff Management**\n" .. emojis.right .. "Manage your staff team with ease using infractions, promotions, LOAs, feedback, and more.\n\n" .. emojis.developer .. " **Multipurpose**\n" .. emojis.right ..
+									"Features for every server, such as Discord Moderation, Roblox Verification, Reaction Boards, and more.\n\n" .. "*❤️ Thank you, **" .. emoji.mentionString .. " " .. authorName .. "**, for choosing " .. emojis.ducky .. " **Tennessee State Roleplay***.",
 					color = colors.yellow,
 					-- Zeltra: removed Ducky banner image
 				},
 				components = discordia.Components():button({
 					url = "https://github.com/dtxdex1020/Zeltra/issues",
 					style = "link",
-					label = "Zeltra Support",
+					label = "TSRP Support",
 					emoji = resolvedEmojis.ducky
 				}):button({
 					url = "https://discord.com/oauth2/authorize?client_id=" .. Client.user.id,
 					style = "link",
-					label = "Add Zeltra",
+					label = "Add TSRP",
 					emoji = resolvedEmojis.link
 				}):raw()
 			}

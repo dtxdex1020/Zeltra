@@ -1,10 +1,10 @@
 -- exportables.lua
 
-local slashCommand = tools.slashCommand("exportables", "Manage/view Zeltra Exportables.")
-local subcmd = tools.subCommand("view", "View a Zeltra Exportable.")
-subcmd = subcmd:addOption(tools.string("code", "The Zeltra Exportable code to view."))
+local slashCommand = tools.slashCommand("exportables", "Manage/view TSRP Exportables.")
+local subcmd = tools.subCommand("view", "View a TSRP Exportable.")
+subcmd = subcmd:addOption(tools.string("code", "The TSRP Exportable code to view."))
 slashCommand = slashCommand:addOption(subcmd)
-local subcmd = tools.subCommand("owned", "View your Zeltra Exportables.")
+local subcmd = tools.subCommand("owned", "View your TSRP Exportables.")
 slashCommand = slashCommand:addOption(subcmd)
 
 local function export(tbl, owner, exportableType, name)
@@ -109,7 +109,7 @@ local colors, emojis, resolvedEmojis = _G.colors, _G.emojis, _G.resolvedEmojis
 
 return {
     name = "exportables",
-    description = "Manage/view Zeltra Exportables.",
+    description = "Manage/view TSRP Exportables.",
     aliases = {
         "exports",
         "exps",
@@ -185,7 +185,7 @@ return {
 
                     local r = interaction:reply({
                         embed = {
-                            title = emojis.export .. " Zeltra Exportable",
+                            title = emojis.export .. " TSRP Exportable",
                             description = emojis.right .. " **Code:** `" .. code .. "`\n" .. emojis.right .. " **Name:** " .. (imported.name or emojis.fail) .. "\n" .. emojis.right .. " **Type:** " .. ((imported.type and string.capitalize(imported.type)) or "N/A") .. "\n" .. emojis.right .. " **Owner:** " .. ((imported.owner and Client:getUser(imported.owner) and "@" .. Client:getUser(imported.owner).username) or "Unknown") .. "\n" .. emojis.right .. " **Created:** <t:" .. imported.createdAt .. ">\n" .. emojis.right .. " **Last Imported:** " .. ((imported.lastImported and "<t:" .. imported.lastImported .. ">") or "Never"),
                             color = colors.info,
                         },
@@ -299,7 +299,7 @@ return {
 
                                 r:update({
                                     embed = {
-                                        title = emojis.export .. " Zeltra Exportable",
+                                        title = emojis.export .. " TSRP Exportable",
                                         description = emojis.right .. " **Code:** `" .. code .. "`\n" .. emojis.right .. " **Name:** " .. (newName or emojis.fail) .. "\n" .. emojis.right .. " **Type:** " .. ((imported.type and string.capitalize(imported.type)) or "N/A") .. "\n" .. emojis.right .. " **Owner:** " .. ((imported.owner and Client:getUser(imported.owner) and "@" .. Client:getUser(imported.owner).username) or "Unknown") .. "\n" .. emojis.right .. " **Created:** <t:" .. imported.createdAt .. ">\n" .. emojis.right .. " **Last Imported:** " .. ((imported.lastImported and "<t:" .. imported.lastImported .. ">") or "Never"),
                                         color = colors.info,
                                     },
@@ -320,7 +320,7 @@ return {
             local allExportables = sqldb:getAllExportables()
 
             if not allExportables or not type(allExportables) == "table"then
-                return interaction:fail("Failed to get exportables data. If this error continues, contact us in the [Zeltra issue tracker](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
+                return interaction:fail("Failed to get exportables data. If this error continues, contact us in the [Tennessee State Roleplay issue tracker](https://github.com/dtxdex1020/Zeltra/issues).", nil, true)
             end
 
             for i, v in pairs(allExportables) do

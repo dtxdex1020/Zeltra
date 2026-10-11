@@ -1,17 +1,17 @@
 -- plus.lua
-local slashCommand = tools.slashCommand("plus", "Manage your Zeltra Plus+ subscription.")
-local subcmd = tools.subCommand("manage", "Manage your Zeltra Plus+ subscription.")
+local slashCommand = tools.slashCommand("plus", "Manage your TSRP Plus+ subscription.")
+local subcmd = tools.subCommand("manage", "Manage your TSRP Plus+ subscription.")
 slashCommand = slashCommand:addOption(subcmd)
-local subcmd = tools.subCommand("profile", "Modify Zeltra's profile within your server.")
-subcmd = subcmd:addOption(tools.string("nickname", "The nickname that Zeltra should appear as within your server."):setRequired(false))
-subcmd = subcmd:addOption(tools.string("bio", "The bio that Zeltra should use on its profile within your server."):setRequired(false))
-subcmd = subcmd:addOption(tools.attachment("avatar", "The avatar that Zeltra should use on its profile within your server."):setRequired(false))
-subcmd = subcmd:addOption(tools.attachment("banner", "The banner that Zeltra should use on its profile within your server."):setRequired(false))
+local subcmd = tools.subCommand("profile", "Modify Tennessee State Roleplay's profile within your server.")
+subcmd = subcmd:addOption(tools.string("nickname", "The nickname that Tennessee State Roleplay should appear as within your server."):setRequired(false))
+subcmd = subcmd:addOption(tools.string("bio", "The bio that Tennessee State Roleplay should use on its profile within your server."):setRequired(false))
+subcmd = subcmd:addOption(tools.attachment("avatar", "The avatar that Tennessee State Roleplay should use on its profile within your server."):setRequired(false))
+subcmd = subcmd:addOption(tools.attachment("banner", "The banner that Tennessee State Roleplay should use on its profile within your server."):setRequired(false))
 local option = tools.string("preset", "The profile preset to use."):setRequired(false)
 
 local profilePresets = {
     ducky = {
-        name = "Zeltra",
+        name = "Tennessee State Roleplay",
         -- profile = {
         --     nick = "Zeltra",
         --     bio = nil,
@@ -21,10 +21,10 @@ local profilePresets = {
         profile = {}
     },
     plus = {
-        name = "Zeltra Plus+",
+        name = "TSRP Plus+",
         profile = {
-            nick = "Zeltra Plus+",
-            bio = emojis.right .. " The " .. emojis.duckyplus .. " **Plus+** version of " .. emojis.ducky .. " **Zeltra**.\n\n" .. emojis.web .. " https://github.com/dtxdex1020/Zeltra",
+            nick = "TSRP Plus+",
+            bio = emojis.right .. " The " .. emojis.duckyplus .. " **Plus+** version of " .. emojis.ducky .. " **Tennessee State Roleplay**.\n\n" .. emojis.web .. " https://github.com/dtxdex1020/Zeltra",
             avatar = "images/avatars/Plus.png",
             banner = "images/banners/Plus.png"
         }
@@ -32,7 +32,7 @@ local profilePresets = {
     frankenduck = {
         name = "Frankenduck (2025 Halloween Logo)",
         profile = {
-            nick = "Zeltra",
+            nick = "Tennessee State Roleplay",
             bio = nil,
             avatar = "images/avatars/Frankenduck.png",
             banner = "images/banners/Frankenduck.png"
@@ -41,16 +41,16 @@ local profilePresets = {
     skeleduck = {
         name = "Skeleduck (2025 Halloween Logo #2)",
         profile = {
-            nick = "Zeltra",
+            nick = "Tennessee State Roleplay",
             bio = nil,
             avatar = "images/avatars/Skeleduck.png",
             banner = "images/banners/Skeleduck.png"
         }
     },
     cozyducky = {
-        name = "Cozy Zeltra (2025 Christmas Logo)",
+        name = "Cozy Tennessee State Roleplay (2025 Christmas Logo)",
         profile = {
-            nick = "Cozy Zeltra",
+            nick = "Cozy Tennessee State Roleplay",
             bio = nil,
             avatar = "images/avatars/CozyDucky.png",
             banner = "images/banners/CozyDucky.png"
@@ -163,7 +163,7 @@ end
 
 return {
     name = "plus",
-    description = "Manage your Zeltra Plus+ subscription.",
+    description = "Manage your TSRP Plus+ subscription.",
     aliases = { "duckyplus", "dp", "subscription", "+" },
     subcommands = {
         profile = {
@@ -173,7 +173,7 @@ return {
         },
         "manage"
     },
-    category = "Zeltra Plus+",
+    category = "TSRP Plus+",
     slashCommand = slashCommand,
     requiredPermissions = {},
     hybridCallback = function(interaction, args, slash, subcmd)
@@ -183,11 +183,11 @@ return {
 
         if subcmd == "manage" and not SECRETS.PLUS_PURCHASES_ENABLED then
             -- Zeltra: upstream purchases are paid to Ducky's Roblox group/catalog items, so they're disabled here.
-            return interaction:fail(emojis.duckyplus .. " **Zeltra Plus+** purchases are not available. Plus+ can be granted by the bot owner.", nil, true)
+            return interaction:fail(emojis.duckyplus .. " **TSRP Plus+** purchases are not available. Plus+ can be granted by the bot owner.", nil, true)
         end
 
         if subcmd == "manage" then
-            local r = interaction:loading("Fetching " .. emojis.duckyplus .. " **Zeltra Plus+** data...")
+            local r = interaction:loading("Fetching " .. emojis.duckyplus .. " **TSRP Plus+** data...")
             local loadingMessage = nil
 
             if type(r) ~= "table" then
@@ -211,7 +211,7 @@ return {
 
                 local comps = discordia.Components()
                 local embed = {
-                    title = emojis.duckyplus .. " Zeltra Plus+",
+                    title = emojis.duckyplus .. " TSRP Plus+",
                     author = {
                         name = interaction.member.name,
                         icon_url = interaction.member.avatarURL
@@ -228,7 +228,7 @@ return {
                     })
 
                     if active and plus and (plus.slots > 0 or table.count(plus.guilds) > 0) then
-                        embed.description = "You are a " .. emojis.duckyplus .. " **Zeltra Plus+** member. Thank you for your support!\n\n" .. emojis.right .. " **Slots:** " .. plus.slots .. "\n" .. emojis.right .. " **Guilds:**\n" .. emojis.space .. emojis.right .. " " .. (table.count(plus.guilds) > 0 and table.concatFn(plus.guilds, "\n" .. emojis.space .. emojis.right, function(g)
+                        embed.description = "You are a " .. emojis.duckyplus .. " **TSRP Plus+** member. Thank you for your support!\n\n" .. emojis.right .. " **Slots:** " .. plus.slots .. "\n" .. emojis.right .. " **Guilds:**\n" .. emojis.space .. emojis.right .. " " .. (table.count(plus.guilds) > 0 and table.concatFn(plus.guilds, "\n" .. emojis.space .. emojis.right, function(g)
                             local guild = Client:getGuild(g)
 
                             if guild then
@@ -236,7 +236,7 @@ return {
                             else
                                 return emojis.error .. " Removed (`" .. g .. "`)"
                             end
-                        end) or "None") .. "\n-# " .. emojis.right .. " " .. emojis.duckyplus .. " **Zeltra Plus+** is a one-time purchase of " .. emojis.robux .. " **1,000** per guild."
+                        end) or "None") .. "\n-# " .. emojis.right .. " " .. emojis.duckyplus .. " **TSRP Plus+** is a one-time purchase of " .. emojis.robux .. " **1,000** per guild."
 
                         embed.color = colors.success
 
@@ -265,7 +265,7 @@ return {
                             })
                         end
                     else
-                        embed.description = emojis.right .. " You are not a **Zeltra Plus+** member. To get started, press " .. emojis.plus .. " **Purchase Slot** below.\n-# " .. emojis.right .. " " .. emojis.duckyplus .. " **Zeltra Plus+** is a one-time purchase of " .. emojis.robux .. " **1,000** per guild."
+                        embed.description = emojis.right .. " You are not a **TSRP Plus+** member. To get started, press " .. emojis.plus .. " **Purchase Slot** below.\n-# " .. emojis.right .. " " .. emojis.duckyplus .. " **TSRP Plus+** is a one-time purchase of " .. emojis.robux .. " **1,000** per guild."
                         embed.color = colors.fail
                     end
 
@@ -361,7 +361,7 @@ return {
 
                     comps:button({
                         style = "link",
-                        url = "https://www.roblox.com/catalog/" .. ((activeTransaction.asset and activeTransaction.asset.id) or 0) .. "/Zeltra-Plus",
+                        url = "https://www.roblox.com/catalog/" .. ((activeTransaction.asset and activeTransaction.asset.id) or 0) .. "/Tennessee State Roleplay-Plus",
                         emoji = resolvedEmojis.roblox,
                         label = "Asset"
                     })
@@ -395,7 +395,7 @@ return {
                             activeTransaction = nil
                             unuseAsset(t.asset)
                             pcall(updateEmbed)
-                            interaction.user:send(emojis.error .. " Your " .. emojis.duckyplus .. " **Zeltra Plus+** transaction timed out.")
+                            interaction.user:send(emojis.error .. " Your " .. emojis.duckyplus .. " **TSRP Plus+** transaction timed out.")
                         end
                     end)()
                 end
@@ -463,7 +463,7 @@ return {
                                 if (guildActive) and (guildPlus) and (guildPlus.userid == interaction.user.id) then
                                     mia:updateDeferred(true)
 
-                                    confirm(ia, "Are you sure you would like to refund your " .. emojis.duckyplus .. " **Zeltra Plus+** slot from **" .. guildDisplay .. "**?\n" .. emojis.error .. " ***This will disable features that were enabled using increased limits.***", function(result, ria, r)
+                                    confirm(ia, "Are you sure you would like to refund your " .. emojis.duckyplus .. " **TSRP Plus+** slot from **" .. guildDisplay .. "**?\n" .. emojis.error .. " ***This will disable features that were enabled using increased limits.***", function(result, ria, r)
                                         if result == true then
                                             ria:updateDeferred(true)
                                             ria:editReply({
@@ -482,7 +482,7 @@ return {
 
                                                 ria:editReply({
                                                     embed = {
-                                                        description = emojis.success .. " Your " .. emojis.duckyplus .. " **Zeltra Plus+** slot has been refunded from **" .. guildDisplay .. "**.",
+                                                        description = emojis.success .. " Your " .. emojis.duckyplus .. " **TSRP Plus+** slot has been refunded from **" .. guildDisplay .. "**.",
                                                         color = colors.success
                                                     },
                                                     components = {}
@@ -503,7 +503,7 @@ return {
                                         end
                                     end, nil, 10000)
                                 else
-                                    mia:fail("You are not providing " .. emojis.duckyplus .. " **Zeltra Plus+** for **" .. guildDisplay .. "**.", nil, true)
+                                    mia:fail("You are not providing " .. emojis.duckyplus .. " **TSRP Plus+** for **" .. guildDisplay .. "**.", nil, true)
                                 end
                             else
                                 mia:updateDeferred(true)
@@ -535,15 +535,15 @@ return {
                                             active = true
                                             plus = err
 
-                                            mia:success("One of your " .. emojis.duckyplus .. " **Zeltra Plus+** slots has been applied to **" .. guild.name .. "**.", nil, true)
-                                            utilityChannels.receipts:send(emojis.guild .. " **@" .. interaction.user.username .. "** (" .. interaction.user.id .. ") has applied one of their " .. emojis.duckyplus .. " **Zeltra Plus+** slots to **" .. guild.name .. "** (" .. guild.id .. ").")
+                                            mia:success("One of your " .. emojis.duckyplus .. " **TSRP Plus+** slots has been applied to **" .. guild.name .. "**.", nil, true)
+                                            utilityChannels.receipts:send(emojis.guild .. " **@" .. interaction.user.username .. "** (" .. interaction.user.id .. ") has applied one of their " .. emojis.duckyplus .. " **TSRP Plus+** slots to **" .. guild.name .. "** (" .. guild.id .. ").")
                                             updateEmbed()
                                         else
                                             mia:fail(err, nil, true)
                                         end
                                     else
                                         local provider = Client:getUser(guildPlus.userid)
-                                        mia:fail("**@" .. provider.username .. "** is already providing " .. emojis.duckyplus .. " **Zeltra Plus+** for **" .. guild.name .. "**.", nil, true)
+                                        mia:fail("**@" .. provider.username .. "** is already providing " .. emojis.duckyplus .. " **TSRP Plus+** for **" .. guild.name .. "**.", nil, true)
                                     end
                                 else
                                     mia:fail("That guild was not found.", nil, true)
@@ -574,9 +574,9 @@ return {
                                         active = true
                                         plus = err
 
-                                        mia:success("**@" .. target.username .. "** has received one of your " .. emojis.duckyplus .. " **Zeltra Plus+** slots.", nil, true)
-                                        target:send(emojis.gift .. " **@" .. interaction.user.username .. "** (" .. interaction.user.id .. ") has gifted you one of their " .. emojis.duckyplus .. " **Zeltra Plus+** slots.")
-                                        utilityChannels.receipts:send(emojis.gift .. " **@" .. interaction.user.username .. "** (" .. interaction.user.id .. ") gifted a " .. emojis.duckyplus .. " **Zeltra Plus+** slot to **@" .. target.username .. "** (" .. target.id .. ").")
+                                        mia:success("**@" .. target.username .. "** has received one of your " .. emojis.duckyplus .. " **TSRP Plus+** slots.", nil, true)
+                                        target:send(emojis.gift .. " **@" .. interaction.user.username .. "** (" .. interaction.user.id .. ") has gifted you one of their " .. emojis.duckyplus .. " **TSRP Plus+** slots.")
+                                        utilityChannels.receipts:send(emojis.gift .. " **@" .. interaction.user.username .. "** (" .. interaction.user.id .. ") gifted a " .. emojis.duckyplus .. " **TSRP Plus+** slot to **@" .. target.username .. "** (" .. target.id .. ").")
                                         updateEmbed()
                                     else
                                         mia:fail(err, nil, true)
@@ -704,7 +704,7 @@ return {
             if (not hasPermission(interaction.member, "MANAGE_SERVER", nil, interaction)) or (not hasPermission(interaction.member, "DUCKY_PLUS_GUILD", nil, interaction)) then return end
 
             if lastUsed[interaction.guild.id] and ((os.time() - lastUsed[interaction.guild.id]) <= 300) then
-                return interaction:fail("You must wait **" .. readable((lastUsed[interaction.guild.id] + 300) - os.time()) .. "** before updating Zeltra's profile within this server again.", nil, true)
+                return interaction:fail("You must wait **" .. readable((lastUsed[interaction.guild.id] + 300) - os.time()) .. "** before updating Tennessee State Roleplay's profile within this server again.", nil, true)
             end
 
             local r = interaction:loading()
@@ -742,9 +742,9 @@ return {
             if succ then
                 lastUsed[interaction.guild.id] = os.time()
 
-                return success("Zeltra's profile within this server has been successfully " .. (((nickname or bio or avatar or banner or args.preset) and "updated") or "reset") .. ".")
+                return success("Tennessee State Roleplay's profile within this server has been successfully " .. (((nickname or bio or avatar or banner or args.preset) and "updated") or "reset") .. ".")
             else
-                return fail("An error occurred while attempting to update Zeltra's profile within this server. Please try again in a few minutes. ```" .. err .. "```")
+                return fail("An error occurred while attempting to update Tennessee State Roleplay's profile within this server. Please try again in a few minutes. ```" .. err .. "```")
             end
         end
     end
