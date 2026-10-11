@@ -3147,6 +3147,8 @@ return {
 							local customSlashCmdRaw = automation.customization and automation.customization.customSlashCommand
 							if customSlashCmdRaw then
 								local customSlashCommand = tools.slashCommand(customSlashCmdRaw.name, customSlashCmdRaw.description)
+								-- Zeltra: staff-only (Moderate Members); admins can override in Server Settings > Integrations.
+								customSlashCommand.default_member_permissions = "1099511627776"
 
 								if type(automation.customization.customArgs) == "table" and next(automation.customization.customArgs) then
 									for _, orderedArg in pairs(customArgsOrder) do
@@ -3186,6 +3188,8 @@ return {
 									local customSlashCmdRaw = automation.customization and automation.customization.customSlashCommand
 									if customSlashCmdRaw then
 										local customSlashCommand = tools.slashCommand(customSlashCmdRaw.name, customSlashCmdRaw.description)
+										-- Zeltra: staff-only (Moderate Members); admins can override in Server Settings > Integrations.
+										customSlashCommand.default_member_permissions = "1099511627776"
 
 										if type(automation.customization.customArgs) == "table" and next(automation.customization.customArgs) then
 											for _, orderedArg in pairs(customArgsOrder) do

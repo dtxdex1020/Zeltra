@@ -669,6 +669,65 @@ print("[Zeltra] | Dependencies loaded in " .. (os.clock() - startdeps) .. " seco
 print("[Zeltra] | Loading utility functions...")
 startl = os.clock()
 
+-- Zeltra: staff-only slash commands. Discord hides a command from anyone lacking the permission in
+-- default_member_permissions (server admins can override per role/channel in Server Settings > Integrations).
+-- Runtime permission checks in each command are unchanged; buttons/components are unaffected.
+local PERM = {
+	ADMINISTRATOR = "8",                     -- 1 << 3
+	KICK_MEMBERS = "2",                      -- 1 << 1
+	BAN_MEMBERS = "4",                       -- 1 << 2
+	MANAGE_CHANNELS = "16",                  -- 1 << 4
+	MANAGE_GUILD = "32",                     -- 1 << 5
+	MANAGE_MESSAGES = "8192",                -- 1 << 13
+	MANAGE_NICKNAMES = "134217728",          -- 1 << 27
+	MANAGE_ROLES = "268435456",              -- 1 << 28
+	MODERATE_MEMBERS = "1099511627776"       -- 1 << 40
+}
+_G.SLASH_PERMISSION_BITS = PERM
+
+-- Keyed by the registered slash command name (setupthree.lua registers as /config).
+local SLASH_COMMAND_PERMISSIONS = {
+	-- Bot configuration / admin
+	setup = PERM.ADMINISTRATOR, setupthree = PERM.ADMINISTRATOR, config = PERM.ADMINISTRATOR,
+	automations = PERM.ADMINISTRATOR, prefix = PERM.ADMINISTRATOR, syncbans = PERM.ADMINISTRATOR,
+	updatemembers = PERM.ADMINISTRATOR, plus = PERM.ADMINISTRATOR, exportables = PERM.ADMINISTRATOR,
+	message = PERM.ADMINISTRATOR, say = PERM.ADMINISTRATOR, diagnose = PERM.ADMINISTRATOR,
+	-- Bans / kicks
+	ban = PERM.BAN_MEMBERS, unban = PERM.BAN_MEMBERS, softban = PERM.BAN_MEMBERS,
+	kick = PERM.KICK_MEMBERS,
+	-- Moderation
+	warn = PERM.MODERATE_MEMBERS, mute = PERM.MODERATE_MEMBERS, unmute = PERM.MODERATE_MEMBERS,
+	infraction = PERM.MODERATE_MEMBERS, punishments = PERM.MODERATE_MEMBERS, case = PERM.MODERATE_MEMBERS,
+	modlogs = PERM.MODERATE_MEMBERS, modstats = PERM.MODERATE_MEMBERS,
+	purge = PERM.MANAGE_MESSAGES,
+	slowmode = PERM.MANAGE_CHANNELS, lock = PERM.MANAGE_CHANNELS, unlock = PERM.MANAGE_CHANNELS,
+	nick = PERM.MANAGE_NICKNAMES,
+	role = PERM.MANAGE_ROLES
+	-- Everything else (staff-general, economy, fun, utility) falls back to MODERATE_MEMBERS below.
+}
+
+local function isConfigCommandName(name)
+	name = tostring(name or ""):lower()
+	return name:find("config") or name:find("setting") or name:find("setup")
+end
+
+local function applySlashPermissions(command)
+	local slash = command and command.slashCommand
+	if type(slash) ~= "table" then
+		return
+	end
+	local name = tostring(slash.name or command.name or ""):lower()
+	local perm = SLASH_COMMAND_PERMISSIONS[name] or SLASH_COMMAND_PERMISSIONS[tostring(command.name or ""):lower()]
+	if not perm then
+		-- usersettings is a per-user preferences command, not bot config.
+		perm = (name ~= "usersettings" and isConfigCommandName(name)) and PERM.ADMINISTRATOR or PERM.MODERATE_MEMBERS
+	end
+	slash.default_member_permissions = perm
+	slash.dm_permission = false
+	slash.contexts = { 0 } -- guild only
+end
+_G.applySlashPermissions = applySlashPermissions
+
 local function loadCommands(loadSlash, slashToLoad, loadModules)
 	startl = os.clock()
 	commands = {}
@@ -769,6 +828,7 @@ local function loadCommands(loadSlash, slashToLoad, loadModules)
 					errorMessage = err
 				})
 			else
+				applySlashPermissions(cmd)
 				table.insert(commands, cmd)
 				c = c + 1
 				prettyLog("CMDS", "cyan", "Loading command " .. cmd.name)
