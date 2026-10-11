@@ -101,6 +101,7 @@ print("[Zeltra] | Initialized Discordia.extensions() in " .. (os.clock() - start
 print("[Zeltra] | Initializing Zeltra compatibility layer...")
 startl = os.clock()
 require("zeltra-compat")
+require("zeltra-dmstyle")
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing querystring...")

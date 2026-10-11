@@ -36,17 +36,12 @@ scheduler.Start = function()
 							user = user or Client:getUser(id)
 
 							if user then
-								user:send({
-									embed = {
-										description = emojis.pings
-											.. " "
-											.. getUserString(user)
-											.. ", you set a reminder "
-											.. readable(os.time() - reminder.timestamp)
-											.. " ago: "
-											.. tostring(reminder.content),
-										color = colors.info,
-									},
+								dmStyle.send(user, {
+									icon = "⏰",
+									title = "Reminder",
+									intro = "You asked me to remind you about this " .. dmStyle.time(reminder.timestamp, "R") .. ".",
+									sections = { { title = "Reminder", body = tostring(reminder.content) } },
+									footer = "Reminders",
 								})
 
 								modified = true
@@ -421,11 +416,21 @@ scheduler.Start = function()
 										end
 
 										local userSettings = sqldb:getUserSettings(member.id)
-										if not userSettings or userSettings.infractionnotifications ~= false then
-											local sanitizedGuildName = sanitizeGuildName(guild.name)
-											member:send({
-												embeds = embeds,
-												components = signature(guild),
+										if member and (not userSettings or userSettings.infractionnotifications ~= false) then
+											dmStyle.send(member, {
+												guild = guild,
+												icon = "⚖️",
+												title = "Your infraction expired",
+												intro = "An infraction you received in **" .. dmStyle.serverName(guild) .. "** has expired.",
+												fields = {
+													{ "Punishment", infraction.type },
+													{ "Reason", infraction.reason or "No reason provided" },
+													{ "Issued", infraction.timestamp and dmStyle.time(infraction.timestamp) },
+													{ "Expired", infraction.expires and dmStyle.time(infraction.expires) },
+													{ "Case ID", "`" .. tostring(infraction.id) .. "`" },
+												},
+												note = "This infraction no longer counts against you.",
+												footer = "Staff Management",
 											})
 										end
 

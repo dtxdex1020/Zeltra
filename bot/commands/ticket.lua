@@ -244,7 +244,7 @@ return {
 								updateManager()
 							elseif first == "delete" then
 								local r = ia:loading("Generating transcript...", true)
-								local transcript, webTranscriptLink = transcriptChannel(interaction.channel)
+								local transcript, webTranscriptLink, transcriptCount = transcriptChannel(interaction.channel)
 								coroutine.wrap(function()
 									local embed = {
 										title = emojis.document .. " Ticket Transcript",
@@ -261,15 +261,17 @@ return {
 
 									local settings = sqldb:getUserSettings(ticket.owner)
 									if settings and settings.ticketnotifications ~= false then
-										Client:getUser(ticket.owner):send({
-											embed = embed,
-											files = {
-												{
-													"transcript.txt",
-													tostring(transcript)
-												}
-											},
-											components = comps:raw()
+										dmStyle.ticketClosed(Client:getUser(ticket.owner), {
+											guild = interaction.guild,
+											channel = interaction.channel,
+											id = ticket.id,
+											subject = subject.name,
+											closer = interaction.user,
+											claimer = ticketClaimer,
+											messages = transcriptCount,
+											reason = nil,
+											url = webTranscriptLink,
+											transcript = transcript
 										})
 									end
 
@@ -528,7 +530,7 @@ return {
 							end
 						end
 
-						local transcript, webTranscriptLink = transcriptChannel(interaction.channel)
+						local transcript, webTranscriptLink, transcriptCount = transcriptChannel(interaction.channel)
 						local embed = {
 							title = emojis.document .. " Ticket Transcript",
 							description = emojis.right .. " **Ticket ID:** `" .. (ticket.id or 0) .. "`\n" .. emojis.right .. " **Ticket Subject:** " .. subject.name .. "\n" .. emojis.right .. " **Ticket Opener:** <@" .. ticket.owner .. ">\n" .. emojis.right .. " **Ticket Claimer:** " .. ((ticketClaimer and ticketClaimer.mentionString) or "N/A") .. "\n" .. emojis.right .. " **Ticket Closer:** " .. interaction.user.mentionString .. "\n" .. emojis.right .. " **Ticket Close Reason:** " .. (reason or emojis.fail),
@@ -542,15 +544,17 @@ return {
 						})
 						local settings = sqldb:getUserSettings(ticket.owner)
 						if settings and settings.ticketnotifications ~= false then
-							Client:getUser(ticket.owner):send({
-								embed = embed,
-								files = {
-									{
-										"transcript.txt",
-										tostring(transcript)
-									}
-								},
-								components = comps:raw()
+							dmStyle.ticketClosed(Client:getUser(ticket.owner), {
+								guild = interaction.guild,
+								channel = interaction.channel,
+								id = ticket.id,
+								subject = subject.name,
+								closer = interaction.user,
+								claimer = ticketClaimer,
+								messages = transcriptCount,
+								reason = reason,
+								url = webTranscriptLink,
+								transcript = transcript
 							})
 						end
 

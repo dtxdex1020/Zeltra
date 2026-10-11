@@ -45,22 +45,20 @@ return {
 		local appealLink = config.appealLinks and config.appealLinks.warning or nil
 
 		pcall(function()
-			if appealLink then
-				member:send({
-					embed = {
-						description = emojis.warning .. " You have been warned in **" .. interaction.guild.name .. "** for **" .. reason .. "**.",
-						color = colors.warning
-					},
-					components = discordia.Components():button({
-						url = appealLink,
-						style = "link",
-						label = "Appeal Warning",
-						emoji = resolvedEmojis.link
-					}):raw()
-				})
-			else
-				member:warning("You have been warned in **" .. interaction.guild.name .. "** for **" .. reason .. "**.")
-			end
+			dmStyle.send(member, {
+				guild = interaction.guild,
+				icon = "⚠️",
+				title = "You received a warning",
+				intro = "A moderator in **" .. dmStyle.serverName(interaction.guild) .. "** gave you a warning.",
+				fields = {
+					{ "Reason", reason },
+					{ "Date", dmStyle.time(case.timestamp) },
+					{ "Case ID", "`" .. tostring(case.caseID) .. "`" }
+				},
+				note = (appealLink and "Think this was a mistake? Use the **Appeal Warning** button below.") or nil,
+				buttons = (appealLink and { { label = "Appeal Warning", url = appealLink, emoji = "🔗" } }) or nil,
+				footer = "Moderation"
+			})
 		end)
 
 		db:send(interaction.guild, "modlogchannel", {

@@ -67,24 +67,22 @@ return {
         local appealLink = config.appealLinks and config.appealLinks.mute or nil
 
         pcall(function()
-            if appealLink then
-                member:send({
-                    embed = {
-                        description = emojis.timeout .. " You have been muted in **" .. interaction.guild.name .. "** for " ..
-                            readable(duration) .. ": **" .. reason .. "**.",
-                        color = colors.fail
-                    },
-                    components = discordia.Components():button({
-                        url = appealLink,
-                        style = "link",
-                        label = "Appeal Mute",
-                        emoji = resolvedEmojis.link
-                    }):raw()
-                })
-            else
-                member:fail("You have been muted in **" .. interaction.guild.name .. "** for " .. readable(duration) ..
-                                ": **" .. reason .. "**.", emojis.timeout)
-            end
+            dmStyle.send(member, {
+                guild = interaction.guild,
+                icon = "🔇",
+                title = "You were muted",
+                intro = "A moderator in **" .. dmStyle.serverName(interaction.guild) .. "** muted you.",
+                fields = {
+                    { "Length", "`" .. dmStyle.duration(duration) .. "`" },
+                    { "Reason", reason },
+                    { "Ends", dmStyle.time(case.timestamp + duration) },
+                    { "Case ID", "`" .. tostring(case.caseID) .. "`" }
+                },
+                note = (appealLink and "Think this was a mistake? Use the **Appeal Mute** button below.")
+                    or ("You can talk again " .. dmStyle.time(case.timestamp + duration, "R") .. "."),
+                buttons = (appealLink and { { label = "Appeal Mute", url = appealLink, emoji = "🔗" } }) or nil,
+                footer = "Moderation"
+            })
         end)
 
         db:send(interaction.guild, "modlogchannel", {

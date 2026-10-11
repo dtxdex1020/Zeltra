@@ -313,10 +313,33 @@ erlcchecker.Start = function()
 							id = snowGen:next()
 						}, member, type.name, true)
 						if shift then
-							member:success("Your " .. shift.type .. " shift has been automatically started in **" .. member.guild.name .. "**.")
+							local quotaLine
+							pcall(function()
+								local total = db:shiftTotal(member, type.name)
+								if total then
+									quotaLine = "`" .. dmStyle.duration(total) .. "`" .. ((type.quota and (" of `" .. dmStyle.duration(type.quota) .. "` quota")) or "")
+								end
+							end)
+							dmStyle.send(member, {
+								guild = guild,
+								icon = "⏳",
+								title = "You're On Duty",
+								intro = "🟢 **" .. dmStyle.shiftName(shift.type) .. "** · started " .. dmStyle.time(shift.started, "R") .. " in **" .. dmStyle.serverName(guild) .. "**",
+								fields = { { "This wave", quotaLine } },
+								note = "Leaving the game will automatically end your shift. Manage it with `/shift manage`.",
+								footer = "Shifts",
+							})
 							server:execute(":pm " .. player.name .. " ✅・Tennessee State Roleplay has automatically started your " .. type.name .. " shift.")
 						else
-							member:fail("An error occurred while automatically starting your **" .. type.name .. "** shift in **" .. member.guild.name .. "**:\n" .. emojis.right .. " " .. err)
+							dmStyle.send(member, {
+								guild = guild,
+								icon = "📶",
+								title = "Couldn't start your shift",
+								intro = "I tried to start your **" .. dmStyle.shiftName(type.name) .. "** in **" .. dmStyle.serverName(guild) .. "** automatically, but it didn't work.",
+								sections = { { title = "Reason", body = tostring(err) } },
+								note = "You can start it yourself with `/shift manage`.",
+								footer = "Shifts",
+							})
 							server:execute(":pm " .. player.name .. " ❌・" .. (igerr or err))
 						end
 					end
@@ -379,9 +402,28 @@ erlcchecker.Start = function()
 										local success, err = db:shiftEnd(member)
 
 										if success then
-											member:success("Your **" .. shift.type .. "** shift has been automatically ended in **" .. guild.name .. "**.")
+											local recorded = 0
+											pcall(function()
+												recorded = db:shiftElapsed(guild, shift.id) or 0
+											end)
+											dmStyle.send(member, {
+												guild = guild,
+												icon = "📶",
+												title = "Shift ended automatically",
+												intro = "You left the game, so your **" .. dmStyle.shiftName(shift.type) .. "** was clocked out · `" .. dmStyle.duration(recorded) .. "` recorded",
+												note = "Rejoin the game and use `/shift manage` to start a new shift.",
+												footer = "Shifts",
+											})
 										else
-											member:fail("An error occurred while attempting to automatically end your **" .. shift.type .. "** shift in **" .. guild.name .. "**:\n" .. emojis.right .. " " .. err)
+											dmStyle.send(member, {
+												guild = guild,
+												icon = "📶",
+												title = "Couldn't end your shift",
+												intro = "You left the game, but I couldn't clock out your **" .. dmStyle.shiftName(shift.type) .. "** in **" .. dmStyle.serverName(guild) .. "** automatically.",
+												sections = { { title = "Reason", body = tostring(err) } },
+												note = "Please end it yourself with `/shift manage`.",
+												footer = "Shifts",
+											})
 										end
 									end
 								end

@@ -16,3 +16,5 @@ Modifications Copyright (C) 2026 dtxdex1020 (Shark), also licensed under AGPL-3.
   were added. See README.md, "Changes from Ducky V1", and the git history of this repository for every change.
 
 Source code for the running bot: https://github.com/dtxdex1020/Zeltra
+- 2026-10-10: Member DMs (infractions, tickets, shifts, moderation, LOAs, ER:LC punishments, bounties,
+  reminders) were restyled as Components V2 cards via bot/libs/zeltra-dmstyle.lua, with an embed fallback.

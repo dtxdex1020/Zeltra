@@ -30,24 +30,19 @@ local function banMember(guild, violatorMember, violator, moderator, reason, noc
         local appealLink = config.appealLinks and config.appealLinks.ban or nil
 
         pcall(function()
-            if appealLink then
-                violator:send({
-                    embed = {
-                        description = emojis.ban .. " You have been banned from **" .. guild.name .. "** for **" ..
-                            reason .. "**.",
-                        color = colors.heavyred
-                    },
-                    components = discordia.Components():button({
-                        url = appealLink,
-                        style = "link",
-                        label = "Appeal Ban",
-                        emoji = resolvedEmojis.link
-                    }):raw()
-                })
-            else
-                violator:heavyred("You have been banned from **" .. guild.name .. "** for **" .. reason .. "**.",
-                    emojis.ban)
-            end
+            dmStyle.send(violator, {
+                guild = guild,
+                icon = "🔨",
+                title = "You were banned",
+                intro = "A moderator banned you from **" .. dmStyle.serverName(guild) .. "**.",
+                fields = {
+                    { "Reason", reason },
+                    { "Date", dmStyle.time(os.time()) }
+                },
+                note = (appealLink and "Think this was a mistake? Use the **Appeal Ban** button below.") or nil,
+                buttons = (appealLink and { { label = "Appeal Ban", url = appealLink, emoji = "🔗" } }) or nil,
+                footer = "Moderation"
+            })
         end)
     end
 

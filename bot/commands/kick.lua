@@ -40,7 +40,17 @@ return {
 		end
 
 		pcall(function()
-			member:warning("You have been kicked from **" .. interaction.guild.name .. "** for **" .. reason .. "**.", emojis.kick)
+			dmStyle.send(member, {
+				guild = interaction.guild,
+				icon = "👢",
+				title = "You were kicked",
+				intro = "A moderator removed you from **" .. dmStyle.serverName(interaction.guild) .. "**.",
+				fields = {
+					{ "Reason", reason },
+					{ "Date", dmStyle.time(os.time()) }
+				},
+				footer = "Moderation"
+			})
 		end)
 
 		local kicked, err = member:kick(reason)

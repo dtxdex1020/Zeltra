@@ -6880,7 +6880,7 @@ utils.Start = function()
 
 		local url = _G.ZELTRA_WEB_URL .. "/transcripts/" .. channel.guild.id .. "/" .. channel.id
 		channel._delete_protection = false
-		return transcript, url
+		return transcript, url, #webTranscript.messages
 	end
 
 	_G.transcriptChannel = transcriptChannel

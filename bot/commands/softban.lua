@@ -36,7 +36,18 @@ return {
         end
 
         pcall(function()
-            member:fail("You have been softbanned from **" .. interaction.guild.name .. "** for **" .. reason .. "**.", emojis.ban)
+            dmStyle.send(member, {
+                guild = interaction.guild,
+                icon = "🔨",
+                title = "You were softbanned",
+                intro = "A moderator softbanned you from **" .. dmStyle.serverName(interaction.guild) .. "**.",
+                fields = {
+                    { "Reason", reason },
+                    { "Date", dmStyle.time(os.time()) }
+                },
+                note = "A softban removes you from the server and deletes your recent messages. It is not a permanent ban.",
+                footer = "Moderation"
+            })
         end)
 
         local success, err = banMember(interaction.guild, member, user, interaction.member, "softban: " .. reason, true, duration)

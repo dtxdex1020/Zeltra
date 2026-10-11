@@ -553,7 +553,7 @@ tickets.Start = function()
 											end
 										end
 
-										local transcript, webTranscriptLink = transcriptChannel(interaction.channel)
+										local transcript, webTranscriptLink, transcriptCount = transcriptChannel(interaction.channel)
 										local embed = {
 											title = emojis.document .. " Ticket Transcript",
 											description = emojis.right
@@ -591,15 +591,17 @@ tickets.Start = function()
 
 										local settings = sqldb:getUserSettings(ticket.owner)
 										if settings and settings.ticketnotifications ~= false then
-											Client:getUser(ticket.owner):send({
-												embed = embed,
-												files = {
-													{
-														"transcript.txt",
-														tostring(transcript),
-													},
-												},
-												components = comps:raw(),
+											dmStyle.ticketClosed(Client:getUser(ticket.owner), {
+												guild = interaction.guild,
+												channel = interaction.channel,
+												id = ticketID,
+												subject = subject.name,
+												closer = interaction.user,
+												claimer = ticketClaimer,
+												messages = transcriptCount,
+												reason = reason,
+												url = webTranscriptLink,
+												transcript = transcript,
 											})
 										end
 										if subject.transcriptschannel then

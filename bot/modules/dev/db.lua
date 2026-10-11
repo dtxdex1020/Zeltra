@@ -318,9 +318,23 @@ dbModule.Start = function()
 			local usersettings = sqldb:getUserSettings(member.id)
 
 			if not usersettings or usersettings.infractionnotifications ~= false then
-				member:send({
-					embeds = embeds,
-					components = signature(guild)
+				local expiresAt = expires and (currentTime + expires)
+				dmStyle.send(member, {
+					guild = guild,
+					icon = "⚖️",
+					title = "You received an infraction",
+					intro = "We're sorry to let you know that you received an infraction in **" .. dmStyle.serverName(guild) .. "**.",
+					fields = {
+						{ "Punishment", infractionType.name },
+						{ "Reason", reason or "No reason provided" },
+						{ "Notes", notes },
+						{ "Issued", dmStyle.time(currentTime) },
+						{ "Expires", expiresAt and dmStyle.time(expiresAt) },
+						{ "Case ID", "`" .. tostring(infractionID) .. "`" }
+					},
+					note = (expiresAt and ("This infraction expires " .. dmStyle.time(expiresAt, "R") .. ". If you have questions about it, reach out to the management team."))
+						or "This infraction does not expire. If you have questions about it, reach out to the management team.",
+					footer = "Staff Management"
 				})
 			end
 
@@ -536,14 +550,18 @@ dbModule.Start = function()
 					})[1]:usub(1, 32))
 				end
 
-				member:send({
-					embed = {
-						description = emojis.success .. " Your LOA in **" .. member.guild.name .. "** has been " .. emojis.success .. " **approved**.\n" ..
-							emojis.space .. emojis.right .. " **Length:** " .. readable(v.length) .. "\n" ..
-							emojis.space .. emojis.right .. " **Ends:** <t:" .. (os.time() + v.length) .. ">\n" ..
-							emojis.space .. emojis.right .. " **Reason:** " .. v.reason,
-						color = colors.success
-					}
+				dmStyle.send(member, {
+					guild = guild,
+					icon = "🗓️",
+					title = "Your LOA was approved",
+					intro = "Your leave of absence in **" .. dmStyle.serverName(guild) .. "** has been approved.",
+					fields = {
+						{ "Length", "`" .. dmStyle.duration(v.length) .. "`" },
+						{ "Ends", dmStyle.time(os.time() + v.length) },
+						{ "Reason", v.reason or "No reason provided" }
+					},
+					note = "Enjoy your time off. You can end it early with `/loa view`.",
+					footer = "Staff Management"
 				})
 				return true
 			end
@@ -564,11 +582,17 @@ dbModule.Start = function()
 					loarequests = config.loarequests
 				}, "LOA_DENY")
 				coroutine.wrap(function()
-					member:send({
-						embed = {
-							description = emojis.fail .. " Your LOA in **" .. member.guild.name .. "** has been " .. emojis.fail .. " **denied**" .. ((reason and "for **" .. reason .. "**") or "."),
-							color = colors.fail
-						}
+					dmStyle.send(member, {
+						guild = guild,
+						icon = "🗓️",
+						title = "Your LOA was denied",
+						intro = "Your leave of absence request in **" .. dmStyle.serverName(guild) .. "** was denied.",
+						fields = {
+							{ "Requested length", v.length and ("`" .. dmStyle.duration(v.length) .. "`") },
+							{ "Your reason", v.reason }
+						},
+						sections = { { title = "Reason", body = reason or "No reason provided" } },
+						footer = "Staff Management"
 					})
 				end)()
 				return true
@@ -615,11 +639,19 @@ dbModule.Start = function()
 						color = colors.fail
 					}
 				})
-				member:send({
-					embed = {
-						description = emojis.right .. " Your LOA in **" .. member.guild.name .. "** has " .. ((ender and "been " .. emojis.clock .. " **ended early** by " .. getUserString(ender) .. ".") or "**expired**."),
-						color = colors.warning
-					}
+				dmStyle.send(member, {
+					guild = guild,
+					icon = "🗓️",
+					title = (ender and "Your LOA was ended early") or "Your LOA has ended",
+					intro = (ender and ("Your leave of absence in **" .. dmStyle.serverName(guild) .. "** was ended early."))
+						or ("Your leave of absence in **" .. dmStyle.serverName(guild) .. "** is over. Welcome back!"),
+					fields = {
+						{ "Started", started and dmStyle.time(started) },
+						{ "Ended", dmStyle.time(os.time()) },
+						{ "Ended by", ender and ender.mentionString },
+						{ "Reason", reason }
+					},
+					footer = "Staff Management"
 				})
 				return true, config
 			end
@@ -649,11 +681,16 @@ dbModule.Start = function()
 					}
 				})
 
-				member:send({
-					embed = {
-						description = emojis.warning .. " Your LOA request in **" .. member.guild.name .. "** has been " .. emojis.fail .. " **canceled**.",
-						color = colors.warning
-					}
+				dmStyle.send(member, {
+					guild = guild,
+					icon = "🗓️",
+					title = "Your LOA request was canceled",
+					intro = "Your pending leave of absence request in **" .. dmStyle.serverName(guild) .. "** has been canceled.",
+					fields = {
+						{ "Requested length", v.length and ("`" .. dmStyle.duration(v.length) .. "`") },
+						{ "Reason", v.reason }
+					},
+					footer = "Staff Management"
 				})
 
 				return true, config
@@ -2317,22 +2354,22 @@ dbModule.Start = function()
 				local member = (link and link.discord and moderator.guild:getMember(link.discord)) or nil
 
 				if member then
-					member:send({
-						embed = {
-							title = emojis.warning .. " Punishment Received",
-							description = emojis.right .. " You received a punishment in **" .. guild.name .. "**.\n" .. emojis.space .. emojis.right .. " **Player:** " .. player.hyperlink .. "\n" .. emojis.space .. emojis.right .. " **Type:** " .. punishment.type .. "\n" .. emojis.space .. emojis.right .. " **Reason:** " .. punishment.reason .. ((punishment.evidence and "\n" .. emojis.space .. emojis.right .. " **Evidence:** [Attachment](" .. punishment.evidence .. ")") or "") .. ((punishment.expires and "\n" .. emojis.space .. emojis.right .. " **Expires:** <t:" .. punishment.expires .. "> (<t:" .. punishment.expires .. ":R>)") or "") .. "\n" .. emojis.space .. emojis.right .. " **ID:** `" .. punishment.id .. "`",
-							color = colors.warning,
-							thumbnail = {
-								url = player.avatar
-							},
-							author = {
-								name = guild.name,
-								icon_url = guild.iconURL
-							},
-							image = (punishment.evidence and {
-								url = punishment.evidence
-							}) or nil
-						}
+					dmStyle.send(member, {
+						guild = guild,
+						icon = "🚨",
+						title = "You received a punishment",
+						intro = "A moderator logged an in-game punishment on your account in **" .. dmStyle.serverName(guild) .. "**.",
+						fields = {
+							{ "Player", player.hyperlink },
+							{ "Punishment", punishment.type },
+							{ "Reason", punishment.reason or "No reason provided" },
+							{ "Evidence", punishment.evidence and ("[Attachment](" .. punishment.evidence .. ")") },
+							{ "Expires", punishment.expires and (dmStyle.time(punishment.expires) .. " (" .. dmStyle.time(punishment.expires, "R") .. ")") },
+							{ "Date", dmStyle.time(os.time()) },
+							{ "Punishment ID", "`" .. tostring(punishment.id) .. "`" }
+						},
+						media = punishment.evidence,
+						footer = "ER:LC Moderation"
 					})
 				end
 			end
@@ -3030,15 +3067,17 @@ dbModule.Start = function()
 			}
 		})
 
-		member:send({
-			embed = {
-				title = emojis.success .. " Bounty Completed",
-				description = "You received " .. (config.economy.currency or emojis.quack) .. " **" .. formatNumber(amount) .. "** for completing **" .. player.hyperlink .. "**'s bounty.\n" .. emojis.right .. " **Player:** " .. player.hyperlink .. "\n" .. emojis.right .. " **Date:** <t:" .. os.time() .. ">",
-				thumbnail = {
-					url = player.avatar
-				}
+		dmStyle.send(member, {
+			guild = guild,
+			icon = "🎯",
+			title = "Bounty completed",
+			intro = "You completed a bounty in **" .. dmStyle.serverName(guild) .. "**. Nice work!",
+			fields = {
+				{ "Reward", (config.economy.currency or emojis.quack) .. " " .. formatNumber(amount) },
+				{ "Player", player.hyperlink },
+				{ "Date", dmStyle.time(os.time()) }
 			},
-			components = signature(guild)
+			footer = "Economy"
 		})
 
 		return true

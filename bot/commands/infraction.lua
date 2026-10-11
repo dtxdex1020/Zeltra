@@ -248,9 +248,20 @@ return {
 
             local us = sqldb:getUserSettings(member.id) or {}
             if us.infractionnotifications then
-                member:send({
-                    embeds = embeds,
-                    components = signature(guild)
+                dmStyle.send(member, {
+                    guild = guild,
+                    icon = "⚖️",
+                    title = "Your infraction was revoked",
+                    intro = "Good news: an infraction you received in **" .. dmStyle.serverName(guild) .. "** has been revoked.",
+                    fields = {
+                        { "Punishment", targetInfraction.type },
+                        { "Reason", targetInfraction.reason or "No reason provided" },
+                        { "Revoked by", interaction.member.mentionString },
+                        { "Issued", targetInfraction.timestamp and dmStyle.time(targetInfraction.timestamp) },
+                        { "Case ID", "`" .. tostring(targetInfraction.id) .. "`" }
+                    },
+                    note = "This infraction no longer counts against you.",
+                    footer = "Staff Management"
                 })
             end
 
@@ -523,9 +534,31 @@ return {
 
                 local us = sqldb:getUserSettings(targetInfraction.user) or {}
                 if us.infractionnotifications then
-                    member:send({
-                        embeds = embeds,
-                        components = signature(guild)
+                    local dmFields = {}
+                    if oldData.type ~= newData.type then
+                        table.insert(dmFields, { "Punishment", tostring(oldData.type or "None") .. " → " .. tostring(newData.type or "None") })
+                    else
+                        table.insert(dmFields, { "Punishment", targetInfraction.type })
+                    end
+                    if oldData.reason ~= newData.reason then
+                        table.insert(dmFields, { "Reason", tostring(oldData.reason or "None") .. " → " .. tostring(newData.reason or "None") })
+                    end
+                    if oldData.notes ~= newData.notes then
+                        table.insert(dmFields, { "Notes", tostring(oldData.notes or "None") .. " → " .. tostring(newData.notes or "None") })
+                    end
+                    if oldData.expires ~= newData.expires then
+                        table.insert(dmFields, { "Expires", (newData.expires and dmStyle.time(newData.expires)) or "Never" })
+                    end
+                    table.insert(dmFields, { "Updated by", interaction.member.mentionString })
+                    table.insert(dmFields, { "Case ID", "`" .. tostring(targetInfraction.id) .. "`" })
+
+                    dmStyle.send(member, {
+                        guild = guild,
+                        icon = "⚖️",
+                        title = "Your infraction was updated",
+                        intro = "An infraction you received in **" .. dmStyle.serverName(guild) .. "** has been updated.",
+                        fields = dmFields,
+                        footer = "Staff Management"
                     })
                 end
             end
