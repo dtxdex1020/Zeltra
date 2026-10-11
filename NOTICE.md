@@ -42,3 +42,5 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
   offered only above the presser's rank and the ticket's current tier, with a cooldown, an optional reason, a ping
   card in the ticket and a ticket-logs entry (bot/libs/zeltra-ticket-escalation.lua). Updated TSRP ticket roles.
   Raid keyword detection ignores keyword words in ticket channels (prefix commands still count).
+- 2026-10-11: TSRP Staff Report tickets go to High Rank (access and ping) instead of the IA Board. The ticket seed now
+  edits an already posted panel's text in place.

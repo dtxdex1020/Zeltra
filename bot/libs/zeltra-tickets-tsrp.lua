@@ -106,14 +106,14 @@ M.TYPES = {
 	},
 	{
 		key = "staffreport", name = "Staff Report", emoji = "🕵️", prefix = "staff-report",
-		description = "Report a staff member to Internal Affairs",
+		description = "Report a staff member to the High Rank team",
 		bullets = {
 			"Report a staff member for abuse or breaking the rules",
-			"Handled privately by Internal Affairs",
+			"Handled privately by the High Rank team",
 			"Include the staff member's name and your proof",
 		},
-		category = "hr", support = { R.iaboard }, mention = { R.iaboard },
-		open = card("🕵️ Staff Report", "Thanks, {opener.mention}. Internal Affairs will handle this privately.",
+		category = "hr", support = { R.highrank }, mention = { R.highrank },
+		open = card("🕵️ Staff Report", "Thanks, {opener.mention}. A High Rank will handle this privately.",
 			{ "Your Roblox username", "Staff member's name", "What happened", "Date and time", "Proof (clips or screenshots)" }),
 	},
 	{

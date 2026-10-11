@@ -3,8 +3,8 @@
 
 	Sets up the TSRP ticket hub. Only runs when SEED_TICKETS=1 (scripts/docker-start.sh backs the database up first).
 	  * Posts the ticket panel (libs/zeltra-tickets-tsrp.lua) in #assistance as the bot, unless a panel with the
-	    same key is already registered and its message still exists. In that case the message is left alone and
-	    only the ticket types are refreshed (open tickets and ticket counters are kept).
+	    same key is already registered and its message still exists. In that case the message text is edited in place
+	    and the ticket types are refreshed (open tickets and ticket counters are kept).
 	  * Registers it in the `panels` config key the way /setup's Ticket Panel Builder does
 	    (panels[<message id>] = { channel, subjects, embeds }). Other panels are not touched, except bot panels
 	    already registered for #assistance, which this one replaces.
@@ -47,7 +47,11 @@ return function(Client, sqldb, timer)
 	if existingId and channel:getMessage(existingId) then
 		messageId = existingId
 		T.mergeSubjects(subjects, existing.subjects)
-		say("panel " .. existingId .. " already posted, refreshing its ticket types only")
+		say("panel " .. existingId .. " already posted, refreshing its ticket types and text")
+		-- edit the text in place; the banner and strip stay as the message's existing attachments
+		local payload = T.panelPayload()
+		local data, err = Client._api:editMessage(channel.id, existingId, { flags = payload.flags, components = payload.components, allowed_mentions = payload.allowed_mentions })
+		if data then say("edited panel " .. existingId .. " text") else say("warning: could not edit panel text, left as is: " .. tostring(err)) end
 	else
 		-- replace bot panels already registered for #assistance
 		for id, p in pairs(panels) do
