@@ -13,7 +13,7 @@ local O = dofile("libs/zeltra-ownership-core.lua")
 _G.ownershipCore = O
 
 ---------------------------------------------------------------- core
-check("19 questions", O.QUESTION_COUNT == 19)
+check("9 questions in 2 forms", O.QUESTION_COUNT == 9 and #O.FORMS == 2)
 local labelsOk, descOk, perModal, styleOk = true, true, true, true
 local allText = {}
 for n, form in ipairs(O.FORMS) do
@@ -36,14 +36,15 @@ local ai = { "delve", "leverage", "tapestry", "furthermore", "in today's", "as a
 local aiFree = true
 for _, w in ipairs(ai) do if blob:lower():find(w, 1, true) then aiFree = false print("phrase: " .. w) end end
 check("no AI-sounding phrases", aiFree)
-for _, term in ipairs({ "FRP", "RDM", "Mass RDM", "VDM", "NITRP", "NLR", "Metagaming", "Powergaming", "Combat logging", "Fail RP / LTAP", "Cop baiting", "Erratic driving" }) do
+check("uses GTA driving, not Erratic driving", not blob:find("Erratic", 1, true))
+for _, term in ipairs({ "FRP", "RDM", "Mass RDM", "VDM", "NITRP", "GTA driving" }) do
 	check("definition covers " .. term, blob:find(term, 1, true) ~= nil)
 end
 
 local m = O.modal(1, { def1 = "saved answer" })
-check("modal shape", m.custom_id == "ownapp:submit:1" and #m.components == 4 and m.components[1].type == 18 and m.components[1].component.type == 4)
+check("modal shape", m.custom_id == "ownapp:submit:1" and #m.components == 5 and m.components[1].type == 18 and m.components[1].component.type == 4)
 check("modal prefilled", m.components[1].component.value == "saved answer" and m.components[2].component.value == nil)
-check("no modal 6", O.modal(6) == nil)
+check("no modal 3", O.modal(3) == nil)
 
 local parsed = O.parseModal({ components = {
 	{ type = 18, component = { type = 4, custom_id = "a", value = "x" } },
@@ -61,7 +62,7 @@ check("denied after cooldown ok", O.eligibility({ status = "denied", decided = 0
 local full = {}
 for id, q in pairs(O.BY_ID) do full[id] = string.rep("a", q.max) end
 check("nextForm done", O.nextForm(full) == nil)
-check("nextForm first gap", O.nextForm({ def1 = "a", def2 = "a", def3 = "a", def4 = "a" }) == 2)
+check("nextForm first gap", O.nextForm({ def1 = "a", def2 = "a", sc1 = "a", sc2 = "a", sc3 = "a" }) == 2)
 local cards = O.answerCards(full)
 local cardsOk = true
 for _, c in ipairs(cards) do
@@ -69,7 +70,8 @@ for _, c in ipairs(cards) do
 	for _, s in ipairs(c.sections) do size = size + #s.title + #s.body end
 	if size > 3500 then cardsOk = false end
 end
-check("max-length answers split into cards under the limit", cardsOk and #cards >= 3)
+check("max-length answers fit in at most 2 cards under the limit", cardsOk and #cards <= 2)
+check("typical answers fit in 1 card", #O.answerCards({ def1 = string.rep("a", 250), def2 = string.rep("a", 250), sc1 = string.rep("a", 200), sc2 = string.rep("a", 200), sc3 = string.rep("a", 200), experience = string.rep("a", 250), why = string.rep("a", 250) }) == 1)
 check("about you short answers not repeated in cards", (function()
 	for _, c in ipairs(cards) do for _, s in ipairs(c.sections) do if s.title == "How old are you?" then return false end end end
 	return true
@@ -203,8 +205,9 @@ for n = 1, #O.FORMS do
 end
 local rec = sqldb.store.g1.ownershipapps.apps["555"]
 check("record pending", rec and rec.status == "pending" and rec.message)
-check("review posts: header + answer cards + decision", #channelPosts >= 5)
+check("review posts: header + 1 answer card + decision", #channelPosts == 3)
 local reviewJson = json.encode(channelPosts)
+check("header shows age and timezone/hours", reviewJson:find("**Age** · 17", 1, true) and reviewJson:find("**Timezone and hours** · Answer for tzhours", 1, true))
 check("review card shows staff status", reviewJson:find("**Staff** · Yes", 1, true) ~= nil)
 check("review header has applicant info", reviewJson:find("Account created", 1, true) and reviewJson:find("Infractions", 1, true) and reviewJson:find("Joined server", 1, true))
 check("review footer", reviewJson:find("Tennessee State Roleplay · Ownership Applications", 1, true) ~= nil)
@@ -266,19 +269,21 @@ check("accept does not touch roles", not reviewJson:find("addRole", 1, true))
 -- under 13
 sqldb.store.g1.ownershipapps.apps["555"] = nil
 ia = newInteraction(applicant) cmd.hybridCallback(ia, {}, true, "apply")
-for n = 1, 3 do
+for n = 1, 1 do
 	local comps = {}
 	for _, q in ipairs(O.FORMS[n].questions) do table.insert(comps, { type = 18, component = { type = 4, custom_id = q.id, value = "ok answer" } }) end
 	run(newInteraction(applicant, { custom_id = "ownapp:submit:" .. n, components = comps }, { message = msg }))
 end
-ia = newInteraction(applicant, { custom_id = "ownapp:submit:4", components = {
+ia = newInteraction(applicant, { custom_id = "ownapp:submit:2", components = {
 	{ type = 18, component = { type = 4, custom_id = "age", value = "12" } },
-	{ type = 18, component = { type = 4, custom_id = "timezone", value = "EST" } },
-	{ type = 18, component = { type = 4, custom_id = "hours", value = "10" } } } }, { message = msg })
+	{ type = 18, component = { type = 4, custom_id = "tzhours", value = "EST, 10 hours" } },
+	{ type = 18, component = { type = 4, custom_id = "experience", value = "Ran a small server" } },
+	{ type = 18, component = { type = 4, custom_id = "why", value = "I want to help it grow" } } } }, { message = msg })
 run(ia)
 check("under 13 stopped", json.encode(last(ia)[2]):find("13 or older", 1, true) ~= nil and api.drafts["g1:555"] == nil)
 
 -- a community member (no roles) goes all the way through
+_G.__firstPosts = channelPosts
 channelPosts = {}
 for n = 1, #O.FORMS do
 	local comps = {}
@@ -299,7 +304,7 @@ end
 check("no em dashes in source", srcOk)
 
 if os.getenv("OWNERSHIP_PREVIEW_OUT") then
-	local out = { { name = "review", payloads = channelPosts }, { name = "start", payloads = { json.decode(startJson) } },
+	local out = { { name = "review", payloads = _G.__firstPosts or channelPosts }, { name = "start", payloads = { json.decode(startJson) } },
 		{ name = "progress", payloads = { _G.__progress } }, { name = "denied", payloads = { _G.__denied } }, { name = "dm", payloads = { dms[1].payload } } }
 	local f = io.open(os.getenv("OWNERSHIP_PREVIEW_OUT"), "w") f:write(json.encode(out)) f:close()
 end

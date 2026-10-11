@@ -2,7 +2,7 @@
 	Zeltra ownership applications (added by Zeltra; not part of upstream Ducky V1, which has no
 	application system).
 
-	/ownership apply opens a private (ephemeral) panel. The applicant fills in 5 short forms (modals,
+	/ownership apply opens a private (ephemeral) panel. The applicant fills in 2 short forms (modals,
 	5 questions max each, chained with Continue buttons). Answers are kept in memory until the last
 	form is sent, then posted as cards to the private review channel with Accept / Deny buttons that
 	only the owners can use. The applicant gets the decision by DM. Accepting does not give any role.
@@ -21,7 +21,6 @@ local connections = {}
 local drafts = {}
 
 local FOOTER = "Ownership Applications"
-local SECTION_ICONS = { ["Definitions"] = "📘", ["Scenarios"] = "🧭", ["About you"] = "🙋" }
 
 local function now() return os.time() end
 
@@ -80,9 +79,9 @@ end
 
 local function startPanel(guild, resumeAt)
 	local fields = {
-		{ "Sections", "Definitions · Scenarios · About you" },
+		{ "Sections", "Rules · About you" },
 		{ "Questions", O.QUESTION_COUNT .. " across " .. #O.FORMS .. " short forms" },
-		{ "Time", "About 20 to 30 minutes" },
+		{ "Time", "About 5 to 10 minutes" },
 		{ "Reviewed by", "The owners, in a private channel" },
 	}
 	return panel(guild, {
@@ -208,8 +207,7 @@ local function postApplication(guild, member, answers, conf)
 			{ "Roles", roleList(member) },
 			{ "Infractions", total .. " total · " .. active .. " active" },
 			{ "Age", answers.age },
-			{ "Timezone", answers.timezone },
-			{ "Hours a week", answers.hours },
+			{ "Timezone and hours", answers.tzhours },
 			{ "Submitted", dmStyle.time(now()) },
 		},
 		footer = FOOTER,
@@ -218,7 +216,7 @@ local function postApplication(guild, member, answers, conf)
 
 	for _, card in ipairs(O.answerCards(answers)) do
 		dmStyle.post(channel, {
-			guild = guild, icon = SECTION_ICONS[card.title:gsub(" %(continued%)", "")] or "📝",
+			guild = guild, icon = "🗒️",
 			title = card.title, sections = card.sections, footer = FOOTER,
 		})
 	end

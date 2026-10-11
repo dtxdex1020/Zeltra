@@ -20,52 +20,28 @@ M.DRAFT_TTL = 2 * 3600
 -- Shown on the review card only ("Staff: Yes/No"); any member can apply.
 M.STAFF_ROLE = "1522997818531512542" -- TSRP | Staff Team
 
-local DEF_HINT = "Explain each term in your own words. A sentence or two each is fine."
+local DEF_HINT = "A sentence for each is fine."
+local WHAT = "What do you do?"
 
 -- Each form is one modal (Discord allows 5 inputs per modal).
 M.FORMS = {
 	{
-		section = "Definitions", title = "Definitions",
+		section = "Rules", title = "Rules",
 		questions = {
-			{ id = "def1", label = "FRP, RDM and Mass RDM", description = DEF_HINT, style = 2, min = 10, max = 700 },
-			{ id = "def2", label = "VDM, NITRP and NLR", description = DEF_HINT, style = 2, min = 10, max = 700 },
-			{ id = "def3", label = "Metagaming, Powergaming, Combat logging", description = DEF_HINT, style = 2, min = 10, max = 700 },
-			{ id = "def4", label = "Fail RP / LTAP, Cop baiting, Erratic driving", description = DEF_HINT, style = 2, min = 10, max = 700 },
+			{ id = "def1", label = "What are FRP, RDM and Mass RDM?", description = DEF_HINT, style = 2, min = 10, max = 500 },
+			{ id = "def2", label = "What are VDM, NITRP and GTA driving?", description = DEF_HINT, style = 2, min = 10, max = 500 },
+			{ id = "sc1", label = "Mass RDM during a session", description = WHAT, style = 2, min = 10, max = 400 },
+			{ id = "sc2", label = "A staff member is abusing their powers", description = WHAT, style = 2, min = 10, max = 400 },
+			{ id = "sc3", label = "The Discord gets raided", description = WHAT, style = 2, min = 10, max = 400 },
 		},
 	},
 	{
-		section = "Scenarios", title = "What would you do? (1 of 2)",
+		section = "About you", title = "About you",
 		questions = {
-			{ id = "sc1", label = "Mass RDM during a session", description = "Someone starts killing everyone in the middle of a session. Walk us through what you do.", style = 2, min = 10, max = 500 },
-			{ id = "sc2", label = "A staff member abusing their powers", description = "You find out a staff member is misusing their permissions. What do you do?", style = 2, min = 10, max = 500 },
-			{ id = "sc3", label = "A raid in the Discord", description = "Accounts flood the server with spam and pings. What steps do you take?", style = 2, min = 10, max = 500 },
-			{ id = "sc4", label = "A dispute between high ranks", description = "Two high ranks are arguing in front of the staff team. How do you handle it?", style = 2, min = 10, max = 500 },
-			{ id = "sc5", label = "A player reports a staff member", description = "A player says a staff member treated them unfairly. How do you look into it?", style = 2, min = 10, max = 500 },
-		},
-	},
-	{
-		section = "Scenarios", title = "What would you do? (2 of 2)",
-		questions = {
-			{ id = "sc6", label = "Server template or bot token leaked", description = "Our server template or a bot token gets posted publicly. What do you do first?", style = 2, min = 10, max = 500 },
-			{ id = "sc7", label = "Someone threatens to DDoS us", description = "A user says they will DDoS the server or the game. How do you respond?", style = 2, min = 10, max = 500 },
-			{ id = "sc8", label = "Low activity in sessions", description = "Sessions have been quiet for a few weeks. What would you change?", style = 2, min = 10, max = 500 },
-			{ id = "sc9", label = "Drama with a partner server", description = "A partner server's staff start drama with ours. How do you handle it?", style = 2, min = 10, max = 500 },
-		},
-	},
-	{
-		section = "About you", title = "About you (1 of 2)",
-		questions = {
-			{ id = "age", label = "How old are you?", description = "Just the number. You need to be 13 or older to apply.", style = 1, min = 1, max = 3 },
-			{ id = "timezone", label = "What's your timezone?", description = "For example EST, GMT or UTC-5.", style = 1, min = 2, max = 40 },
-			{ id = "hours", label = "Hours a week you can give TSRP", description = "Roughly how many hours a week you can put in.", style = 1, min = 1, max = 40 },
-		},
-	},
-	{
-		section = "About you", title = "About you (2 of 2)",
-		questions = {
-			{ id = "experience", label = "Past ownership or management experience", description = "Servers you've owned or helped run, what you did there and how big they were.", style = 2, min = 10, max = 700 },
-			{ id = "why", label = "Why do you want ownership?", description = "Be honest. What makes you want this role?", style = 2, min = 10, max = 700 },
-			{ id = "grow", label = "How would you grow the server?", description = "Ideas for getting more players, keeping them, and making sessions better.", style = 2, min = 10, max = 700 },
+			{ id = "age", label = "How old are you?", description = "Just the number. You need to be 13 or older.", style = 1, min = 1, max = 3 },
+			{ id = "tzhours", label = "Timezone and hours a week", description = "For example: EST, about 10 hours a week.", style = 1, min = 2, max = 80 },
+			{ id = "experience", label = "Past ownership or management experience", description = "Where, what you did, and how big the server was.", style = 2, min = 10, max = 500 },
+			{ id = "why", label = "Why do you want ownership?", description = "Be honest.", style = 2, min = 10, max = 500 },
 		},
 	},
 }
@@ -177,24 +153,22 @@ local function clean(text)
 	return text
 end
 
---- Answer sections grouped into cards that stay under Discord's text limit.
---- Returns { { title = "Definitions", sections = { {title, body}, ... } }, ... }
+--- Answers grouped into as few cards as fit Discord's text limit (age and timezone/hours go on the header).
+--- Returns { { title = "Answers", sections = { {title, body}, ... } }, ... }
+M.HEADER_IDS = { age = true, tzhours = true }
 function M.answerCards(answers, limit)
 	limit = limit or 3300
 	local cards, current, size = {}, nil, 0
-	local lastSection
 	for _, form in ipairs(M.FORMS) do
 		for _, q in ipairs(form.questions) do
-			if q.id ~= "age" and q.id ~= "timezone" and q.id ~= "hours" then
+			if not M.HEADER_IDS[q.id] then
 				local body = clean(answers[q.id])
 				if body == "" then body = "No answer" end
 				local cost = #q.label + #body + 12
-				if not current or form.section ~= lastSection or size + cost > limit then
-					local part = (current and form.section == lastSection) and " (continued)" or ""
-					current = { title = form.section .. part, sections = {} }
+				if not current or size + cost > limit then
+					current = { title = current and "Answers (continued)" or "Answers", sections = {} }
 					table.insert(cards, current)
 					size = 0
-					lastSection = form.section
 				end
 				table.insert(current.sections, { title = q.label, body = body })
 				size = size + cost
