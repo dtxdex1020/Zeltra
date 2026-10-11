@@ -39,6 +39,10 @@ return {
 			return interaction:fail("This server does not host any departments.", nil, true)
 		end
 
+		pcall(function()
+			member:warning("You have been kicked from **" .. interaction.guild.name .. "** for **" .. reason .. "**.", emojis.kick)
+		end)
+
 		local kicked, err = member:kick(reason)
 
 		if (not kicked) then
@@ -50,8 +54,6 @@ return {
 		if not case then
 			return interaction:fail("An unknown error occurred when trying to kick that user. Please try again later.", nil, true)
 		end
-
-		member:warning("You have been kicked from **" .. interaction.guild.name .. "** for **" .. reason .. "**.", emojis.kick)
 
 		if departmental then
 			local results = {

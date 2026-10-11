@@ -1228,7 +1228,7 @@ local function checkCommandAccess(member, guild, command, subcmd, isSlash)
 	local name = slashNameOf(command)
 
 	if name == "permissions" then
-		if tostring(member.id) == cmdperms.OWNER_ID then
+		if cmdperms.isBotOwner(tostring(member.id), SECRETS.DEV_ACCESS_IDS) then
 			return { decision = "allow", privileged = "bot_owner", granted = true, reason = "owner" }
 		end
 		return { decision = "deny", privileged = false, granted = false, reason = "owner-only command" }

@@ -66,24 +66,26 @@ return {
 
         local appealLink = config.appealLinks and config.appealLinks.mute or nil
 
-        if appealLink then
-            member:send({
-                embed = {
-                    description = emojis.timeout .. " You have been muted in **" .. interaction.guild.name .. "** for " ..
-                        readable(duration) .. ": **" .. reason .. "**.",
-                    color = colors.fail
-                },
-                components = discordia.Components():button({
-                    url = appealLink,
-                    style = "link",
-                    label = "Appeal Mute",
-                    emoji = resolvedEmojis.link
-                }):raw()
-            })
-        else
-            member:fail("You have been muted in **" .. interaction.guild.name .. "** for " .. readable(duration) ..
-                            ": **" .. reason .. "**.", emojis.timeout)
-        end
+        pcall(function()
+            if appealLink then
+                member:send({
+                    embed = {
+                        description = emojis.timeout .. " You have been muted in **" .. interaction.guild.name .. "** for " ..
+                            readable(duration) .. ": **" .. reason .. "**.",
+                        color = colors.fail
+                    },
+                    components = discordia.Components():button({
+                        url = appealLink,
+                        style = "link",
+                        label = "Appeal Mute",
+                        emoji = resolvedEmojis.link
+                    }):raw()
+                })
+            else
+                member:fail("You have been muted in **" .. interaction.guild.name .. "** for " .. readable(duration) ..
+                                ": **" .. reason .. "**.", emojis.timeout)
+            end
+        end)
 
         db:send(interaction.guild, "modlogchannel", {
             embed = {

@@ -11,12 +11,12 @@
 ]]
 local map = {
 	success = "✅", fail = "❌", yeswhite = "✔️", nowhite = "✖️", warning = "⚠️", loading = "⏳",
-	beta = "🅱️", alpha = "🅰️", quack = "🪙", duckyplus = "💎", ducky = "⚡", left = "◀️", right = "▸",
+	beta = "🅱️", alpha = "🅰️", quack = "🪙", duckyplus = "💎", ducky = "⚡", left = "◀️", right = "▶️",
 	settings = "⚙️", moderate = "🛡️", support = "🛟", log = "📜", game = "🎮", wave = "👋", roblox = "🟥",
 	chat = "💬", role = "🏷️", channel = "#️⃣", member = "👤", emoji = "😀", document = "📄", pong = "🏓",
 	pings = "🔔", delete = "🗑️", edit = "✏️", suggestion = "💡", suggester = "🙋", reminder = "⏰",
 	pause = "⏸️", play = "▶️", stop = "⏹️", counting = "🔢", timeout = "⏱️", kick = "👢", ban = "🔨",
-	clock = "🕒", link = "🔗", unlink = "⛓️‍💥", blacklist = "🚫", plus = "➕", minus = "➖", add = "➕",
+	clock = "🕒", link = "🔗", unlink = "🔓", blacklist = "🚫", plus = "➕", minus = "➖", add = "➕",
 	subtract = "➖", lock = "🔒", unlock = "🔓", guild = "🏠", pin = "📌", protect = "🛡️", text = "🔤",
 	image = "🖼️", paintbrush = "🖌️", art = "🎨", json = "🧾", ticket = "🎫", error = "⛔", import = "📥",
 	export = "📤", founder = "👑", executive = "💼", developer = "🛠️", inspiration = "✨", contributor = "🤝",
@@ -28,13 +28,13 @@ local map = {
 	bookmark = "🔖", casesensitive = "🔠", person = "🧍", people = "👥", book = "📖", list = "📋",
 	competitor = "🥊", board = "📋", robux = "💰", rename = "✏️", DOT = "🚧", Fire = "🚒", Sheriff = "⭐",
 	Police = "🚓", Criminal = "🦹", flag = "🚩", avatar = "🖼️", Bloxlink = "🔗", star = "⭐", halfstar = "✴️",
-	emptystar = "☆", web = "🌐", automation = "🤖", info = "ℹ️",
+	emptystar = "⭐", web = "🌐", automation = "🤖", info = "ℹ️",
 	CardBack = "🂠", backpack = "🎒", smroll = "🎲", smplus = "💎", smexperimental = "🧪", smducky = "⚡",
-	smdev = "🛠️", sale = "🏷️", Blank = "⬜", verified = "☑️", equals = "=", notequal = "≠",
-	lessorequal = "≤", greaterorequal = "≥", less = "<", greater = ">", undo = "↩️", redo = "↪️",
+	smdev = "🛠️", sale = "🏷️", Blank = "⬜", verified = "☑️", equals = "🟰", notequal = "❎",
+	lessorequal = "📉", greaterorequal = "📈", less = "⬇️", greater = "⬆️", undo = "↩️", redo = "↪️",
 	on = "🟢", off = "🔴", cycle = "🔁", discord = "💬", PRC = "🚔", transfer = "🔀",
 	donation = "💸", permission = "🔐", vertuo = "☕", o7 = "🫡", goose = "🪿", music = "🎵", line = "➖",
-	swords = "⚔️", qa = "🧪", invis = "⠀", thread = "🧵", merge = "🔀", target = "🎯", map = "🗺️",
+	swords = "⚔️", qa = "🧪", invis = "⬛", thread = "🧵", merge = "🔀", target = "🎯", map = "🗺️",
 	license = "🪪",
 }
 

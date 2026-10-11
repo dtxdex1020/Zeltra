@@ -72,7 +72,7 @@ return {
 					id = "edit",
 					placeholder = "Edit settings...",
 					actionRow = 1,
-					emoji = emojis.settings,
+					emoji = resolvedEmojis.settings,
 					options = {
 						{
 							label = "Toggle AutoShifts",

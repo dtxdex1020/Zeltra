@@ -35,6 +35,10 @@ return {
             end
         end
 
+        pcall(function()
+            member:fail("You have been softbanned from **" .. interaction.guild.name .. "** for **" .. reason .. "**.", emojis.ban)
+        end)
+
         local success, err = banMember(interaction.guild, member, user, interaction.member, "softban: " .. reason, true, duration)
 
         if success then
@@ -60,7 +64,6 @@ return {
                     }
                     })
 
-                    violator:fail("You have been softbanned from **" .. interaction.guild.name .. "** for **" .. reason .. "**.", emojis.ban)
                 end
 
                 return interaction:success(getUserString(member) .. " has been softbanned for **" .. reason .. "**.\n-# " .. emojis.right .. " Their messages from the past **" .. readable(duration) .. "** have been purged.\n-# " .. emojis.right .. " **Case ID:** `" .. case.caseID .. "`")

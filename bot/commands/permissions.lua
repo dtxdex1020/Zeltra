@@ -93,7 +93,7 @@ local CATEGORIES = {
 }
 
 local function isOwner(user)
-	return user and tostring(user.id) == OWNER_ID
+	return user and cmdperms.isBotOwner(tostring(user.id), SECRETS.DEV_ACCESS_IDS) and true or false
 end
 
 local function isConfigurableCommand(command)

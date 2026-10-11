@@ -25,20 +25,12 @@ local function banMember(guild, violatorMember, violator, moderator, reason, noc
 
     local deleteSeconds = (seconds and tonumber(seconds) and math.min(tonumber(seconds), 604800)) or 0
 
-    local success, err = guild:banUser(violator.id, reason, deleteSeconds)
-    if not success then
-        return nil, "Failed to ban " .. getUserString(violator) .. ": " .. tostring(err):usub(20)
-    end
+    if not nocase and violatorMember then
+        local config = sqldb:get(guild.id) or {}
+        local appealLink = config.appealLinks and config.appealLinks.ban or nil
 
-    if not nocase then
-        local case = db:case(violator, moderator, "Ban", reason, nil, guild)
-
-        if case then
-            local config = sqldb:get(guild.id) or {}
-
-            local appealLink = config.appealLinks and config.appealLinks.ban or nil
-
-            if appealLink and violatorMember then
+        pcall(function()
+            if appealLink then
                 violator:send({
                     embed = {
                         description = emojis.ban .. " You have been banned from **" .. guild.name .. "** for **" ..
@@ -52,11 +44,22 @@ local function banMember(guild, violatorMember, violator, moderator, reason, noc
                         emoji = resolvedEmojis.link
                     }):raw()
                 })
-            elseif violatorMember then
+            else
                 violator:heavyred("You have been banned from **" .. guild.name .. "** for **" .. reason .. "**.",
                     emojis.ban)
             end
+        end)
+    end
 
+    local success, err = guild:banUser(violator.id, reason, deleteSeconds)
+    if not success then
+        return nil, "Failed to ban " .. getUserString(violator) .. ": " .. tostring(err):usub(20)
+    end
+
+    if not nocase then
+        local case = db:case(violator, moderator, "Ban", reason, nil, guild)
+
+        if case then
             db:send(guild, "modlogchannel", {
                 embed = {
                     author = author(moderator),
