@@ -312,7 +312,7 @@ local function onNuke(guild, sec, entry, label)
 		action = "Alert only (role removal is off)"
 	end
 
-	alert(guild, sec, {
+	local activityCard = {
 		icon = "⚠️", title = "Unusual staff activity",
 		intro = mention(executor) .. " made " .. count .. " " .. label .. " in under " .. sec.antinuke.window .. "s.",
 		fields = {
@@ -322,7 +322,18 @@ local function onNuke(guild, sec, entry, label)
 			{ "Latest reason", entry.reason },
 		},
 		note = (member and member.user and member.user.bot) and "This is a bot. Its own role can't be removed, so consider kicking it." or nil,
-	})
+	}
+	alert(guild, sec, activityCard)
+	-- Zeltra: a copy goes to the activity alerts channel too (security.activitychannel), if one is set
+	if sec.enabled and sec.activitychannel and sec.activitychannel ~= sec.logchannel then
+		local ch = guild:getChannel(sec.activitychannel)
+		if ch then
+			local copy = {}
+			for k, v in pairs(activityCard) do copy[k] = v end
+			copy.guild = guild; copy.footer = "Activity Alerts"
+			dmStyle.post(ch, copy)
+		end
+	end
 end
 
 local function permissionChange(entry, key)

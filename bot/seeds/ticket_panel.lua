@@ -48,9 +48,15 @@ return function(Client, sqldb, timer)
 		messageId = existingId
 		T.mergeSubjects(subjects, existing.subjects)
 		say("panel " .. existingId .. " already posted, refreshing its ticket types and text")
-		-- edit the text in place; the banner and strip stay as the message's existing attachments
+		-- edit in place and upload the banner and strip again: an edit whose components point at
+		-- attachment://<name> without the files leaves the images blank
 		local payload = T.panelPayload()
-		local data, err = Client._api:editMessage(channel.id, existingId, { flags = payload.flags, components = payload.components, allowed_mentions = payload.allowed_mentions })
+		local banner = fs.readFileSync("images/tickets/" .. T.BANNER)
+		local strip = fs.readFileSync("images/tickets/" .. T.STRIP)
+		if not banner or not strip then return say("panel images missing in images/tickets, nothing done") end
+		local data, err = Client._api:editMessage(channel.id, existingId,
+			{ flags = payload.flags, components = payload.components, allowed_mentions = payload.allowed_mentions },
+			{ { T.BANNER, banner }, { T.STRIP, strip } })
 		if data then say("edited panel " .. existingId .. " text") else say("warning: could not edit panel text, left as is: " .. tostring(err)) end
 	else
 		-- replace bot panels already registered for #assistance

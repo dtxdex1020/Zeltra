@@ -47,3 +47,8 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
 - 2026-10-11: SCRP join message on Ducky's welcome feature (bot/libs/zeltra-welcome-scrp.lua, one-time seed
   bot/seeds/welcome_message.lua). The welcome module skips welcomes during security raid mode, pings only the new
   member, no longer errors without a join message, and only sends the join DM when DM on join is on.
+- 2026-10-12: SCRP extras. bot/libs/zeltra-shop-scrp.lua + seeds/shop_panel.lua (server shop panel in #marketplace, each item
+  opens a ticket, PayPal only), bot/modules/server_management/scrp.lua + libs/zeltra-staffapp-scrp.lua (join roles, Unverified
+  removed once verified, in-Discord staff application with review buttons), seeds/scrp_logs.lua (log channels), promotion
+  card with banner and DM, security activity copy to activity-alerts, /shift removed (Melonly handles shifts), ticket seed
+  uploads the panel images again when it edits the panel.

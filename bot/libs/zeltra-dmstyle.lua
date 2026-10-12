@@ -172,6 +172,10 @@ function dm.build(opts)
 	end
 
 	local components = {}
+	-- Zeltra: optional banner image above the title (opts.banner = "attachment://name" or a URL)
+	if opts.banner then
+		table.insert(components, { type = 12, items = { { media = { url = opts.banner } } } })
+	end
 	for _, b in ipairs(blocks) do
 		table.insert(components, { type = 10, content = truncate(b, MAX_TEXT) })
 	end
@@ -187,6 +191,11 @@ function dm.build(opts)
 	local buttons = dm.buttons(opts.buttons)
 	if #buttons > 0 then
 		table.insert(components, { type = 1, components = buttons })
+	end
+
+	-- Zeltra: optional footer strip image (opts.strip), shown above the footer line
+	if opts.strip then
+		table.insert(components, { type = 12, items = { { media = { url = opts.strip } } } })
 	end
 
 	local footer = footerText(opts)

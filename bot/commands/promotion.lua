@@ -141,22 +141,39 @@ return {
 				-- the server set its own promotion embed in /setup, keep using it
 				msg = db:send(interaction.guild.id, "promotionschannel", tosend, nil, true)
 			else
-				msg = dmStyle.postTo(interaction.guild, "promotionschannel", {
-					guild = interaction.guild,
-					icon = "🎓",
-					title = "Staff promotion",
-					intro = "Congratulations to " .. receiver.mentionString .. " on their promotion!",
-					fields = {
-						{ "Staff Member", receiver.mentionString },
-						{ "New Rank", newrank.mentionString },
-						{ "Reason", reason },
-						{ "Notes", (notes ~= "N/A" and notes) or nil },
-						{ "Promoted by", promoter.mentionString },
-						{ "Date", dmStyle.time(promotion.timestamp) },
-						{ "Promotion ID", "`" .. tostring(promotion.id) .. "`" }
-					},
-					footer = "Staff Management"
-				}, receiver.id)
+				-- Zeltra: SCRP promotion card with the promotions banner and footer strip, plus a DM to the member
+				local fs = require("fs")
+				local banner = fs.readFileSync("images/promotions/banner-promotions.jpg")
+				local strip = fs.readFileSync("images/promotions/strip.jpg")
+				local function card(intro)
+					local files = {}
+					if banner then table.insert(files, { "banner-promotions.jpg", banner }) end
+					if strip then table.insert(files, { "strip.jpg", strip }) end
+					return {
+						guild = interaction.guild,
+						banner = banner and "attachment://banner-promotions.jpg" or nil,
+						strip = strip and "attachment://strip.jpg" or nil,
+						files = (#files > 0) and files or nil,
+						title = "Staff Promotion",
+						intro = intro,
+						fields = {
+							{ "Staff Member", receiver.mentionString },
+							{ "New Rank", newrank.mentionString },
+							{ "Reason", reason },
+							{ "Notes", (notes ~= "N/A" and notes) or nil },
+							{ "Promoted by", promoter.mentionString },
+							{ "Date", dmStyle.time(promotion.timestamp) },
+							{ "Promotion ID", "`" .. tostring(promotion.id) .. "`" }
+						},
+						footer = "Staff Management"
+					}
+				end
+				msg = dmStyle.postTo(interaction.guild, "promotionschannel",
+					card("Congratulations to " .. receiver.mentionString .. " on the promotion to " .. newrank.mentionString .. ". Keep up the good work."), receiver.id)
+				local dmCard = card("You were promoted to **" .. newrank.name .. "** in **" .. dmStyle.serverName(interaction.guild) .. "**. Congrats, and thanks for all the work you put in.")
+				dmCard.fields[1] = { "Server", dmStyle.serverName(interaction.guild) }
+				dmCard.fields[2] = { "New Rank", newrank.name }
+				dmStyle.send(receiver, dmCard)
 			end
 
 			if msg and msg.id then

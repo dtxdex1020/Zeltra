@@ -2,7 +2,8 @@
 
 local shifts = {
 	name = "shifts",
-	description = "Powers shift waves."
+	description = "Powers shift waves.",
+	disabled = true -- Zeltra: SCRP uses Melonly for shifts, the /shift command was removed
 }
 
 local connections = {}

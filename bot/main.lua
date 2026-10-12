@@ -107,6 +107,7 @@ require("zeltra-compat")
 require("zeltra-dmstyle")
 _G.securityCore = require("zeltra-security-core")
 _G.ticketEscalation = require("zeltra-ticket-escalation")
+_G.scrpStaffApp = require("zeltra-staffapp-scrp") -- settings for modules/server_management/scrp.lua
 -- Zeltra: interaction timing logs, auto-defer and the event loop monitor (libs/zeltra-interactions.lua)
 _G.zeltraInteractions = require("zeltra-interactions").install(discordia.class.classes.Interaction)
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
@@ -1146,6 +1147,22 @@ Client:once("ready", function()
 		local ok, err = pcall(require("./seeds/welcome_message"), Client, sqldb, require("timer"))
 		if not ok then
 			print("[seed] welcome: error: " .. tostring(err))
+		end
+	end
+
+	-- Zeltra: one-time, idempotent seed, only when SEED_SHOP=1 (see seeds/shop_panel.lua)
+	if os.getenv("SEED_SHOP") == "1" then
+		local ok, err = pcall(require("./seeds/shop_panel"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] shop: error: " .. tostring(err))
+		end
+	end
+
+	-- Zeltra: one-time, idempotent seed, only when SEED_SCRP_LOGS=1 (see seeds/scrp_logs.lua)
+	if os.getenv("SEED_SCRP_LOGS") == "1" then
+		local ok, err = pcall(require("./seeds/scrp_logs"), Client, sqldb, require("timer"))
+		if not ok then
+			print("[seed] logs: error: " .. tostring(err))
 		end
 	end
 
