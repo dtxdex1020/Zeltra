@@ -51,6 +51,10 @@ slashCommand:addOption(subcmd)
 subcmd = tools.subCommand("unlock", "Bot owners only: end raid mode and lift a keyword lockdown.")
 slashCommand:addOption(subcmd)
 
+subcmd = tools.subCommand("allowbot", "Bot owners only: let one bot be added in the next 10 minutes.")
+subcmd = subcmd:addOption(tools.string("bot_id", "The bot's user ID (application ID)."):setRequired(true))
+slashCommand:addOption(subcmd)
+
 local group = tools.subCommandGroup("config", "Change the security settings.")
 subcmd = tools.subCommand("set", "Change a setting.")
 local settingOption = tools.string("setting", "The setting to change."):setRequired(true)
@@ -162,7 +166,7 @@ return {
 	aliases = {},
 	category = "Moderation",
 	slashCommand = slashCommand,
-	subcommands = { "status", "lockdown", "unlock", "config set", "config whitelist", "config keyword", "config ping", "config logchannel" },
+	subcommands = { "status", "lockdown", "unlock", "allowbot", "config set", "config whitelist", "config keyword", "config ping", "config logchannel" },
 	requiredPermissions = {
 		"ADMIN"
 	},
@@ -208,6 +212,18 @@ return {
 			end
 			if #lines == 0 then return interaction:fail("Raid mode and the keyword lockdown are both off.", nil, true) end
 			return interaction:success(table.concat(lines, ". ") .. ".")
+
+		elseif subcmd == "allowbot" then
+			if not api.isOwnerId(interaction.user.id) then
+				return interaction:fail("Only the bot owners can allow a bot.", nil, true)
+			end
+			local botId = tostring(args.bot_id or ""):match("^%s*(%d+)%s*$")
+			if not botId or #botId < 15 then return interaction:fail("That isn't a valid bot ID.", nil, true) end
+			local minutes = _G.securityCore.ALLOWBOT_MINUTES
+			sec.botguard.allow = sec.botguard.allow or {}
+			sec.botguard.allow[botId] = os.time() + minutes * 60
+			api.saveSec(guild, sec, "SECURITY_ALLOWBOT")
+			return interaction:success("Bot `" .. botId .. "` can be added in the next " .. minutes .. " minutes, until " .. dmStyle.time(sec.botguard.allow[botId], "t") .. ". The allowance is used up once it joins.", nil, true)
 
 		elseif subcmd == "config set" then
 			local setting = BY_KEY[args.setting]

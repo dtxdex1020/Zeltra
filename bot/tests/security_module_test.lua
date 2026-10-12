@@ -156,7 +156,7 @@ check("powerful role grant alert", posts[#posts].title == "Powerful role given")
 
 -- bot added, settings
 handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 28, user_id = "999", target_id = "777" })
-check("bot added alert", posts[#posts].title == "Bot added")
+check("bot added audit alert skipped while bot guard handles it", posts[#posts].title ~= "Bot added")
 handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 1, user_id = "999", target_id = "g1",
 	changes = { { key = "vanity_url_code", old_value = "scrp", new_value = "x" } } })
 check("vanity alert", posts[#posts].title == "Server settings changed" and posts[#posts].fields[2][1] == "Vanity URL")

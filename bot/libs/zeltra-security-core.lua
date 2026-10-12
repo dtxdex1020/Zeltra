@@ -60,6 +60,13 @@ M.DEFAULTS = {
 		pingroles = { "1522997818330058781", "1522997818363740160", "1522997818363740161", "1522997818363740163" },
 	},
 	whitelist = { users = {}, roles = {} },
+	-- anyone who adds a bot (owners and staff included): bot kicked, adder's roles saved and removed, 1 day timeout
+	botguard = {
+		enabled = true,
+		timeoutminutes = 1440,
+		allow = {},  -- [botId] = unix time the allowance ends (/security allowbot, bot owners only)
+		cases = {},  -- [userId] = { roles = {...}, bot = id, at = time } saved before roles are removed
+	},
 	raid = { active = false },
 	lockdown = { active = false },
 }
@@ -71,6 +78,47 @@ local function deepcopy(t)
 	return out
 end
 M.deepcopy = deepcopy
+
+M.BOT_DM = "You are not allowed to invite bots to this server. Your roles have been removed and you have been timed out while this is investigated."
+M.ALLOWBOT_MINUTES = 10
+
+--- Is this bot allowed in right now? Removes expired entries from allow (returns true once per allowance).
+function M.botAllowed(allow, botId, t)
+	if type(allow) ~= "table" then return false end
+	for id, ends in pairs(allow) do
+		if tonumber(ends) and tonumber(ends) < t then allow[id] = nil end
+	end
+	return allow[tostring(botId)] ~= nil
+end
+
+--- Split a member's roles into the ones the bot can remove and the ones it can't.
+--- roles = { { id, name, position, managed } }, botTop = bot's highest role position, everyoneId = guild id
+function M.splitRoles(roles, botTop, everyoneId)
+	local strip, skipped = {}, {}
+	for _, r in ipairs(roles or {}) do
+		if r.id ~= everyoneId then
+			if r.managed then
+				table.insert(skipped, { id = r.id, name = r.name, why = "managed by an integration" })
+			elseif (tonumber(r.position) or 0) >= (tonumber(botTop) or 0) then
+				table.insert(skipped, { id = r.id, name = r.name, why = "above the bot's role" })
+			else
+				table.insert(strip, r)
+			end
+		end
+	end
+	return strip, skipped
+end
+
+--- Pick the BOT_ADD audit entry for this bot (newest first), only if it's recent.
+function M.findBotAdder(entries, botId, t, maxAge)
+	for _, e in ipairs(entries or {}) do
+		if tostring(e.target_id) == tostring(botId) and tonumber(e.action_type or 28) == 28 then
+			local ts = e.created or t
+			if not maxAge or (t - ts) <= maxAge then return e.user_id end
+		end
+	end
+	return nil
+end
 
 --- Fill any missing settings with defaults (never overwrites what is stored).
 function M.withDefaults(stored)
@@ -446,6 +494,53 @@ function M.countMentions(content)
 		if not seen[id] then seen[id] = true n = n + 1 end
 	end
 	return n
+end
+
+-- bot risk check for the bot guard card (a rough guide, not a verdict)
+M.BOT_RISK_PERMS = {
+	{ bit = 3, name = "Administrator", weight = 3 },
+	{ bit = 2, name = "Ban Members", weight = 2 },
+	{ bit = 1, name = "Kick Members", weight = 1 },
+	{ bit = 28, name = "Manage Roles", weight = 2 },
+	{ bit = 4, name = "Manage Channels", weight = 2 },
+	{ bit = 5, name = "Manage Server", weight = 2 },
+	{ bit = 29, name = "Manage Webhooks", weight = 2 },
+	{ bit = 17, name = "Mention Everyone", weight = 1 },
+}
+M.BOT_RISK_WORDS = { "nuke", "raid", "wizz", "destroy", "crash", "selfbot", "nuker" }
+
+--- Key permission names from a permission integer (or decimal string).
+function M.botKeyPerms(perms)
+	local out = {}
+	for _, p in ipairs(M.BOT_RISK_PERMS) do
+		if M.hasBit(tostring(perms or "0"), p.bit) then table.insert(out, p.name) end
+	end
+	return out
+end
+
+--- info = { verified = bool, ageDays = number, perms = decimal string, description = string, name = string }
+--- Returns "Low" / "Medium" / "High" and a list of plain reasons.
+function M.botRisk(info)
+	local score, reasons = 0, {}
+	if not info.verified then score = score + 1; table.insert(reasons, "not verified by Discord") end
+	if info.ageDays and info.ageDays < 30 then score = score + 2; table.insert(reasons, "bot account is under 30 days old") end
+	local heavy = {}
+	for _, p in ipairs(M.BOT_RISK_PERMS) do
+		if M.hasBit(tostring(info.perms or "0"), p.bit) then
+			score = score + p.weight
+			table.insert(heavy, p.name)
+			if p.bit == 3 then break end -- Administrator covers the rest
+		end
+	end
+	if #heavy > 0 then table.insert(reasons, "asks for " .. table.concat(heavy, ", ")) end
+	if not info.description or info.description:gsub("%s", "") == "" then score = score + 1; table.insert(reasons, "has no description") end
+	local lname = string.lower(tostring(info.name or "") .. " " .. tostring(info.description or ""))
+	for _, w in ipairs(M.BOT_RISK_WORDS) do
+		if lname:find(w, 1, true) then score = score + 3; table.insert(reasons, "name or description mentions \"" .. w .. "\""); break end
+	end
+	local level = (score >= 5 and "High") or (score >= 2 and "Medium") or "Low"
+	if #reasons == 0 then table.insert(reasons, "nothing stood out") end
+	return level, reasons
 end
 
 return M

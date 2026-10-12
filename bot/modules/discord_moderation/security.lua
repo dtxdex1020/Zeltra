@@ -399,7 +399,7 @@ local function onFlaggedAudit(guild, sec, entry)
 				})
 			end
 		end
-	elseif at == 28 then -- bot added
+	elseif at == 28 and not sec.botguard.enabled then -- bot added (the bot guard posts its own card when it's on)
 		alert(guild, sec, {
 			icon = "🤖", title = "Bot added",
 			intro = mention(executor) .. " added a bot to **" .. dmStyle.serverName(guild) .. "**.",
@@ -597,7 +597,7 @@ local function pingTargets(guild, kw)
 	return users, roles
 end
 
-local function sendPings(guild, channel, kw)
+local function sendPings(guild, channel, kw, text)
 	local users, roles = pingTargets(guild, kw)
 	if #users == 0 and #roles == 0 then return 0 end
 	local parts = {}
@@ -607,7 +607,7 @@ local function sendPings(guild, channel, kw)
 	for i = 1, 3 do
 		local ok, msg = pcall(function()
 			return channel:send({
-				content = "🚨 Raid command detected, check the alert above. " .. table.concat(parts, " "),
+				content = (text or "🚨 Raid command detected, check the alert above.") .. " " .. table.concat(parts, " "),
 				allowed_mentions = { parse = {}, users = users, roles = roles },
 			})
 		end)
@@ -684,6 +684,206 @@ local function onKeyword(message, sec, match)
 	end
 end
 
+---------------------------------------------------------------- bot guard (anyone adding a bot)
+local function snowflakeTime(id)
+	local n = tonumber(id)
+	return n and (math.floor(n / 4194304) / 1000 + 1420070400) or now()
+end
+
+local function findBotAdder(guild, botId)
+	for attempt = 1, 4 do
+		local data = Client._api:getGuildAuditLog(guild.id, { action_type = 28, limit = 10 })
+		local entries = {}
+		for _, e in ipairs((data and data.audit_log_entries) or {}) do
+			table.insert(entries, { target_id = e.target_id, user_id = e.user_id, action_type = e.action_type, created = snowflakeTime(e.id) })
+		end
+		local adder = S.findBotAdder(entries, botId, now(), 120)
+		if adder then return adder end
+		timer.sleep(1500)
+	end
+	return nil
+end
+
+--- What we can learn about a bot before it's kicked (public application info, flags, its role's permissions).
+local function botInfo(guild, member)
+	local out = { id = member.id, name = member.user.username }
+	local okA, app = pcall(function() return Client._api:request("GET", "/applications/" .. member.id .. "/rpc") end)
+	app = okA and type(app) == "table" and app or {}
+	out.description = (type(app.description) == "string" and app.description ~= "") and app.description or nil
+	out.tags = type(app.tags) == "table" and app.tags or nil
+	out.terms = app.terms_of_service_url
+	out.privacy = app.privacy_policy_url
+	out.guilds = app.approximate_guild_count
+	local flags = tonumber(member.user._public_flags or member.user.publicFlags or 0) or 0
+	out.verified = math.floor(flags / 65536) % 2 == 1
+	out.created = snowflakeTime(member.id)
+	local perms = "0"
+	for role in member.roles:iter() do
+		if role.managed then perms = tostring(role._permissions_new or role._permissions or "0") end
+	end
+	out.perms = perms
+	out.keyPerms = S.botKeyPerms(perms)
+	out.risk, out.reasons = S.botRisk({ verified = out.verified, ageDays = (now() - out.created) / 86400,
+		perms = perms, description = out.description, name = out.name })
+	return out
+end
+
+local function botInfoFields(b)
+	local desc = b.description and b.description:gsub("\n", " ") or "No description"
+	if #desc > 300 then desc = desc:sub(1, 297) .. "..." end
+	return {
+		{ "Name", "@" .. tostring(b.name) },
+		{ "ID", "`" .. tostring(b.id) .. "`" },
+		{ "What it does", desc },
+		{ "Discord verified", b.verified and "Yes" or "No" },
+		{ "Account created", dmStyle.time(math.floor(b.created), "D") .. " (" .. dmStyle.time(math.floor(b.created), "R") .. ")" },
+		{ "In about", b.guilds and (tostring(b.guilds) .. " servers") or nil },
+		{ "Tags", b.tags and #b.tags > 0 and table.concat(b.tags, ", ") or nil },
+		{ "Key permissions", (#b.keyPerms > 0) and table.concat(b.keyPerms, ", ") or "None of the risky ones" },
+		{ "Links", ((b.terms and ("[Terms](" .. b.terms .. ")")) or "") .. ((b.terms and b.privacy) and " · " or "") .. ((b.privacy and ("[Privacy](" .. b.privacy .. ")")) or "") },
+		{ "Risk", b.risk .. ": " .. table.concat(b.reasons, ", ") .. ". This is a rough guide, not a verdict." },
+	}
+end
+
+local function botGuardCard(guild, info, status)
+	local removed = (#status.removed > 0) and table.concat(status.removed, ", ") or "None"
+	local skipped = (#status.skipped > 0) and table.concat(status.skipped, ", ") or nil
+	return {
+		guild = guild, icon = "🤖", title = "Unauthorized bot added",
+		intro = (info.adder and mention(info.adder) or "Someone") .. " added a bot to **" .. dmStyle.serverName(guild) .. "** without permission.",
+		fields = {
+			{ "Added by", info.adder and (mention(info.adder) .. " (`" .. info.adder .. "`)") or "Couldn't find it in the audit log" },
+			{ "Bot", "@" .. tostring(info.botName) .. " (`" .. info.botId .. "`)" },
+			{ "Bot kicked", status.kick },
+			{ "Roles removed", removed },
+			{ "Couldn't remove", skipped },
+			{ "Timeout", status.timeout },
+			{ "DM", status.dm },
+		},
+		sections = info.bot and { { title = "About the bot", body = (function()
+			local lines = {}
+			for _, f in ipairs(botInfoFields(info.bot)) do
+				if f[2] and f[2] ~= "" then table.insert(lines, "**" .. f[1] .. "** · " .. f[2]) end
+			end
+			return table.concat(lines, "\n")
+		end)() } } or nil,
+		note = "Restore roles: bot owners only. Remove timeout: staff with Timeout Members.",
+		buttons = info.adder and {
+			{ label = "Restore roles", custom_id = "sec:botrestore:" .. info.adder, style = 3, emoji = "↩️" },
+			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. info.adder, style = 2, emoji = "⏱️" },
+		} or nil,
+		footer = "Security",
+	}
+end
+
+local function onBotJoin(member)
+	local guild = member.guild
+	if not guild or not member.user or not member.user.bot then return end
+	if Client.user and member.id == Client.user.id then return end
+	local sec = getSec(guild)
+	if not sec.enabled or not sec.botguard.enabled then return end
+	local channel = sec.logchannel and guild:getChannel(sec.logchannel)
+	local t = now()
+	local adder = findBotAdder(guild, member.id)
+	local okB, bot = pcall(botInfo, guild, member)
+	if not okB then print("[security] bot info failed: " .. tostring(bot)); bot = nil end
+	local info = { botId = member.id, botName = member.user.username, adder = adder, bot = bot }
+
+	-- allowed: added by a bot owner, or allowed for a short time with /security allowbot
+	local allowedBy = (adder and S.isProtectedId(adder)) and "Added by a bot owner"
+		or (S.botAllowed(sec.botguard.allow, member.id, t) and "Allowed with /security allowbot")
+	if allowedBy then
+		if sec.botguard.allow[member.id] then sec.botguard.allow[member.id] = nil; saveSec(guild, sec, "SECURITY_BOT_ALLOWED") end
+		print("[security] bot " .. member.id .. " added by " .. tostring(adder) .. ": " .. allowedBy)
+		alert(guild, sec, {
+			icon = "🤖", title = "Bot added",
+			intro = mention(adder) .. " added a bot to **" .. dmStyle.serverName(guild) .. "**.",
+			fields = (function()
+				local f = { { "By", mention(adder) } }
+				for _, x in ipairs(bot and botInfoFields(bot) or { { "Bot", "@" .. tostring(member.user.username) .. " (`" .. member.id .. "`)" } }) do table.insert(f, x) end
+				return f
+			end)(),
+			note = allowedBy .. ", nothing was done.",
+		})
+		return
+	end
+
+	print("[security] unauthorized bot " .. member.id .. " added by " .. tostring(adder))
+	local status = { kick = "Pending", removed = {}, skipped = {}, timeout = "Pending", dm = "Pending" }
+
+	local okK = member:kick("Security: bots can't be added to this server")
+	status.kick = okK and "Kicked" or "Couldn't kick it"
+
+	local target = adder and guild:getMember(adder)
+	if target then
+		-- save the roles first so they can be restored
+		local roles = {}
+		for role in target.roles:iter() do
+			table.insert(roles, { id = role.id, name = role.name, position = role.position, managed = role.managed })
+		end
+		local saved = {}
+		for _, r in ipairs(roles) do if r.id ~= guild.id then table.insert(saved, r.id) end end
+		sec.botguard.cases[adder] = { roles = saved, bot = member.id, at = t }
+		saveSec(guild, sec, "SECURITY_BOT_GUARD")
+
+		local me = guild.me
+		local top = me and me.highestRole and me.highestRole.position or 0
+		local strip, skipped = S.splitRoles(roles, top, guild.id)
+		for _, r in ipairs(strip) do
+			if target:removeRole(r.id, "Security: added a bot without permission") then
+				table.insert(status.removed, r.name)
+			else
+				table.insert(status.skipped, r.name .. " (Discord refused)")
+			end
+		end
+		for _, r in ipairs(skipped) do table.insert(status.skipped, r.name .. " (" .. r.why .. ")") end
+
+		local minutes = tonumber(sec.botguard.timeoutminutes) or 1440
+		local blocker = timeoutBlocker(guild, target)
+		if blocker then
+			status.timeout = "Skipped: " .. blocker
+		else
+			local okT = target:timeoutFor(math.min(minutes, 40320) * 60)
+			status.timeout = okT and ("1 day, ends " .. dmStyle.time(t + minutes * 60, "R")) or "Discord refused the timeout"
+		end
+
+		local sent = dmStyle.send(target, {
+			guild = guild, icon = "🛡️", title = "Bot invite blocked",
+			intro = S.BOT_DM,
+			fields = { { "Bot", "@" .. tostring(member.user.username) } },
+			footer = "Security",
+		})
+		status.dm = sent and "Sent" or "Couldn't DM them"
+	else
+		status.timeout = "Skipped: couldn't find who added it"
+		status.dm = "Skipped"
+	end
+
+	if channel then
+		dmStyle.post(channel, botGuardCard(guild, info, status))
+		sendPings(guild, channel, sec.keywords, "Unauthorized bot added, check the alert above.")
+	else
+		print("[security] no security log channel set, bot guard alert not posted")
+	end
+end
+
+local function restoreRoles(guild, userId)
+	local sec = getSec(guild)
+	local case = sec.botguard.cases[userId]
+	if not case then return nil, "No saved roles for that member." end
+	local m = guild:getMember(userId)
+	if not m then return nil, "They're not in the server." end
+	local ok, failed = 0, 0
+	for _, id in ipairs(case.roles or {}) do
+		if guild:getRole(id) and not m.roles:get(id) then
+			if m:addRole(id, "Security: roles restored") then ok = ok + 1 else failed = failed + 1 end
+		end
+	end
+	sec.botguard.cases[userId] = nil
+	saveSec(guild, sec, "SECURITY_BOT_RESTORE")
+	return ok, failed
+end
+
 ---------------------------------------------------------------- alert buttons
 local function canRemoveTimeout(member)
 	if isOwnerId(member.id) or member.guild.ownerId == member.id then return true end
@@ -716,6 +916,19 @@ local function onButton(interaction)
 				fields = { { "Restored", resL.restored .. " overwrites" }, { "Failed", (resL.failed > 0) and tostring(resL.failed) or nil } } })
 		end
 		return interaction:reply({ content = (#lines > 0 and table.concat(lines, ". ") .. ".") or "Nothing to unlock." }, true)
+	end
+
+	local restoreId = id:match("^sec:botrestore:(%d+)$")
+	if restoreId then
+		if not isOwnerId(interaction.user.id) then
+			return interaction:reply({ content = "Only the bot owners can restore roles." }, true)
+		end
+		local ok, failed = restoreRoles(guild, restoreId)
+		if not ok then return interaction:reply({ content = failed }, true) end
+		print("[security] " .. member.id .. " restored roles for " .. restoreId .. ": " .. ok .. " ok, " .. failed .. " failed")
+		alert(guild, getSec(guild), { icon = "↩️", title = "Roles restored", intro = interaction.user.mentionString .. " restored <@" .. restoreId .. ">'s roles.",
+			fields = { { "Restored", tostring(ok) }, { "Failed", (failed > 0) and tostring(failed) or nil } } })
+		return interaction:reply({ content = "Restored " .. ok .. " roles to <@" .. restoreId .. ">" .. ((failed > 0) and (", " .. failed .. " failed") or "") .. ". The timeout is separate, use Remove timeout for that.", allowed_mentions = { parse = {} } }, true)
 	end
 
 	local target = id:match("^sec:untimeout:(%d+)$")
@@ -803,8 +1016,12 @@ end
 
 security.Start = function()
 	_G.zeltraSecurity = { startRaid = startRaid, endRaid = endRaid, getSec = getSec, saveSec = saveSec,
-		fullLockdown = fullLockdown, endLockdown = endLockdown, isOwnerId = isOwnerId }
-	connections.join = { "memberJoin", Client:on("memberJoin", safe("join", onJoin)) }
+		fullLockdown = fullLockdown, endLockdown = endLockdown, isOwnerId = isOwnerId, restoreRoles = restoreRoles }
+	local joinSafe, botSafe = safe("join", onJoin), safe("botguard", onBotJoin)
+	connections.join = { "memberJoin", Client:on("memberJoin", function(member)
+		if member and member.user and member.user.bot then return botSafe(member) end
+		return joinSafe(member)
+	end) }
 	connections.audit = { "guildAuditLogEntryCreate", Client:on("guildAuditLogEntryCreate", safe("audit", onAudit)) }
 	connections.message = { "messageCreate", Client:on("messageCreate", safe("message", onMessage)) }
 	connections.buttons = { "interactionCreate", Client:on("interactionCreate", function(interaction)
