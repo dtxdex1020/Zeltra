@@ -6540,8 +6540,7 @@ utils.Start = function()
 				components = discordia.Components():button({
 					url = "https://github.com/dtxdex1020/Zeltra/issues",
 					style = "link",
-					label = "SCRP Support",
-					emoji = resolvedEmojis.ducky
+					label = "SCRP Support"
 				}):raw()
 			})
 

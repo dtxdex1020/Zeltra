@@ -7,6 +7,7 @@ local dbModule = {
 local snowGen = snowflake.new(1, 2)
 
 dbModule.Start = function()
+	local webhookRecreatedAt = {}
 	local db = {}
 
 	local function dbFail(str)
@@ -136,28 +137,48 @@ dbModule.Start = function()
 						timer.sleep(retry)
 						table.insert(auditQueues[guildid], 1, payload)
 					elseif res.code == 404 then
-						dbFail("db:sendAuditLog webhook not found, disabling auditlog type " .. tostring(auditType) .. " for " .. tostring(guildid))
-
-						config.auditlogchannels[isPrimary and "primary" or auditType] = nil
-						sqldb:set(guildid, {
-							auditlogchannels = config.auditlogchannels
-						}, "AUDIT_LOG_" .. auditType:upper() .. "_WEBHOOK_INVALID")
-
+						-- Zeltra: the webhook was deleted (e.g. by an anti-nuke bot). Recreate it in the same channel instead of disabling logs.
+						local key = isPrimary and "primary" or auditType
 						local guild = Client:getGuild(guildid)
-						local ownerId = guild and guild.ownerId
-						local owner = ownerId and guild:getMember(ownerId)
-						if owner then
-							owner:send({
-								content = "# " .. emojis.warning .. " Audit Logs Disabled\n" .. emojis.right .. " The **" .. getAuditName(auditType) .. "** Audit Log in **" .. guild.name .. "** failed to send due to an invalid webhook.\n-# " .. emojis.right .. " The configuration for " .. (isPrimary and "the primary audit logs channel" or "this audit log type") .. " has therefore been removed.",
-								components = discordia.Components():button({
-									url = "https://github.com/dtxdex1020/Zeltra/issues",
-									style = "link",
-									label = "SCRP Support",
-									emoji = resolvedEmojis.ducky
-								}):raw()
-							})
+						local channel = guild and guild:getChannel(targetConfig.channel)
+						local rkey = guildid .. ":" .. key
+						local recreated = false
+						if channel and os.time() - (webhookRecreatedAt[rkey] or 0) > 600 then
+							webhookRecreatedAt[rkey] = os.time()
+							local webhook = channel:createWebhook("South Carolina Roleplay", "audit log webhook was deleted, recreated automatically")
+							if webhook then
+								pcall(function() webhook:setAvatar("images/scrp-icon.png") end)
+								config.auditlogchannels[key].webhook = { ID = webhook.id, TOKEN = webhook.token }
+								sqldb:set(guildid, {
+									auditlogchannels = config.auditlogchannels
+								}, "AUDIT_LOG_" .. auditType:upper() .. "_WEBHOOK_RECREATED")
+								dbFail("db:sendAuditLog webhook " .. tostring(ID) .. " was missing, recreated as " .. webhook.id .. " in " .. channel.id .. " for " .. tostring(guildid))
+								table.insert(auditQueues[guildid], 1, payload)
+								recreated = true
+							end
 						end
-						break
+
+						if not recreated then
+							dbFail("db:sendAuditLog webhook not found and could not be recreated, disabling auditlog type " .. tostring(auditType) .. " for " .. tostring(guildid))
+							config.auditlogchannels[key] = nil
+							sqldb:set(guildid, {
+								auditlogchannels = config.auditlogchannels
+							}, "AUDIT_LOG_" .. auditType:upper() .. "_WEBHOOK_INVALID")
+
+							local ownerId = guild and guild.ownerId
+							local owner = ownerId and guild:getMember(ownerId)
+							if owner then
+								owner:send({
+									content = "# Audit Logs Disabled\nThe **" .. getAuditName(auditType):gsub("^%S+ ", "") .. "** Audit Log in **" .. guild.name .. "** failed to send because its webhook was deleted, and the bot could not create a new one.\n-# The configuration for " .. (isPrimary and "the primary audit logs channel" or "this audit log type") .. " has been removed. Check the bot's Manage Webhooks permission and any anti-nuke bot, then run /setup again.",
+									components = discordia.Components():button({
+										url = "https://github.com/dtxdex1020/Zeltra/issues",
+										style = "link",
+										label = "SCRP Support"
+									}):raw()
+								})
+							end
+							break
+						end
 					end
 
 					timer.sleep(500)

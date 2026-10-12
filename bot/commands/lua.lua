@@ -476,8 +476,7 @@ return {
 				components = discordia.Components():button({
 					url = "https://github.com/dtxdex1020/Zeltra/issues",
 					style = "link",
-					label = "SCRP Support",
-					emoji = resolvedEmojis.ducky
+					label = "SCRP Support"
 				}):button({
 					url = "https://discord.com/oauth2/authorize?client_id=" .. Client.user.id,
 					style = "link",
