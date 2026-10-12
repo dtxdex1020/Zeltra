@@ -64,7 +64,7 @@ return function(Client, sqldb, timer)
 		local webhook = channel and channel:createWebhook("South Carolina Roleplay", "audit logs for South Carolina Roleplay")
 		if webhook then pcall(function() webhook:setAvatar("images/scrp-icon.png") end) end
 		if webhook then
-			pcall(function() webhook:setAvatar("./images/avatars/Zeltra.png") end)
+			pcall(function() webhook:setAvatar("images/scrp-icon.png") end)
 			audit.primary = { channel = C.serverlogs, webhook = { ID = webhook.id, TOKEN = webhook.token } }
 			changes.auditlogchannels = audit; n = n + 1; say("audit logs -> server-logs (webhook " .. webhook.id .. ")")
 		else

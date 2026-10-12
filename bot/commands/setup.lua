@@ -2565,7 +2565,7 @@ return {
 									return ia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure South Carolina Roleplay has the right permissions, and contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) for assistance.", nil, true)
 								end
 
-								webhook:setAvatar("./images/avatars/Zeltra.png")
+								webhook:setAvatar("images/scrp-icon.png")
 								config.auditlogchannels.primary.webhook = { ID = webhook.id, TOKEN = webhook.token }
 							end
 
@@ -2631,7 +2631,7 @@ return {
 										if not webhook then
 											return oia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure South Carolina Roleplay has the right permissions, and contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) for assistance.", nil, true)
 										end
-										webhook:setAvatar("./images/avatars/Zeltra.png")
+										webhook:setAvatar("images/scrp-icon.png")
 										existingWebhook = webhook
 									end
 
