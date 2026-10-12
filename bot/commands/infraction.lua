@@ -1,6 +1,6 @@
 -- infraction.lua
 
-local slashCommand = tools.slashCommand("infraction", "Use Tennessee State Roleplay's infraction system.")
+local slashCommand = tools.slashCommand("infraction", "Use South Carolina Roleplay's infraction system.")
 local subCommand = tools.subCommand("issue", "Issue an infraction.")
 subCommand = subCommand:addOption(tools.user("user", "The user to infract."):setRequired(true))
 subCommand = subCommand:addOption(tools.string("type", "The infraction type."):setRequired(true):setAutocomplete(true))
@@ -20,7 +20,7 @@ slashCommand = slashCommand:addOption(subCommand)
 
 return {
     name = "infraction",
-    description = "Use Tennessee State Roleplay's infraction system.",
+    description = "Use South Carolina Roleplay's infraction system.",
     aliases = {"infract", "infractions"},
     category = "Staff Management",
     slashCommand = slashCommand,
@@ -366,7 +366,7 @@ return {
                                                     icon_url = issuer.user.avatarURL
                                                 },
                                                 title = emojis.success .. " Infraction Action Reversion Successful",
-                                                description = "> **@" .. member.username .. "**'s infraction was revoked by **@" .. issuer.name .. "**. Therefore, Tennessee State Roleplay has reverted the infraction action `" .. ac.cmd .. "`.",
+                                                description = "> **@" .. member.username .. "**'s infraction was revoked by **@" .. issuer.name .. "**. Therefore, South Carolina Roleplay has reverted the infraction action `" .. ac.cmd .. "`.",
                                                 color = colors.success,
                                                 thumbnail = {
                                                     url = issuer.user.avatarURL
@@ -383,7 +383,7 @@ return {
                                                     icon_url = issuer.user.avatarURL
                                                 },
                                                 title = emojis.fail .. " Infraction Action Reversion Failed",
-                                                description = "> **@" .. member.username .. "**'s infraction was revoked by **@" .. issuer.name .. "**. However, Tennessee State Roleplay was unable to revert the infraction action `" .. ac.cmd .. "`: ```" .. err .. "```",
+                                                description = "> **@" .. member.username .. "**'s infraction was revoked by **@" .. issuer.name .. "**. However, South Carolina Roleplay was unable to revert the infraction action `" .. ac.cmd .. "`: ```" .. err .. "```",
                                                 color = colors.fail,
                                                 thumbnail = {
                                                     url = issuer.user.avatarURL

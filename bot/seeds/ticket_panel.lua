@@ -1,8 +1,8 @@
 --[[
 	Zeltra one-time seed (added by Zeltra; not part of upstream Ducky V1).
 
-	Sets up the TSRP ticket hub. Only runs when SEED_TICKETS=1 (scripts/docker-start.sh backs the database up first).
-	  * Posts the ticket panel (libs/zeltra-tickets-tsrp.lua) in #assistance as the bot, unless a panel with the
+	Sets up the SCRP ticket hub. Only runs when SEED_TICKETS=1 (scripts/docker-start.sh backs the database up first).
+	  * Posts the ticket panel (libs/zeltra-tickets-scrp.lua) in #assistance as the bot, unless a panel with the
 	    same key is already registered and its message still exists. In that case the message text is edited in place
 	    and the ticket types are refreshed (open tickets and ticket counters are kept).
 	  * Registers it in the `panels` config key the way /setup's Ticket Panel Builder does
@@ -17,7 +17,7 @@
 local fs = require("fs")
 
 return function(Client, sqldb, timer)
-	local T = require("zeltra-tickets-tsrp")
+	local T = require("zeltra-tickets-scrp")
 	local function say(msg) print("[seed] tickets: " .. msg) end
 
 	local guild = Client:getGuild(T.GUILD_ID)

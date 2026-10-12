@@ -1,7 +1,7 @@
 --[[
 	Zeltra one-time seed (added by Zeltra; not part of upstream Ducky V1).
 
-	Sets up the security system for Tennessee State Roleplay. Only runs when SEED_SECURITY=1.
+	Sets up the security system for South Carolina Roleplay. Only runs when SEED_SECURITY=1.
 	  * If no channel named like "security-logs" exists, creates a private
 	    「🛡️」security-logs in the Log's category. @everyone can't see it; Community Leadership
 	    and Senior High Rank (the roles that can already see the Log's category) can read it.

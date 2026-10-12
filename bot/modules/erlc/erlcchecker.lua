@@ -329,7 +329,7 @@ erlcchecker.Start = function()
 								note = "Leaving the game will automatically end your shift. Manage it with `/shift manage`.",
 								footer = "Shifts",
 							})
-							server:execute(":pm " .. player.name .. " ✅・Tennessee State Roleplay has automatically started your " .. type.name .. " shift.")
+							server:execute(":pm " .. player.name .. " ✅・South Carolina Roleplay has automatically started your " .. type.name .. " shift.")
 						else
 							dmStyle.send(member, {
 								guild = guild,
@@ -2043,7 +2043,7 @@ erlcchecker.Start = function()
 				Client:emit("inGameCommand", player, full, command, message)
 
 				if not member then
-					return fail("You are not linked with Tennessee State Roleplay.", "You must use the **`/link`** command to link your Roblox account with Tennessee State Roleplay in order to use in-game commands.")
+					return fail("You are not linked with South Carolina Roleplay.", "You must use the **`/link`** command to link your Roblox account with South Carolina Roleplay in order to use in-game commands.")
 				end
 
 				table.remove(args, 1)

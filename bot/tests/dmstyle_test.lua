@@ -8,10 +8,10 @@ local function check(name, cond)
 	if cond then passed = passed + 1 print("PASS  " .. name) else failed = failed + 1 print("FAIL  " .. name) end
 end
 
-local guild = { name = "Tennessee State Roleplay" }
+local guild = { name = "South Carolina Roleplay" }
 
-check("serverName uses guild name", dm.serverName(guild) == "Tennessee State Roleplay")
-check("serverName falls back", dm.serverName(nil) == "Tennessee State Roleplay")
+check("serverName uses guild name", dm.serverName(guild) == "South Carolina Roleplay")
+check("serverName falls back", dm.serverName(nil) == "South Carolina Roleplay")
 check("serverName escapes markdown", dm.serverName({ name = "a*b" }) == "a\\*b")
 check("duration 53m", dm.duration(53 * 60) == "53m")
 check("duration 21h 56m", dm.duration(21 * 3600 + 56 * 60 + 10) == "21h 56m")
@@ -34,7 +34,7 @@ check("heading text", c.components[1].content:find("^# ⚖️ You received an in
 check("fields quoted, empty skipped", c.components[2].content == "> **Punishment** · Termination\n> **Case ID** · `85UhCj`")
 check("note is subtext", c.components[3].content == "-# Note")
 check("only valid link buttons", c.components[4].type == 1 and #c.components[4].components == 1 and c.components[4].components[1].style == 5)
-check("footer", c.components[5].content == "-# Tennessee State Roleplay · Staff Management")
+check("footer", c.components[5].content == "-# South Carolina Roleplay · Staff Management")
 check("no content/embeds with V2", p.content == nil and p.embed == nil and p.embeds == nil)
 check("encodes to JSON", pcall(json.encode, p))
 
@@ -69,7 +69,7 @@ local tc = sent[1].components[1].components
 check("ticket title", tc[1].content:find("# 📋 Ticket #0725 %- General Support") ~= nil)
 check("ticket fields", tc[2].content:find("> %*%*Handled by%*%* · Unclaimed") and tc[2].content:find("> %*%*Duration%*%* · 1h"))
 check("ticket reason section", tc[3].content == "**Reason**\n> Done")
-check("ticket file + button + footer", tc[4].type == 13 and tc[5].type == 1 and tc[6].content == "-# Tennessee State Roleplay · Ticket #0725")
+check("ticket file + button + footer", tc[4].type == 13 and tc[5].type == 1 and tc[6].content == "-# South Carolina Roleplay · Ticket #0725")
 check("ticket file attached", sent[1].files and sent[1].files[1][1] == "transcript.txt")
 
 -- channel post with ping

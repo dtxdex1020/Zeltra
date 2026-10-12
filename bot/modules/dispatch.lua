@@ -15,7 +15,7 @@ dispatch.Start = function()
 
 			if command.name == "Export Message" then
 				if not sqldb:plusGuild(interaction.guild) and not isPrivileged(interaction.member) then
-					return interaction:fail("This is a " .. emojis.duckyplus .. " **TSRP Plus+** feature.", nil, true)
+					return interaction:fail("This is a " .. emojis.duckyplus .. " **SCRP Plus+** feature.", nil, true)
 				elseif not (message.content or (message.embeds and message.embeds[1]) or message.embed) then
 					return interaction:fail("This message does not have content nor embeds.", nil, true)
 				end
@@ -43,7 +43,7 @@ dispatch.Start = function()
 				end, true)
 			elseif command.name == "Export Embed" then
 				if not sqldb:plusMember(interaction.member) and not isPrivileged(interaction.member) then
-					return interaction:fail("This is a " .. emojis.duckyplus .. " **TSRP Plus+** feature.", nil, true)
+					return interaction:fail("This is a " .. emojis.duckyplus .. " **SCRP Plus+** feature.", nil, true)
 				end
 
 				if message.embeds and table.count(message.embeds) > 0 and message.embeds[1] then

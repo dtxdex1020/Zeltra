@@ -212,7 +212,7 @@ return {
 				local violatorMember = guild:getMember(discordID)
 				local violator = Client:getUser(discordID)
 
-				local succ, err = banMember(guild, violatorMember, violator, interaction.member, "Tennessee State Roleplay Ban Syncing")
+				local succ, err = banMember(guild, violatorMember, violator, interaction.member, "South Carolina Roleplay Ban Syncing")
 
 				if succ then
 					bannedUsers = bannedUsers + 1
@@ -323,7 +323,7 @@ return {
 				local violatorMember = guild:getMember(discordID)
 				local violator = Client:getUser(discordID)
 
-				local succ, err = banMember(guild, violatorMember, violator, interaction.member, "Tennessee State Roleplay Ban Syncing")
+				local succ, err = banMember(guild, violatorMember, violator, interaction.member, "South Carolina Roleplay Ban Syncing")
 
 				if succ then
 					bannedUsers = bannedUsers + 1

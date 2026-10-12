@@ -70,7 +70,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Developer",
+						label = "SCRP Developer",
 						emoji = resolvedEmojis.developer
 					}
 				elseif hasPermission(m, "WEB_DEVELOPER") then
@@ -78,7 +78,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Web Developer",
+						label = "SCRP Web Developer",
 						emoji = resolvedEmojis.web
 					}
 				elseif hasPermission(m, "EXECUTIVE") then
@@ -86,7 +86,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Executive",
+						label = "SCRP Executive",
 						emoji = resolvedEmojis.executive
 					}
 				elseif hasPermission(m, "MANAGEMENT") then
@@ -94,7 +94,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Management",
+						label = "SCRP Management",
 						emoji = resolvedEmojis.settings
 					}
 				elseif hasPermission(m, "SUPPORT") then
@@ -102,7 +102,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Support",
+						label = "SCRP Support",
 						emoji = resolvedEmojis.support
 					}
 				elseif hasPermission(m, "DUCKY_STAFF") then
@@ -110,7 +110,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Staff",
+						label = "SCRP Staff",
 						emoji = resolvedEmojis.permission
 					}
 				elseif hasPermission(m, "QUALITY_ASSURANCE") then
@@ -118,7 +118,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Quality Assurance",
+						label = "SCRP Quality Assurance",
 						emoji = resolvedEmojis.qa
 					}
 				elseif hasPermission(m, "DOCWRITER") then
@@ -126,7 +126,7 @@ welcome.Start = function()
 						type = 2,
 						style = 5,
 						url = "https://github.com/dtxdex1020/Zeltra/issues",
-						label = "TSRP Docwriter",
+						label = "SCRP Docwriter",
 						emoji = resolvedEmojis.edit
 					}
 				end

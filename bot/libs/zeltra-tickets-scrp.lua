@@ -1,7 +1,7 @@
 --[[
-	TSRP ticket hub (added by Zeltra; not part of upstream Ducky V1).
+	SCRP ticket hub (added by Zeltra; not part of upstream Ducky V1).
 
-	The ticket types, categories, staff roles, welcome cards and the #assistance panel for Tennessee State
+	The ticket types, categories, staff roles, welcome cards and the #assistance panel for South Carolina State
 	Roleplay, in the format of Ducky's ticket module (config.panels[<message id>] = { subjects = {...} }).
 	Used by the one-time seed (seeds/ticket_panel.lua) and the tests; kept free of Discordia.
 
@@ -14,8 +14,8 @@ M.GUILD_ID = "1522997818330058772"
 M.PANEL_KEY = "tsrp-assistance-v1"
 M.PANEL_CHANNEL = "1522997820116697226" -- 「📬」assistance
 M.LOG_CHANNEL = "1522997828127948838" -- 「📁」ticket-logs (Log's)
-M.COLOR = 3054591 -- sky blue, same as the server's other panels
-M.LOGO = "<:tsrp_logo:1558645723527127122>"
+M.COLOR = 16738816 -- orange, same as the server's other panels
+M.LOGO = "<:scrp_logo:1559269062490587307>"
 M.BANNER = "banner-assistance-v2.jpg"
 M.STRIP = "strip-assistance.jpg"
 
@@ -29,26 +29,26 @@ M.CATEGORIES = {
 }
 
 M.ROLES = {
-	staff = "1522997818531512542", -- TSRP | Staff Team (base staff role, position 91)
-	moderation = "1522997818510278864", -- TSRP I Moderation Team
-	admin = "1522997818476855384", -- TSRP I Administration Team
-	management = "1522997818426527853", -- TSRP | Management Board
-	bod = "1522997818384580629", -- TSRP I Board Of Directors
-	highrank = "1522997818476855376", -- TSRP I High Rank
-	shr = "1522997818447626452", -- TSRP I Senior High Rank
-	leadership = "1522997818384580634", -- TSRP I Community Leadership
-	iaboard = "1522997818447626460", -- TSRP | Internal Affairs Board
-	relations = "1522997818363740167", -- TSRP I Director of Relations
-	depthead = "1522997818560741473", -- TSRP | Department Head
-	thp = "1522997818560741476", -- Tennessee Highway Patrol: High Command
+	staff = "1522997818531512542", -- SCRP | Staff Team (base staff role, position 91)
+	moderation = "1522997818510278864", -- SCRP I Moderation Team
+	admin = "1522997818476855384", -- SCRP I Administration Team
+	management = "1522997818426527853", -- SCRP | Management Board
+	bod = "1522997818384580629", -- SCRP I Board Of Directors
+	highrank = "1522997818476855376", -- SCRP I High Rank
+	shr = "1522997818447626452", -- SCRP I Senior High Rank
+	leadership = "1522997818384580634", -- SCRP I Community Leadership
+	iaboard = "1522997818447626460", -- SCRP | Internal Affairs Board
+	relations = "1522997818363740167", -- SCRP I Director of Relations
+	depthead = "1522997818560741473", -- SCRP | Department Head
+	thp = "1522997818560741476", -- South Carolina Highway Patrol: High Command
 	dcso = "1522997818610942105", -- Davidson County Sheriff's Office: High Command
 	npd = "1522997818610942110", -- NPD | High Command
 	nfd = "1522997818648694868", -- NFD | High Command
-	tdot = "1522997818648694873", -- TDOT | High Command
-	owner = "1522997818330058781", -- TSRP | Owner
-	coowner = "1522997818363740160", -- TSRP | Co-Owner
-	aowner = "1522997818363740161", -- TSRP | Assistant Owner
-	oboard = "1522997818363740163", -- TSRP I Ownership Board
+	tdot = "1522997818648694873", -- SCDOT | High Command
+	owner = "1522997818330058781", -- SCRP | Owner
+	coowner = "1522997818363740160", -- SCRP | Co-Owner
+	aowner = "1522997818363740161", -- SCRP | Assistant Owner
+	oboard = "1522997818363740163", -- SCRP I Ownership Board
 }
 
 M.OWNER_USERS = { "1307878235383795732", "1514313618827510011" }
@@ -130,10 +130,10 @@ M.TYPES = {
 				"Date", "Why it should be removed" }),
 	},
 	{
-		key = "department", line = "Questions, applications or transfers for THP, DCSO, NPD, NFD or TDOT.", name = "Departments", emoji = "🏢", prefix = "dept",
+		key = "department", line = "Questions, applications or transfers for SCHP, DCSO, NPD, NFD or SCDOT.", name = "Departments", emoji = "🏢", prefix = "dept",
 		description = "Department questions and applications",
 		bullets = {
-			"Questions about THP, DCSO, NPD, NFD or TDOT",
+			"Questions about SCHP, DCSO, NPD, NFD or SCDOT",
 			"Department applications and transfers",
 			"Anything else department related",
 		},
@@ -303,7 +303,7 @@ function M.panelPayload()
 			components = {
 				{ type = 12, items = { { media = { url = "attachment://" .. M.BANNER } } } },
 				{ type = 10, content = "## " .. M.LOGO .. " | Support\n"
-					.. "> Welcome to the **Tennessee State Roleplay** support menu. If you need help, open a ticket to reach a staff member. "
+					.. "> Welcome to the **South Carolina Roleplay** support menu. If you need help, open a ticket to reach a staff member. "
 					.. "Pick the right ticket type before you submit." },
 				{ type = 10, content = table.concat(sections, "\n\n") },
 				{ type = 14, divider = true, spacing = 1 },
@@ -328,7 +328,7 @@ function M.panelEmbeds()
 		table.insert(fields, { name = t.emoji .. " " .. t.name, value = "- " .. table.concat(t.bullets, "\n- "), inline = false })
 	end
 	return { {
-		title = "TSRP Ticket Hub",
+		title = "SCRP Ticket Hub",
 		description = "Please read this before you open a ticket. Tickets that ignore these rules can be closed without warning. Follow the format the bot gives you once your ticket opens.",
 		color = M.COLOR,
 		fields = fields,

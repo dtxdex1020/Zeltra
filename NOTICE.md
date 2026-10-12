@@ -33,17 +33,17 @@ Source code for the running bot: https://github.com/dtxdex1020/Zeltra
   idle pooled connections are not reused and responses have a timeout; bot/libs/zeltra-interactions.lua adds
   per-command timing logs, an auto-defer in the slash command dispatcher and an event loop monitor. /purge skips
   empty batches.
-- 2026-10-11: TSRP ticket hub on top of Ducky's ticket module. bot/libs/zeltra-tickets-tsrp.lua holds the 8 ticket
+- 2026-10-11: SCRP ticket hub on top of Ducky's ticket module. bot/libs/zeltra-tickets-scrp.lua holds the 8 ticket
   types and the Components V2 panel, bot/seeds/ticket_panel.lua is the one-time seed that posts it. Ticket channels
   are now created with their permission overwrites in one request (category overwrites, @everyone hidden, support
   roles and the opener allowed), names support {ticket.number}, welcome pings only go to the ticket's roles, and
   the Web Transcript button is hidden when no web URL is set.
 - 2026-10-11: Ticket escalation: an Escalate button on ticket welcome cards (staff only) with tiers saved on the panel,
   offered only above the presser's rank and the ticket's current tier, with a cooldown, an optional reason, a ping
-  card in the ticket and a ticket-logs entry (bot/libs/zeltra-ticket-escalation.lua). Updated TSRP ticket roles.
+  card in the ticket and a ticket-logs entry (bot/libs/zeltra-ticket-escalation.lua). Updated SCRP ticket roles.
   Raid keyword detection ignores keyword words in ticket channels (prefix commands still count).
-- 2026-10-11: TSRP Staff Report tickets go to High Rank (access and ping) instead of the IA Board. The ticket seed now
+- 2026-10-11: SCRP Staff Report tickets go to High Rank (access and ping) instead of the IA Board. The ticket seed now
   edits an already posted panel's text in place.
-- 2026-10-11: TSRP join message on Ducky's welcome feature (bot/libs/zeltra-welcome-tsrp.lua, one-time seed
+- 2026-10-11: SCRP join message on Ducky's welcome feature (bot/libs/zeltra-welcome-scrp.lua, one-time seed
   bot/seeds/welcome_message.lua). The welcome module skips welcomes during security raid mode, pings only the new
   member, no longer errors without a join message, and only sends the join DM when DM on join is on.

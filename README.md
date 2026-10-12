@@ -1,11 +1,11 @@
-# Tennessee State Roleplay
+# South Carolina Roleplay
 
-The Discord bot runs as **Tennessee State Roleplay** (formerly Zeltra). The public git repository remains [dtxdex1020/Zeltra](https://github.com/dtxdex1020/Zeltra).
+The Discord bot runs as **South Carolina Roleplay** (formerly Zeltra). The public git repository remains [dtxdex1020/Zeltra](https://github.com/dtxdex1020/Zeltra).
 
-**Tennessee State Roleplay** is a multipurpose Discord + ER:LC bot run by [Shark (dtxdex1020)](https://github.com/dtxdex1020): moderation, tickets, verification, staff management (shifts, LOAs, promotions), ER:LC server integration, economy, giveaways and more.
+**South Carolina Roleplay** is a multipurpose Discord + ER:LC bot run by [Shark (dtxdex1020)](https://github.com/dtxdex1020): moderation, tickets, verification, staff management (shifts, LOAs, promotions), ER:LC server integration, economy, giveaways and more.
 
 > [!IMPORTANT]
-> **Credits: Tennessee State Roleplay is a modified version of Ducky V1 by duckyerlc (https://github.com/duckyerlc/Ducky-opensource), licensed under AGPL-3.0.**
+> **Credits: South Carolina Roleplay is a modified version of Ducky V1 by duckyerlc (https://github.com/duckyerlc/Ducky-opensource), licensed under AGPL-3.0.**
 > Changes were made (see [Changes from Ducky V1](#changes-from-ducky-v1)). All original copyright and license notices are kept intact.
 
 - **Source code:** https://github.com/dtxdex1020/Zeltra (this repository; it is the complete source of the running bot, including all modifications)
@@ -15,9 +15,9 @@ The Discord bot runs as **Tennessee State Roleplay** (formerly Zeltra). The publ
 
 ## Changes from Ducky V1
 
-Tennessee State Roleplay keeps Ducky's features and code; the changes are kept small:
+South Carolina Roleplay keeps Ducky's features and code; the changes are kept small:
 
-- **Branding:** user-facing "Ducky" text (embeds, help, about, footers, command descriptions) now says "Tennessee State Roleplay". Internal identifiers (variable names, database keys) are unchanged.
+- **Branding:** user-facing "Ducky" text (embeds, help, about, footers, command descriptions) now says "South Carolina Roleplay". Internal identifiers (variable names, database keys) are unchanged.
 - **Credit and source offer:** `/about` and `/help` credit Ducky V1 by duckyerlc and link this repository (AGPL-3.0 section 13).
 - **Ducky-only links and IDs removed or replaced:**
   - Ducky's support server and website support links now point to [this repo's issues](https://github.com/dtxdex1020/Zeltra/issues).
@@ -51,11 +51,11 @@ Run it under a supervisor such as pm2 or systemd so it restarts automatically. `
 
 ## Web features
 
-Ducky hosted some features on its website (duckybot.xyz): Roblox OAuth account linking, web ticket transcripts and the web embed editor. Tennessee State Roleplay doesn't host a website. Unless `WEB_BASE_URL` is set in `secrets.lua`, those links lead here. For Roblox account linking, use **Legacy Verification** in `/link`, which works fully inside Discord.
+Ducky hosted some features on its website (duckybot.xyz): Roblox OAuth account linking, web ticket transcripts and the web embed editor. South Carolina Roleplay doesn't host a website. Unless `WEB_BASE_URL` is set in `secrets.lua`, those links lead here. For Roblox account linking, use **Legacy Verification** in `/link`, which works fully inside Discord.
 
 ## Terms and Privacy
 
-Tennessee State Roleplay stores the data that its features need. That includes server configuration, moderation cases, Roblox links, economy balances, tickets and transcripts. The data is kept in the bot's own database and used only to provide these features. Server managers can wipe their server's configuration through `/setup`. For data questions or removal requests, [open an issue](https://github.com/dtxdex1020/Zeltra/issues) or contact Shark on Discord.
+South Carolina Roleplay stores the data that its features need. That includes server configuration, moderation cases, Roblox links, economy balances, tickets and transcripts. The data is kept in the bot's own database and used only to provide these features. Server managers can wipe their server's configuration through `/setup`. For data questions or removal requests, [open an issue](https://github.com/dtxdex1020/Zeltra/issues) or contact Shark on Discord.
 
 ---
 
@@ -95,7 +95,7 @@ This is a new repository as we prefer to keep the commit history private.
 ## Can I propose changes?
 We will only accept bug fixes, nothing else. If you wish to make other changes, just fork the repo.
 
-## Command permissions (Tennessee State Roleplay fork)
+## Command permissions (South Carolina Roleplay fork)
 
 - **Owner bypass:** the bot owner (Discord ID `1307878235383795732` plus `DEV_ACCESS_IDS` in `bot/secrets.lua`) and each server's owner bypass the bot's staff-role checks, the moderator-vs-target role hierarchy, Plus gates, cooldowns and module/command-disabled checks. The bot's own role hierarchy still applies, and nobody can moderate the server owner or the bot. Server owners don't get bot-developer commands.
 - **`/permissions`** (bot owner only): `set`, `remove-role`, `add-user`, `remove-user`, `mode` (`default` | `roles-only` | `everyone` | `disabled`), `reset`, `view`, `list`, `copy`, `preset` (`moderator`, `shift`), `panel`, `role`. Rules can target a whole command (`shift`) or a single subcommand (`shift manage`), and the most specific rule wins. Rules are stored per server in the `command_permissions` table and enforced centrally in `bot/main.lua` (`checkCommandAccess`) before every command runs.

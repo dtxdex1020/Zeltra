@@ -1,10 +1,10 @@
 -- help.lua
-local slashCommand = tools.slashCommand("help", "View the TSRP Help menu.")
+local slashCommand = tools.slashCommand("help", "View the SCRP Help menu.")
 slashCommand = slashCommand:addOption(tools.string("category", "Jump to a specific category."):setRequired(false):setAutocomplete(true))
 
 return {
 	name = "help",
-	description = "View the Tennessee State Roleplay help menu.",
+	description = "View the South Carolina Roleplay help menu.",
 	aliases = { "cmds", "commands", "support", "assistance", "helpme" },
 	slashCommand = slashCommand,
 	requiredPermissions = {},
@@ -117,11 +117,11 @@ return {
 
         local helpMenu = {
             embed = {
-                title = emojis.ducky .. " TSRP's Commands",
-                description = emojis.right .. " Welcome to " .. emojis.ducky .. " **Tennessee State Roleplay's Help Menu**, view more information on commands below, or [**open an issue**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance.",
+                title = emojis.ducky .. " SCRP's Commands",
+                description = emojis.right .. " Welcome to " .. emojis.ducky .. " **South Carolina Roleplay's Help Menu**, view more information on commands below, or [**open an issue**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance.",
                 color = colors.duckyyellow,
                 thumbnail = { url = Client.user.avatarURL },
-                footer = { text = "TSRP is based on Ducky V1 by duckyerlc (AGPL-3.0) · Source: " .. _G.ZELTRA_SOURCE_URL, icon_url = Client.user.avatarURL }
+                footer = { text = "SCRP is based on Ducky V1 by duckyerlc (AGPL-3.0) · Source: " .. _G.ZELTRA_SOURCE_URL, icon_url = Client.user.avatarURL }
             },
             components = discordia.Components({
                 buildCategorySelector(false)

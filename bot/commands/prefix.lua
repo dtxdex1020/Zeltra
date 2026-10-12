@@ -18,7 +18,7 @@ return {
             return interaction:reply({
                 embed = {
                     description = _G.emojis.fail ..
-                    " Tennessee State Roleplay is not setup in this server. Run the `/setup` command to setup Tennessee State Roleplay.",
+                    " South Carolina Roleplay is not setup in this server. Run the `/setup` command to setup South Carolina Roleplay.",
                     color = _G.colors.fail
                 }
             })

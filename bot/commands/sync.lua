@@ -40,7 +40,7 @@ return {
 			r:update({
 				embed = {
 					title = emojis.warning .. " Rebooting...",
-					description = emojis.right .. " An internal file has been changed. Tennessee State Roleplay is now rebooting to apply the changes.",
+					description = emojis.right .. " An internal file has been changed. South Carolina Roleplay is now rebooting to apply the changes.",
 					color = colors.warning
 				}
 			})

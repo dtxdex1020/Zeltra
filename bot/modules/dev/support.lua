@@ -1,8 +1,8 @@
 -- support.lua
 local support = {
 	name = "support",
-	description = "Powers Tennessee State Roleplay's community support system.",
-	disabled = true -- Tennessee State Roleplay: hardcoded to Ducky's support forum/roles; disabled
+	description = "Powers South Carolina Roleplay's community support system.",
+	disabled = true -- South Carolina Roleplay: hardcoded to Ducky's support forum/roles; disabled
 }
 
 local connections = {
@@ -41,7 +41,7 @@ support.Start = function()
 				content = threadOwner.id ~= "598958193032560642" and "-# " .. emojis.pings .. " " .. threadOwner.mentionString .. ((isPlus and "・<@&1259747747091972116>") or "") or nil,
 				embed = {
 					title = emojis.hiya .. " Hiya, **" .. threadOwner.name .. "**!",
-					description = ">>> Thank you for contacting TSRP Support. One of our <@&1259747747091972116> members will arrive shortly to assist you. Additionally, a member of the community may be able to assist you as well.\n\nIn the meantime, please provide the necessary details, such as your server's invite, and further elaborate on your request if needed.\n\n-# " .. emojis.warning .. " ***Do not give potentially harmful roles in your server to users without the <@&1259747747091972116> role.***",
+					description = ">>> Thank you for contacting SCRP Support. One of our <@&1259747747091972116> members will arrive shortly to assist you. Additionally, a member of the community may be able to assist you as well.\n\nIn the meantime, please provide the necessary details, such as your server's invite, and further elaborate on your request if needed.\n\n-# " .. emojis.warning .. " ***Do not give potentially harmful roles in your server to users without the <@&1259747747091972116> role.***",
 					image = {
 						url = "https://media.discordapp.net/attachments/1278154516147208275/1330938255318978592/support_1.png?ex=678fcc57&is=678e7ad7&hm=dc161906ffa89dd8daefc0f0706588324311aeb7215ab9be97b97b03730b90a7&=&format=webp&quality=lossless&width=1649&height=123"
 					},
@@ -136,7 +136,7 @@ support.Start = function()
 										content = "-# " .. emojis.pings .. " <@" .. thread.ownerId .. ">",
 										embed = {
 											title = emojis.success .. " Marked as Resolved",
-											description = ">>> Thank you for contacting TSRP Support. This post has been marked as resolved by **" .. ia.member.name .. "**. If you require additional assistance, please feel free to create a new post, and we'll help you out as fast as we can.\n-# " .. emojis.star .. " Consider leaving a review on the support members who assisted you within this thread via <#1261046113218068590>.",
+											description = ">>> Thank you for contacting SCRP Support. This post has been marked as resolved by **" .. ia.member.name .. "**. If you require additional assistance, please feel free to create a new post, and we'll help you out as fast as we can.\n-# " .. emojis.star .. " Consider leaving a review on the support members who assisted you within this thread via <#1261046113218068590>.",
 											image = {
 												url = "https://duckybot.xyz/images/banners/footers/success.png"
 											},
@@ -305,7 +305,7 @@ support.Start = function()
 							ia:fail("This post has already marked as a bug.", nil, true)
 						end
 					else
-						ia:fail("Only members of the " .. emojis.developer .. " **TSRP Development** team can do this.", nil, true)
+						ia:fail("Only members of the " .. emojis.developer .. " **SCRP Development** team can do this.", nil, true)
 					end
 				elseif selection == "inactivethread" then
 					if hasPermission(ia.member, "SUPPORT") then
@@ -336,14 +336,14 @@ support.Start = function()
 
 						ia:updateDeferred(true)
 					else
-						ia:fail("Only members of the " .. emojis.support .. " **TSRP Support** team can do this.", nil, true)
+						ia:fail("Only members of the " .. emojis.support .. " **SCRP Support** team can do this.", nil, true)
 					end
 				else
 					ia:updateDeferred(true)
 				end
 			end
 		elseif id == "managethread" then
-			ia:fail("Only <@" .. tostring(thread.ownerId) .. "> and " .. emojis.support .. " **TSRP Support** members can use this.", nil, true)
+			ia:fail("Only <@" .. tostring(thread.ownerId) .. "> and " .. emojis.support .. " **SCRP Support** members can use this.", nil, true)
 		end
 	end)
 end

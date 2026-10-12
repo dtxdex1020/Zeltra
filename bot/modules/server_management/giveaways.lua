@@ -144,7 +144,7 @@ giveaways.Start = function()
 							
 							if not ingame then return interaction:fail("You must be in-game to enter this giveaway.", nil, true) end
 						else
-							return interaction:fail("You must be linked with Tennessee State Roleplay in order to meet the in-game requirement to enter this giveaway.", nil, true)
+							return interaction:fail("You must be linked with South Carolina Roleplay in order to meet the in-game requirement to enter this giveaway.", nil, true)
 						end
 					end
 

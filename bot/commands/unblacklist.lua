@@ -5,7 +5,7 @@
 
 return {
     name = "unblacklist",
-    description = "Unblacklist a user or guild from Tennessee State Roleplay.",
+    description = "Unblacklist a user or guild from South Carolina Roleplay.",
     aliases = {},
     category = "Utility",
     slashCommand = nil,
@@ -46,15 +46,15 @@ return {
 				local s, e
 				
 				if class(object) == "User" then
-					s, e = dms:send(emojis.success .. " You have been **unblacklisted** from " .. emojis.ducky .. " **Tennessee State Roleplay**.")
+					s, e = dms:send(emojis.success .. " You have been **unblacklisted** from " .. emojis.ducky .. " **South Carolina Roleplay**.")
 				elseif class(object) == "Guild" then
-					s, e = dms:send(emojis.success .. " Your server, **" .. object.name .. "**, has been **unblacklisted** from " .. emojis.ducky .. " **Tennessee State Roleplay**.")
+					s, e = dms:send(emojis.success .. " Your server, **" .. object.name .. "**, has been **unblacklisted** from " .. emojis.ducky .. " **South Carolina Roleplay**.")
 				end
 
 				dmed = not not s
 			end
 
-			return message:success("**" .. name .. "** has been unblacklisted from " .. emojis.ducky .. " **Tennessee State Roleplay**." .. (((not dmed) and "\n-# " .. emojis.right .. " The " .. ((class(object) == "User" and "user") or "guild's owner") .. " could not be notified.") or ""))
+			return message:success("**" .. name .. "** has been unblacklisted from " .. emojis.ducky .. " **South Carolina Roleplay**." .. (((not dmed) and "\n-# " .. emojis.right .. " The " .. ((class(object) == "User" and "user") or "guild's owner") .. " could not be notified.") or ""))
 		else
 			return message:fail("```" .. err .. "```")
 		end

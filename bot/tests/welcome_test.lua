@@ -1,8 +1,8 @@
 -- Run from bot/: ./luvit tests/welcome_test.lua
--- Zeltra: checks the TSRP join message (libs/zeltra-welcome-tsrp.lua) through Ducky's welcome module
+-- Zeltra: checks the SCRP join message (libs/zeltra-welcome-scrp.lua) through Ducky's welcome module
 -- (modules/server_management/welcome.lua) with fake Discord objects. Nothing is sent to Discord.
 -- Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).
-local W = require("../libs/zeltra-welcome-tsrp")
+local W = require("../libs/zeltra-welcome-scrp")
 
 local passed, failed = 0, 0
 local function check(name, cond)
@@ -37,7 +37,7 @@ end
 
 local sent, dms = {}, {}
 local welcomeChannel = { id = W.CHANNEL, send = function(self, p) table.insert(sent, p) return { id = "m" } end }
-local guild = { id = W.GUILD_ID, name = "Tennessee State Roleplay", totalMemberCount = 1234,
+local guild = { id = W.GUILD_ID, name = "South Carolina Roleplay", totalMemberCount = 1234,
 	getChannel = function(self, id) return id == W.CHANNEL and welcomeChannel or nil end }
 local function member(id, username)
 	return { id = id, name = username, mentionString = "<@" .. id .. ">", guild = guild,
@@ -58,7 +58,7 @@ end
 join(member("42", "newguy"), config())
 local m = sent[1]
 check("join message posted in the welcome channel", #sent == 1)
-check("exact format", m and m.content == "<:tsrp_logo:1558645723527127122> **Welcome** <@42> (**newguy**) to **Tennessee**! We are now at **1,234** members.")
+check("exact format", m and m.content == "<:scrp_logo:1559269062490587307> **Welcome** <@42> (**newguy**) to **South Carolina**! We are now at **1,234** members.")
 check("plain message, no embed or buttons", m and m.embed == nil and m.embeds == nil and m.components == nil)
 check("pings only the member who joined", m and m.allowed_mentions and #m.allowed_mentions.parse == 0
 	and #m.allowed_mentions.users == 1 and m.allowed_mentions.users[1] == "42" and m.allowedMentions == nil)
@@ -87,7 +87,7 @@ check("join channel without a message doesn't error or post", ok and #sent == be
 
 local message = W.message().content
 check("no em dashes", not message:find("\226\128\148"))
-check("uses the tsrp_logo app emoji", message:find("<:tsrp_logo:1558645723527127122>", 1, true) == 1)
+check("uses the scrp_logo app emoji", message:find("<:scrp_logo:1559269062490587307>", 1, true) == 1)
 
 -- bots are skipped before the welcome module is reached
 local dispatch = io.open("modules/dispatch.lua"):read("*a")

@@ -17,8 +17,8 @@
 	Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).
 ]]
 
-local DEFAULT_SERVER_NAME = "Tennessee State Roleplay"
-local ACCENT = 0x4FC3F7 -- sky blue
+local DEFAULT_SERVER_NAME = "South Carolina Roleplay"
+local ACCENT = 0xFF6A00 -- orange
 local IS_COMPONENTS_V2 = 32768
 local MAX_TEXT = 3800
 
@@ -39,7 +39,7 @@ local function truncate(s, n)
 	return s:sub(1, n - 3) .. "..."
 end
 
---- The guild's name (falls back to Tennessee State Roleplay), safe to wrap in **bold**.
+--- The guild's name (falls back to South Carolina Roleplay), safe to wrap in **bold**.
 function dm.serverName(guild)
 	local name = guild and guild.name
 	if type(name) ~= "string" or name == "" then

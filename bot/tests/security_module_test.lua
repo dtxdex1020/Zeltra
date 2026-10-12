@@ -71,7 +71,7 @@ local plainRole = { id = "r3", name = "Member", _permissions = "1024", position 
 local nuker = makeMember("999", { adminRole, highRole, plainRole })
 
 local guild = {
-	id = "g1", name = "Tennessee State Roleplay", ownerId = "owner", verificationLevel = 1,
+	id = "g1", name = "South Carolina Roleplay", ownerId = "owner", verificationLevel = 1,
 	setVerificationLevel = function(self, l) self.verificationLevel = l return true end,
 	defaultRole = { getPermissions = function() return perms({ viewChannel = true, sendMessages = true }) end },
 	textChannels = iterOf(chans),
@@ -158,7 +158,7 @@ check("powerful role grant alert", posts[#posts].title == "Powerful role given")
 handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 28, user_id = "999", target_id = "777" })
 check("bot added alert", posts[#posts].title == "Bot added")
 handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 1, user_id = "999", target_id = "g1",
-	changes = { { key = "vanity_url_code", old_value = "tsrp", new_value = "x" } } })
+	changes = { { key = "vanity_url_code", old_value = "scrp", new_value = "x" } } })
 check("vanity alert", posts[#posts].title == "Server settings changed" and posts[#posts].fields[2][1] == "Vanity URL")
 
 -- messages

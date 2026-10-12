@@ -1,6 +1,6 @@
 -- role.lua
 -- Add Role
-local slashCommand = tools.slashCommand("role", "Use Tennessee State Roleplay's role modification.")
+local slashCommand = tools.slashCommand("role", "Use South Carolina Roleplay's role modification.")
 local subcmd = tools.subCommand("add", "Add a role to a user.")
 subcmd = subcmd:addOption(tools.user("user", "The user to add the role to."):setRequired(true))
 subcmd = subcmd:addOption(tools.role("role", "The role to add to the user."):setRequired(true))
@@ -39,7 +39,7 @@ local subcmds = {"add", "remove", "info", "members", "all"}
 
 return {
     name = "role",
-    description = "Use Tennessee State Roleplay's role modification.",
+    description = "Use South Carolina Roleplay's role modification.",
     aliases = {},
     category = "Server Management",
     slashCommand = slashCommand,

@@ -1,5 +1,5 @@
 -- ticket.lua
-local slashCommand = tools.slashCommand("ticket", "Use Tennessee State Roleplay's ticket system.")
+local slashCommand = tools.slashCommand("ticket", "Use South Carolina Roleplay's ticket system.")
 local subcmd = tools.subCommand("manage", "Manage the current ticket.")
 slashCommand = slashCommand:addOption(subcmd)
 local subcmd = tools.subCommand("claim", "Claim the current ticket.")
@@ -46,7 +46,7 @@ local closedActions = discordia.Components():button({
 
 return {
 	name = "ticket",
-	description = "Use Tennessee State Roleplay's ticket system.",
+	description = "Use South Carolina Roleplay's ticket system.",
 	aliases = {},
 	category = "Tickets",
 	slashCommand = slashCommand,

@@ -1,7 +1,7 @@
 --[[
 	Zeltra one-time seed (added by Zeltra; not part of upstream Ducky V1).
 
-	Sets the TSRP join message (libs/zeltra-welcome-tsrp.lua) on Ducky's welcome feature: config.joinchannel and
+	Sets the SCRP join message (libs/zeltra-welcome-scrp.lua) on Ducky's welcome feature: config.joinchannel and
 	config.joinmessage. Only runs when SEED_WELCOME=1 (scripts/docker-start.sh backs the database up first).
 	Posts nothing. Join DMs and the auto delete delay are left as they are and reported.
 
@@ -9,7 +9,7 @@
 ]]
 
 return function(Client, sqldb, timer)
-	local W = require("zeltra-welcome-tsrp")
+	local W = require("zeltra-welcome-scrp")
 	local function say(msg) print("[seed] welcome: " .. msg) end
 
 	local guild = Client:getGuild(W.GUILD_ID)

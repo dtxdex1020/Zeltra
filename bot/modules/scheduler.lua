@@ -286,7 +286,7 @@ scheduler.Start = function()
 																				.. member.username
 																				.. "**'s infraction was revoked by **@"
 																				.. issuer.name
-																				.. "**. Therefore, Tennessee State Roleplay has reverted the infraction action `"
+																				.. "**. Therefore, South Carolina Roleplay has reverted the infraction action `"
 																				.. ac.cmd
 																				.. "`.",
 																			color = colors.success,
@@ -308,7 +308,7 @@ scheduler.Start = function()
 																				.. member.username
 																				.. "**'s infraction was revoked by **@"
 																				.. issuer.name
-																				.. "**. However, Tennessee State Roleplay was unable to revert the infraction action `"
+																				.. "**. However, South Carolina Roleplay was unable to revert the infraction action `"
 																				.. ac.cmd
 																				.. "`: ```"
 																				.. err

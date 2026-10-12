@@ -1,7 +1,7 @@
 -- auditlogs.lua
 local auditlogs = {
 	name = "auditlogs",
-	description = "Manages the Audit Logging module & Tennessee State Roleplay's guild logs."
+	description = "Manages the Audit Logging module & South Carolina Roleplay's guild logs."
 }
 
 local connections = {}

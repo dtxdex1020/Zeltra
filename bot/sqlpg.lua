@@ -903,7 +903,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 		local pond = pondMember(user)
 
 		if pond and not pond:hasRole("1267239172444262490") then
-			pond:addRole("1267239172444262490", "purchased TSRP Plus+")
+			pond:addRole("1267239172444262490", "purchased SCRP Plus+")
 			saveLog("info", "plusPurchase", {status = "Added Zeltra Plus+ role to user", user_id = user.id, role_id = "1267239172444262490"})
 		end
 
@@ -944,7 +944,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 						icon_url = user.avatarURL
 					},
 					title = emojis.success .. " Purchase Successful",
-					description = "> **@" .. user.username .. "** has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **TSRP Plus+**!\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. os.time() .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`",
+					description = "> **@" .. user.username .. "** has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **SCRP Plus+**!\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. os.time() .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`",
 					timestamp = toISO(os.time()),
 					color = colors.success,
 					thumbnail = thumbnail(user),
@@ -954,8 +954,8 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 					}
 				}
 			})
-			user:send(emojis.success .. " You have been granted **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **TSRP Plus+**. Thank you for your support!\n-# " .. emojis.document .. " **Transaction Token:** " .. transactionToken)
-			utilityChannels.supporters:send(":heart: " .. user.mentionString .. " has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **TSRP Plus+**!\n-# " .. emojis.right .. " Thank you for your support!")
+			user:send(emojis.success .. " You have been granted **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **SCRP Plus+**. Thank you for your support!\n-# " .. emojis.document .. " **Transaction Token:** " .. transactionToken)
+			utilityChannels.supporters:send(":heart: " .. user.mentionString .. " has purchased **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **SCRP Plus+**!\n-# " .. emojis.right .. " Thank you for your support!")
 
 			saveLog("info", "plusPurchase", {status = "User purchased Zeltra Plus+ slots successfully", user_id = user.id, slots_purchased = slots, total_slots = plus.slots, transaction_token = transactionToken})
 			return true, errorOrPlus
@@ -966,7 +966,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 	end)
 
 	if not pcallSuccess then
-		user:send(emojis.fail .. " An unexpected error occurred while attempting to grant you **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **TSRP Plus+**. Please contact the " .. emojis.support .. " **TSRP Support** team.")
+		user:send(emojis.fail .. " An unexpected error occurred while attempting to grant you **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **SCRP Plus+**. Please contact the " .. emojis.support .. " **SCRP Support** team.")
 		utilityChannels.receipts:send({
 			embed = {
 				author = {
@@ -974,7 +974,7 @@ function sqldb:plusPurchase(user, slots, discount, paid, roblox, transactionToke
 					icon_url = user.avatarURL
 				},
 				title = emojis.fail .. " Purchase Failed",
-				description = "> **@" .. user.username .. "** attempted to purchase **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **TSRP Plus+**.\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. time .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`\n" .. emojis.right .. " **Error:** `" .. tostring(functionSuccessOrPcallError) .. "`",
+				description = "> **@" .. user.username .. "** attempted to purchase **" .. slots .. " slot" .. ((slots ~= 1 and "s") or "") .. "** of " .. emojis.duckyplus .. " **SCRP Plus+**.\n\n" .. emojis.document .. " **Purchase Receipt**\n" .. emojis.right .. " **Slots:** " .. slots .. "\n" .. emojis.right .. " **Discount Code:** " .. ((discount and ("`" .. discount.code .. "` (" .. discount.percentage .. "% off)")) or "N/A") .. "\n" .. emojis.right .. " **Total:** " .. emojis.robux .. " " .. formatNumber(paid) .. "\n" .. emojis.right .. " **Date:** <t:" .. time .. ">\n" .. emojis.right .. " **Transaction:** `" .. transactionToken .. "`\n" .. emojis.right .. " **Error:** `" .. tostring(functionSuccessOrPcallError) .. "`",
 				timestamp = toISO(os.time()),
 				color = colors.fail,
 				thumbnail = thumbnail(user),
@@ -1015,10 +1015,10 @@ function sqldb:plusUse(user, guild)
 
 	if (not active) or not plus then
 		saveLog("error", "plusUse", {error = "User does not have a Zeltra Plus+ purchase", user_id = user, guild_id = guild})
-		return false, "You do not have a TSRP Plus+ purchase."
+		return false, "You do not have a SCRP Plus+ purchase."
 	elseif plus.slots < 1 then
 		saveLog("error", "plusUse", {error = "User does not have any Zeltra Plus+ slots available", user_id = user, guild_id = guild, available_slots = plus.slots})
-		return false, "You do not have any TSRP Plus+ slots available."
+		return false, "You do not have any SCRP Plus+ slots available."
 	end
 
 	plus.slots = plus.slots - 1
@@ -1048,7 +1048,7 @@ function sqldb:plusRefund(user, guild)
 
 	if (not active) or not plus then
 		saveLog("warning", "plusRefund", {error = "User does not have a Zeltra Plus+ purchase to refund", user_id = user.id})
-		return false, "You do not have a TSRP Plus+ purchase."
+		return false, "You do not have a SCRP Plus+ purchase."
 	end
 
 	local plusChanged
@@ -1064,7 +1064,7 @@ function sqldb:plusRefund(user, guild)
 
 	if not plusChanged then
 		saveLog("warning", "plusRefund", {error = "User is not providing Zeltra Plus+ to that server for refund", user_id = user.id, guild_id = guild})
-		return false, "You are not providing TSRP Plus+ to that server."
+		return false, "You are not providing SCRP Plus+ to that server."
 	end
 
 	local plusSetSuccess, plusSetError = sqldb:plusSet(user.id, plus)
@@ -1213,14 +1213,14 @@ function sqldb:plusRefund(user, guild)
 
 				if not setSuccess then
 					saveLog("error", "plusRefund", {error = "Failed to disable Zeltra Plus+ features after refund", user_id = user.id, error_message = setError, guild_id = guild})
-					return false, "Failed to disable TSRP Plus+ features: " .. setError
+					return false, "Failed to disable SCRP Plus+ features: " .. setError
 				end
 				saveLog("info", "plusRefund", {status = "Zeltra Plus+ features disabled for guild after refund", user_id = user.id, guild_id = guild})
 			end
 		end
 	end
 
-	utilityChannels.receipts:send(emojis.undo .. " **@" .. user.username .. "** (" .. user.id .. ") refunded one of their " .. emojis.duckyplus .. " **TSRP Plus+** slots from **" .. ((Guild and Guild.name) or "*Unknown*") .. "** (" .. guild .. ").")
+	utilityChannels.receipts:send(emojis.undo .. " **@" .. user.username .. "** (" .. user.id .. ") refunded one of their " .. emojis.duckyplus .. " **SCRP Plus+** slots from **" .. ((Guild and Guild.name) or "*Unknown*") .. "** (" .. guild .. ").")
 	saveLog("info", "plusRefund", {status = "success", user_id = tostring(user.id), guild_id = tostring(guild)})
 	return true, plus
 end
@@ -1256,10 +1256,10 @@ function sqldb:plusGift(user, targetUser)
 	local userActive, userPlus = sqldb:plusMember(user, true)
 	if (not userActive) or not userPlus then
 		saveLog("warning", "plusGift", {error = "gifting user does not have a Zeltra Plus+ subscription", user_id = user})
-		return false, "You do not have a TSRP Plus+ purchase."
+		return false, "You do not have a SCRP Plus+ purchase."
 	elseif userPlus.slots <= 0 then
 		saveLog("warning", "plusGift", {error = "gifting user does not have any Zeltra Plus+ slots available", user_id = user, available_slots = userPlus.slots})
-		return false, "You do not have any TSRP Plus+ slots available."
+		return false, "You do not have any SCRP Plus+ slots available."
 	end
 
 	local targetActive, targetPlus = sqldb:plusMember(targetUser, true)
@@ -1278,10 +1278,10 @@ function sqldb:plusGift(user, targetUser)
 	targetPlus.slots = targetPlus.slots + 1
 
 	if pondTarget and not pondTarget:hasRole("1267239172444262490") then
-		pondTarget:addRole("1267239172444262490", "received gifted TSRP Plus+ slot")
+		pondTarget:addRole("1267239172444262490", "received gifted SCRP Plus+ slot")
 	end
 	if userPlus.slots <= 0 and table.count(userPlus.guilds) <= 0 and pondUser and pondUser:hasRole("1267239172444262490") then
-		pondUser:removeRole("1267239172444262490", "gifted TSRP Plus+ slot")
+		pondUser:removeRole("1267239172444262490", "gifted SCRP Plus+ slot")
 	end
 
 	local success, err = sqldb:plusSet(targetUser, targetPlus)
@@ -2362,7 +2362,7 @@ function sqldb:getAllUserData(userId)
 	local plusSucc, plusInfo = sqldb:plusMember(userId)
 	if plusSucc and plusInfo then
 		userData.duckyplus = plusInfo
-		table.insert(output, "## **TSRP Plus**")
+		table.insert(output, "## **SCRP Plus**")
 		table.insert(output, "- Slots: " .. tostring(plusInfo.slots))
 		table.insert(output, "- Guilds: " .. table.concat(plusInfo.guilds or {}, ", "))
 	end

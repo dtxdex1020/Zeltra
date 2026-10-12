@@ -3,7 +3,7 @@
 
 	Rules for the Escalate button on ticket welcome cards: who counts as staff, someone's rank (their highest
 	staff role by position), which tiers they may escalate to, the cooldown, and permission overwrite math.
-	The settings live on the ticket panel (config.panels[id].escalation, see libs/zeltra-tickets-tsrp.lua).
+	The settings live on the ticket panel (config.panels[id].escalation, see libs/zeltra-tickets-scrp.lua).
 	Kept free of Discordia so it can be tested; the handler is in modules/server_management/tickets.lua.
 
 	Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).

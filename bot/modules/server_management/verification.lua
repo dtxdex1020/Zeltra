@@ -1,7 +1,7 @@
 -- verification.lua
 local verificationmodule = {
     name = "verificationmodule",
-    description = "Processes Roblox verification for Tennessee State Roleplay."
+    description = "Processes Roblox verification for South Carolina Roleplay."
 }
 
 local connections = {
@@ -97,7 +97,7 @@ verificationmodule.Start = function()
                                 components = discordia.Components():button({
                                     url = "https://github.com/dtxdex1020/Zeltra/issues",
                                     style = "link",
-                                    label = "TSRP Support",
+                                    label = "SCRP Support",
                                     emoji = resolvedEmojis.ducky
                                 }):raw()
                             })
@@ -143,9 +143,9 @@ verificationmodule.Start = function()
                                     content = emojis.pings .. " Your " .. emojis.roblox .. " **Roblox** profile, **" ..
                                         robloxUser.hyperlink ..
                                         "**, has been fetched from the **Bloxlink API**. Would like to have this profile saved on " ..
-                                        emojis.ducky .. " **Tennessee State Roleplay** as well?\n-# " .. emojis.right ..
+                                        emojis.ducky .. " **South Carolina Roleplay** as well?\n-# " .. emojis.right ..
                                         " By denying this request, your profile will not be stored nor processed by " ..
-                                        emojis.ducky .. " **Tennessee State Roleplay**.",
+                                        emojis.ducky .. " **South Carolina Roleplay**.",
                                     components = comps:raw()
                                 })
 
@@ -160,9 +160,9 @@ verificationmodule.Start = function()
                                             content = emojis.pings .. " Your " .. emojis.roblox ..
                                                 " **Roblox** profile, **" .. robloxUser.hyperlink ..
                                                 "**, has been fetched from the **Bloxlink API**. Would like to have this profile saved on " ..
-                                                emojis.ducky .. " **Tennessee State Roleplay** as well?\n-# " .. emojis.right ..
+                                                emojis.ducky .. " **South Carolina Roleplay** as well?\n-# " .. emojis.right ..
                                                 " By denying this request, your profile will not be stored nor processed by " ..
-                                                emojis.ducky .. " **Tennessee State Roleplay**.",
+                                                emojis.ducky .. " **South Carolina Roleplay**.",
                                             components = comps:raw()
                                         })
                                     end
@@ -240,7 +240,7 @@ verificationmodule.Start = function()
                             components = discordia.Components():button({
                                 url = "https://github.com/dtxdex1020/Zeltra/issues",
                                 style = "link",
-                                label = "TSRP Support",
+                                label = "SCRP Support",
                                 emoji = resolvedEmojis.ducky
                             }):raw()
                         })
@@ -258,7 +258,7 @@ verificationmodule.Start = function()
                 local member = guild:getMember(user.id)
 
                 if member then
-                    updateMember(member, "user linked with Tennessee State Roleplay")
+                    updateMember(member, "user linked with South Carolina Roleplay")
                 end
             end
         end
@@ -270,7 +270,7 @@ verificationmodule.Start = function()
                 local member = guild:getMember(user.id)
 
                 if member then
-                    updateMember(member, "user unlinked from Tennessee State Roleplay")
+                    updateMember(member, "user unlinked from South Carolina Roleplay")
                 end
             end
         end

@@ -1,6 +1,6 @@
 local MAINTENANCE = {
 	status = "🔨 ・ Ongoing maintenance",
-	message = "<:ducky:1259003248266711081> **Tennessee State Roleplay** is currently under maintenance for a **stability**. This interaction is unavailable at this time. There is **no ETA**."
+	message = "<:ducky:1259003248266711081> **South Carolina Roleplay** is currently under maintenance for a **stability**. This interaction is unavailable at this time. There is **no ETA**."
 }
 
 local startl = 0
@@ -388,8 +388,8 @@ _G.colors = {
 	error = 0xB51A00, -- alias for heavyred
 	duckypluspink = 0xFF54F9,
 	pink = 0xFF54F9, -- alias for duckypluspink
-	duckyyellow = 0x2E9BFF,
-	yellow = 0x2E9BFF, -- alias for duckyyellow
+	duckyyellow = 0xFF6A00,
+	yellow = 0xFF6A00, -- alias for duckyyellow
 	pond = 0x38B6FF
 }
 
@@ -415,7 +415,7 @@ Client:on("messageCreate", function(message)
         message:reply({
 			embed = {
 				color = colors.yellow,
-				description = MAINTENANCE.message or "Tennessee State Roleplay is currently under maintenance, join [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
+				description = MAINTENANCE.message or "South Carolina Roleplay is currently under maintenance, join [**SCRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
 			}
 		})
     end
@@ -425,7 +425,7 @@ Client:on("slashCommand", function(interaction)
     interaction:reply({
 		embed = {
 			color = colors.yellow,
-			description = MAINTENANCE.message or "Tennessee State Roleplay is currently under maintenance, join [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
+			description = MAINTENANCE.message or "South Carolina Roleplay is currently under maintenance, join [**SCRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
 		}
 	}, true)
 end)
@@ -434,7 +434,7 @@ Client:on("interactionCreate", function(interaction)
     interaction:reply({
 		embed = {
 			color = colors.yellow,
-			description = MAINTENANCE.message or "Tennessee State Roleplay is currently under maintenance, join [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
+			description = MAINTENANCE.message or "South Carolina Roleplay is currently under maintenance, join [**SCRP Support**](https://github.com/dtxdex1020/Zeltra/issues) for updates."
 		}
 	}, true)
 end)

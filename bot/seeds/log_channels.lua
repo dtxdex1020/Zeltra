@@ -2,7 +2,7 @@
 	Zeltra one-time seed (added by Zeltra; not part of upstream Ducky V1).
 
 	Points the bot's infraction and promotion logs at #infractions and #promotions in
-	Tennessee State Roleplay. Only runs when SEED_LOG_CHANNELS=1, and only writes a key
+	South Carolina Roleplay. Only runs when SEED_LOG_CHANNELS=1, and only writes a key
 	that is unset or points at a channel that no longer exists, so running it again is
 	harmless. Only `infractionschannel` and `promotionschannel` are written.
 

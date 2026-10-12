@@ -1,7 +1,7 @@
 --[[
 	Zeltra one-time seed (added by Zeltra; not part of upstream Ducky V1).
 
-	Adds infraction types for Tennessee State Roleplay, one per punishment role, ordered by
+	Adds infraction types for South Carolina Roleplay, one per punishment role, ordered by
 	severity. Only runs when SEED_INFRACTION_TYPES=1, and only writes if the guild has zero
 	infraction types, so running it again is harmless. Only the `infractiontypes` key is
 	written; no other guild config is touched.

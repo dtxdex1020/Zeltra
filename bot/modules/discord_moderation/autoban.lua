@@ -34,20 +34,20 @@ autoban.Start = function()
 
             if success then
                 if ownerDM then
-                    ownerDM:send("# " .. emojis.protect .. " Server Protected\n\nDucky has automatically banned a raid bot from your server, **" .. guild.name .. "**.\n\nThis bot has been identified as a potential threat, commonly used in raids or server destruction.\nThe details of the bot are as follows:\n" .. emojis.right .. " **Bot Name:** " .. member.name .. "\n" .. emojis.right .. " **Bot ID:** `" .. member.id .. "`\n\nTo investigate further, please review your server's audit logs and filter by **Add Bot** to find who added it.\n-# " .. emojis.warning .. " It’s possible that the person who added this bot was tricked into doing so. Ensure to inform them and remind your community to be cautious when inviting bots.\n\nFor more information about this bot, join our [support server](<https://github.com/dtxdex1020/Zeltra/issues>), and review this message: https://discord.com/channels/1228508072289370172/1258891659874144256/1327051844496785408.\n\n*Thank you for choosing " .. emojis.ducky .. " **Tennessee State Roleplay**.*")
+                    ownerDM:send("# " .. emojis.protect .. " Server Protected\n\nDucky has automatically banned a raid bot from your server, **" .. guild.name .. "**.\n\nThis bot has been identified as a potential threat, commonly used in raids or server destruction.\nThe details of the bot are as follows:\n" .. emojis.right .. " **Bot Name:** " .. member.name .. "\n" .. emojis.right .. " **Bot ID:** `" .. member.id .. "`\n\nTo investigate further, please review your server's audit logs and filter by **Add Bot** to find who added it.\n-# " .. emojis.warning .. " It’s possible that the person who added this bot was tricked into doing so. Ensure to inform them and remind your community to be cautious when inviting bots.\n\nFor more information about this bot, join our [support server](<https://github.com/dtxdex1020/Zeltra/issues>), and review this message: https://discord.com/channels/1228508072289370172/1258891659874144256/1327051844496785408.\n\n*Thank you for choosing " .. emojis.ducky .. " **South Carolina Roleplay**.*")
                 end
             else
                 if ownerDM then
                     ownerDM:send(
                         "# " .. emojis.error .. " Action Required\n\n" ..
-                        "Tennessee State Roleplay attempted to ban a **raid bot** from your server, **" .. guild.name .. "**, but the action failed, likely due to insufficient permissions.\n\n" ..
+                        "South Carolina Roleplay attempted to ban a **raid bot** from your server, **" .. guild.name .. "**, but the action failed, likely due to insufficient permissions.\n\n" ..
                         "This bot poses a serious threat as it is commonly used in raids or server destruction.\n" ..
                         "The details of the bot are as follows:\n" ..
                         emojis.right .. " **Bot Name:** " .. member.name .. "\n" ..
                         emojis.right .. " **Bot ID:** `" .. member.id .. "`\n\n" ..
                         "Please manually ban this bot immediately to secure your server.\n\n" ..
                         "Error Details: ```" .. tostring(err) .. "```\n\n" ..
-                        "*Thank you for choosing " .. emojis.ducky .. " **Tennessee State Roleplay**.*"
+                        "*Thank you for choosing " .. emojis.ducky .. " **South Carolina Roleplay**.*"
                     )
                 end
             end

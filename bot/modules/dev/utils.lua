@@ -86,7 +86,7 @@ _G.errCodes = {
 	[50068] = "Invalid emoji used.\n-# " .. emojis.right .. " **HTTP Error:** `50068`",
 	[50070] = "Reaction blocked. The user disabled DMs or reactions.\n-# " .. emojis.right .. " **HTTP Error:** `50070`",
 	[50073] = "This action cannot be performed due to age restrictions.\n-# " .. emojis.right .. " **HTTP Error:** `50073`",
-	[50278] = "The user could not be messaged because Tennessee State Roleplay shares no mutual guilds with them or they have DMs disabled.\n-# " .. emojis.right .. " **HTTP Error:** `50278`"
+	[50278] = "The user could not be messaged because South Carolina Roleplay shares no mutual guilds with them or they have DMs disabled.\n-# " .. emojis.right .. " **HTTP Error:** `50278`"
 }
 
 _G.words = {
@@ -3631,7 +3631,7 @@ utils.Start = function()
 						prompt(eia, "Import from JSON or Exportable", {
 							{
 								question = "Import Data",
-								placeholder = "Enter a valid Tennessee State Roleplay exportable code or JSON data...",
+								placeholder = "Enter a valid South Carolina Roleplay exportable code or JSON data...",
 								style = "paragraph",
 								required = false
 							}
@@ -3995,7 +3995,7 @@ utils.Start = function()
 					prompt(meia, "Import from JSON or Exportable", {
 						{
 							question = "Import Data",
-							placeholder = "Enter a valid Tennessee State Roleplay exportable code or JSON data...",
+							placeholder = "Enter a valid South Carolina Roleplay exportable code or JSON data...",
 							style = "paragraph",
 							required = false
 						}
@@ -4259,7 +4259,7 @@ utils.Start = function()
 						},
 						{
 							question = "What emoji should the button have?",
-							placeholder = "Either a Tennessee State Roleplay emoji name or an emoji ID...",
+							placeholder = "Either a South Carolina Roleplay emoji name or an emoji ID...",
 							style = "short",
 							required = false,
 							max = 30,
@@ -4302,7 +4302,7 @@ utils.Start = function()
 						})
 					else
 						table.insert(questions, {
-							question = "What exportable should Tennessee State Roleplay reply with?",
+							question = "What exportable should South Carolina Roleplay reply with?",
 							style = "short",
 							required = false,
 							max = 31,
@@ -4336,7 +4336,7 @@ utils.Start = function()
 							end
 						end
 
-						local exportableInput = responses["What exportable should Tennessee State Roleplay reply with?"]
+						local exportableInput = responses["What exportable should South Carolina Roleplay reply with?"]
 
 						if not isDisabled and opt ~= "link" then
 							if not exportableInput or exportableInput == "" then
@@ -4615,14 +4615,14 @@ utils.Start = function()
 									},
 									{
 										question = "What emoji should the option have?",
-										placeholder = "Either a Tennessee State Roleplay emoji name or an emoji ID...",
+										placeholder = "Either a South Carolina Roleplay emoji name or an emoji ID...",
 										style = "short",
 										required = false,
 										max = 30
 									},
 									{
-										question = "What exportable should Tennessee State Roleplay reply with?",
-										placeholder = "Which exportable should Tennessee State Roleplay reply with?",
+										question = "What exportable should South Carolina Roleplay reply with?",
+										placeholder = "Which exportable should South Carolina Roleplay reply with?",
 										style = "short",
 										required = true,
 										max = 31
@@ -4654,7 +4654,7 @@ utils.Start = function()
 												end
 											end
 
-											local exportableInput = responses["What exportable should Tennessee State Roleplay reply with?"]
+											local exportableInput = responses["What exportable should South Carolina Roleplay reply with?"]
 											local exportable = exportableInput and import(exportableInput, nil, true)
 											if exportableInput and (not exportable or (exportable.type ~= "embed" and exportable.type ~= "message") and (exportable.type ~= "embeds")) then
 												mia:fail("You must provide a valid Embed or Message exportable.", nil, true)
@@ -4696,15 +4696,15 @@ utils.Start = function()
 												},
 												{
 													question = "What emoji should the option have?",
-													placeholder = "Either a Tennessee State Roleplay emoji name, or the id of a custom emoji on this server.",
+													placeholder = "Either a South Carolina Roleplay emoji name, or the id of a custom emoji on this server.",
 													style = "short",
 													required = false,
 													max = 30,
 													default = opt.emoji and ((emojis[opt.emoji.name] and opt.emoji.name) or opt.emoji.id)
 												},
 												{
-													question = "What exportable should Tennessee State Roleplay reply with?",
-													placeholder = "What exportable should Tennessee State Roleplay reply the option is selected.",
+													question = "What exportable should South Carolina Roleplay reply with?",
+													placeholder = "What exportable should South Carolina Roleplay reply the option is selected.",
 													style = "short",
 													required = true,
 													max = 31,
@@ -4736,7 +4736,7 @@ utils.Start = function()
 													end
 												end
 
-												local exportableInput = responses["What exportable should Tennessee State Roleplay reply with?"]
+												local exportableInput = responses["What exportable should South Carolina Roleplay reply with?"]
 												local exportable = exportableInput and import(exportableInput, nil, true)
 												if exportableInput and (not exportable or (exportable.type ~= "embed" and exportable.type ~= "message") and (exportable.type ~= "embeds")) then
 													mia:fail("You must provide a valid Embed or Message exportable.", nil, true)
@@ -6162,14 +6162,14 @@ utils.Start = function()
 		end
 
 		if not guild.me:hasPermission("manageRoles") then
-			return false, "Tennessee State Roleplay does not have the Manage Roles permission."
+			return false, "South Carolina Roleplay does not have the Manage Roles permission."
 		end
 
 		local highest = guild.me.highestRole
 		if not highest then
-			return false, "Cannot determine Tennessee State Roleplay's highest role."
+			return false, "Cannot determine South Carolina Roleplay's highest role."
 		elseif highest.position <= role.position then
-			return false, "Tennessee State Roleplay's highest role must be higher than the target role."
+			return false, "South Carolina Roleplay's highest role must be higher than the target role."
 		end
 
 		if member and member.id ~= guild.ownerId and not (_G.isPrivileged and _G.isPrivileged(member)) then
@@ -6215,7 +6215,7 @@ utils.Start = function()
 			local theirHighest = member.highestRole
 			if myHighest and theirHighest and myHighest.position <= theirHighest.position then
 				local targetName = (member.user and member.user.username) or member.name or member.id
-				return false, "My role is below **" .. targetName .. "**'s highest role (" .. theirHighest.mentionString .. "). Move the **Tennessee State Roleplay** role higher in **Server Settings > Roles**."
+				return false, "My role is below **" .. targetName .. "**'s highest role (" .. theirHighest.mentionString .. "). Move the **South Carolina Roleplay** role higher in **Server Settings > Roles**."
 			end
 		end
 
@@ -6535,12 +6535,12 @@ utils.Start = function()
 
 		if not table.find(recentNotifications, identifierKey) then
 			owner:send({
-				content = "## " .. emojis.warning .. " " .. title .. " Removed\n" .. emojis.right .. " The **" .. title .. "** in your server, **" .. guild.name .. "**, has been removed because " .. reason .. "\n\n" .. emojis.right .. " To reconfigure this, navigate to the **" .. setupPosition .. "** page via **`/setup`** and reconfigure the **" .. title .. "**.\n" .. emojis.right .. " If you need further assistance, contact us via our support server, " .. emojis.ducky .. " [**TSRP Support**](https://github.com/dtxdex1020/Zeltra/issues).",
+				content = "## " .. emojis.warning .. " " .. title .. " Removed\n" .. emojis.right .. " The **" .. title .. "** in your server, **" .. guild.name .. "**, has been removed because " .. reason .. "\n\n" .. emojis.right .. " To reconfigure this, navigate to the **" .. setupPosition .. "** page via **`/setup`** and reconfigure the **" .. title .. "**.\n" .. emojis.right .. " If you need further assistance, contact us via our support server, " .. emojis.ducky .. " [**SCRP Support**](https://github.com/dtxdex1020/Zeltra/issues).",
 
 				components = discordia.Components():button({
 					url = "https://github.com/dtxdex1020/Zeltra/issues",
 					style = "link",
-					label = "TSRP Support",
+					label = "SCRP Support",
 					emoji = resolvedEmojis.ducky
 				}):raw()
 			})
@@ -6703,7 +6703,7 @@ utils.Start = function()
 						return true
 					end
 				elseif (not exceeding and amount >= normalLimit) or (amount > normalLimit) then
-					fail("You have already created " .. amount .. "/" .. normalLimit .. " " .. item .. ".\n-# " .. emojis.right .. " You can create up to " .. duckyPlusLimit .. " " .. item .. " with " .. emojis.duckyplus .. " **TSRP Plus+**.")
+					fail("You have already created " .. amount .. "/" .. normalLimit .. " " .. item .. ".\n-# " .. emojis.right .. " You can create up to " .. duckyPlusLimit .. " " .. item .. " with " .. emojis.duckyplus .. " **SCRP Plus+**.")
 					return true
 				end
 			else
@@ -6713,7 +6713,7 @@ utils.Start = function()
 						return true
 					end
 				else
-					fail(item .. " is a " .. emojis.duckyplus .. " **TSRP Plus+** only feature.")
+					fail(item .. " is a " .. emojis.duckyplus .. " **SCRP Plus+** only feature.")
 					return true
 				end
 			end
@@ -6995,7 +6995,7 @@ utils.Start = function()
 			["1388258365976612894"] = "Stable",
 			["1284586408945647727"] = "Dev",
 			["1305166672172417157"] = "Experimental"
-		})[Client.user.id] or "TSRP" -- short runtime label for this application
+		})[Client.user.id] or "SCRP" -- short runtime label for this application
 	end
 
 	_G.runtime = runtime
@@ -7003,7 +7003,7 @@ utils.Start = function()
 	local function updateActivity(state, status)
 		Client:setActivity({
 			name = "statistics",
-			state = state or "⚡ Powering Tennessee State Roleplay",
+			state = state or "⚡ Powering South Carolina Roleplay",
 			type = 4
 		})
 

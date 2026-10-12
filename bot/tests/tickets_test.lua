@@ -1,8 +1,8 @@
 -- Run from bot/: ./luvit tests/tickets_test.lua
--- Zeltra: checks the TSRP ticket hub data (libs/zeltra-tickets-tsrp.lua) and drives Ducky's ticket handler
+-- Zeltra: checks the SCRP ticket hub data (libs/zeltra-tickets-scrp.lua) and drives Ducky's ticket handler
 -- (modules/server_management/tickets.lua) with fake Discord objects: open every ticket type, claim, escalate, close.
 -- Licensed under AGPL-3.0 as part of Zeltra (a modified version of Ducky V1 by duckyerlc).
-local T = require("../libs/zeltra-tickets-tsrp")
+local T = require("../libs/zeltra-tickets-scrp")
 
 local passed, failed = 0, 0
 local function check(name, cond)
