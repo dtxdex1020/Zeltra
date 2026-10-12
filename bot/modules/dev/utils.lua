@@ -7003,7 +7003,7 @@ utils.Start = function()
 	local function updateActivity(state, status)
 		Client:setActivity({
 			name = "statistics",
-			state = state or "⚡ Powering South Carolina Roleplay",
+			state = state or "❄️ Powering South Carolina Roleplay all day, every day",
 			type = 4
 		})
 

@@ -1021,7 +1021,7 @@ Client:once("ready", function()
 	print("Setting activity...")
 	print("Authenticated as " .. tostring(Client.user.username) .. "#" .. tostring(Client.user.discriminator) .. " (" .. tostring(Client.user.id) .. ")")
 	updateActivity()
-	print("Presence set to: ⚡ Powering South Carolina Roleplay")
+	print("Presence set to: ❄️ Powering South Carolina Roleplay all day, every day")
 
 	print("Setting utility channels...")
 
