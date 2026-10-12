@@ -41,10 +41,10 @@ M.ROLES = {
 	relations = "1522997818363740167", -- SCRP I Director of Relations
 	depthead = "1522997818560741473", -- SCRP | Department Head
 	thp = "1522997818560741476", -- South Carolina Highway Patrol: High Command
-	dcso = "1522997818610942105", -- Davidson County Sheriff's Office: High Command
-	npd = "1522997818610942110", -- NPD | High Command
-	nfd = "1522997818648694868", -- NFD | High Command
-	tdot = "1522997818648694873", -- SCDOT | High Command
+	dcso = "1522997818610942105", -- York County Sheriff's Office: High Command
+	npd = "1522997818610942110", -- FMPD | High Command
+	nfd = "1522997818648694868", -- FMFD | High Command
+	tdot = "1522997818648694873", -- FMDOT | High Command
 	owner = "1522997818330058781", -- SCRP | Owner
 	coowner = "1522997818363740160", -- SCRP | Co-Owner
 	aowner = "1522997818363740161", -- SCRP | Assistant Owner
@@ -130,10 +130,10 @@ M.TYPES = {
 				"Date", "Why it should be removed" }),
 	},
 	{
-		key = "department", line = "Questions, applications or transfers for SCHP, DCSO, NPD, NFD or SCDOT.", name = "Departments", emoji = "🏢", prefix = "dept",
+		key = "department", line = "Questions, applications or transfers for SCHP, YCSO, FMPD, FMFD or FMDOT.", name = "Departments", emoji = "🏢", prefix = "dept",
 		description = "Department questions and applications",
 		bullets = {
-			"Questions about SCHP, DCSO, NPD, NFD or SCDOT",
+			"Questions about SCHP, YCSO, FMPD, FMFD or FMDOT",
 			"Department applications and transfers",
 			"Anything else department related",
 		},
