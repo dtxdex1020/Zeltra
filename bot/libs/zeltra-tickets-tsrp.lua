@@ -16,8 +16,8 @@ M.PANEL_CHANNEL = "1522997820116697226" -- 「📬」assistance
 M.LOG_CHANNEL = "1522997828127948838" -- 「📁」ticket-logs (Log's)
 M.COLOR = 3054591 -- sky blue, same as the server's other panels
 M.LOGO = "<:tsrp_logo:1558645723527127122>"
-M.BANNER = "banner-assistance.jpg"
-M.STRIP = "strip.jpg"
+M.BANNER = "banner-assistance-v2.jpg"
+M.STRIP = "strip-assistance.jpg"
 
 M.CATEGORIES = {
 	general = "1522997826462810194", -- ☰ General Assistance
@@ -78,7 +78,7 @@ end
 -- name, emoji, short description (dropdown), bullets (panel), category, support roles, pinged roles, ticket prefix, welcome card
 M.TYPES = {
 	{
-		key = "general", name = "General Support", emoji = "❓", prefix = "general",
+		key = "general", line = "Questions about the server, prize redemption, perks or help in game.", name = "General Support", emoji = "❓", prefix = "general",
 		description = "Questions, prize redemption and in-game help",
 		bullets = {
 			"Questions about the server or the Discord",
@@ -91,7 +91,7 @@ M.TYPES = {
 			{ "Roblox username", "What do you need help with", "Screenshots or extra details (if any)" }),
 	},
 	{
-		key = "report", name = "Member Report", emoji = "🛑", prefix = "report",
+		key = "report", line = "Report a member who broke the rules. Clips or screenshots are required.", name = "Member Report", emoji = "🛑", prefix = "report",
 		description = "Report a member breaking the rules (proof required)",
 		bullets = {
 			"Report a member breaking the rules in-game or in Discord",
@@ -105,7 +105,7 @@ M.TYPES = {
 			"**No proof means this ticket will be closed.**"),
 	},
 	{
-		key = "staffreport", name = "Staff Report", emoji = "🕵️", prefix = "staff-report",
+		key = "staffreport", line = "Report a staff member. This goes privately to the High Rank team.", name = "Staff Report", emoji = "🕵️", prefix = "staff-report",
 		description = "Report a staff member to the High Rank team",
 		bullets = {
 			"Report a staff member for abuse or breaking the rules",
@@ -117,7 +117,7 @@ M.TYPES = {
 			{ "Your Roblox username", "Staff member's name", "What happened", "Date and time", "Proof (clips or screenshots)" }),
 	},
 	{
-		key = "appeal", name = "Appeals", emoji = "📝", prefix = "appeal",
+		key = "appeal", line = "Ask for an in-game or Discord moderation to be looked at again.", name = "Appeals", emoji = "📝", prefix = "appeal",
 		description = "Appeal an in-game or Discord moderation",
 		bullets = {
 			"Appeal an in-game or Discord moderation",
@@ -130,7 +130,7 @@ M.TYPES = {
 				"Date", "Why it should be removed" }),
 	},
 	{
-		key = "department", name = "Departments", emoji = "🏢", prefix = "dept",
+		key = "department", line = "Questions, applications or transfers for THP, DCSO, NPD, NFD or TDOT.", name = "Departments", emoji = "🏢", prefix = "dept",
 		description = "Department questions and applications",
 		bullets = {
 			"Questions about THP, DCSO, NPD, NFD or TDOT",
@@ -142,7 +142,7 @@ M.TYPES = {
 			{ "Roblox username", "Which department", "Your question or application", "Extra details" }),
 	},
 	{
-		key = "ads", name = "Paid Ads & Affiliates", emoji = "🤝", prefix = "ads",
+		key = "ads", line = "Partnership requests and paid ad or paid giveaway redemption.", name = "Paid Ads & Affiliates", emoji = "🤝", prefix = "ads",
 		description = "Partnerships and paid ad redemption",
 		bullets = {
 			"Partnership and affiliation requests",
@@ -153,7 +153,7 @@ M.TYPES = {
 			{ "Server or brand name", "Affiliation or paid ad redemption", "Invite link", "Proof of payment (if redeeming)" }),
 	},
 	{
-		key = "highrank", name = "High Rank Report", emoji = "💼", prefix = "hr-report",
+		key = "highrank", line = "Report a High Rank or above. Goes to senior leadership, proof required.", name = "High Rank Report", emoji = "💼", prefix = "hr-report",
 		description = "Report a High Rank or above (proof required)",
 		bullets = {
 			"Only for reporting High Rank members and above",
@@ -166,7 +166,7 @@ M.TYPES = {
 			"**No proof means this ticket will be closed right away.**"),
 	},
 	{
-		key = "ownership", name = "Ownership Support", emoji = "👑", prefix = "ownership",
+		key = "ownership", line = "Serious matters that need ownership. Use another type if one fits.", name = "Ownership Support", emoji = "👑", prefix = "ownership",
 		description = "Important matters for ownership",
 		bullets = {
 			"Important matters that need ownership",
@@ -286,21 +286,14 @@ function M.number(n)
 	return string.format("%04d", tonumber(n) or 0)
 end
 
-local function sectionText(t)
-	local lines = { "### " .. t.emoji .. " " .. t.name }
-	for _, b in ipairs(t.bullets) do table.insert(lines, "- " .. b) end
-	return table.concat(lines, "\n")
-end
-
 --- The #assistance panel as a Components V2 message (banner and strip are uploaded as attachments).
 function M.panelPayload()
 	local sections = {}
-	for _, t in ipairs(M.TYPES) do table.insert(sections, sectionText(t)) end
+	for _, t in ipairs(M.TYPES) do table.insert(sections, "**" .. t.name .. "**\n-# " .. t.line) end
 	local options = {}
 	for i, t in ipairs(M.TYPES) do
 		table.insert(options, { label = t.name, value = tostring(i), description = t.description, emoji = { name = t.emoji } })
 	end
-	local half = math.ceil(#sections / 2)
 	return {
 		flags = 32768,
 		allowed_mentions = { parse = {} },
@@ -309,25 +302,20 @@ function M.panelPayload()
 			accent_color = M.COLOR,
 			components = {
 				{ type = 12, items = { { media = { url = "attachment://" .. M.BANNER } } } },
-				{ type = 10, content = "## " .. M.LOGO .. " TSRP Ticket Hub\n"
-					.. "Please read this before you open a ticket. Tickets that ignore these rules can be closed without warning, and troll tickets will be moderated. "
-					.. "Once your ticket opens, follow the format the bot gives you." },
+				{ type = 10, content = "## " .. M.LOGO .. " | Support\n"
+					.. "> Welcome to the **Tennessee State Roleplay** support menu. If you need help, open a ticket to reach a staff member. "
+					.. "Pick the right ticket type before you submit." },
+				{ type = 10, content = table.concat(sections, "\n\n") },
 				{ type = 14, divider = true, spacing = 1 },
-				{ type = 10, content = table.concat(sections, "\n", 1, half) },
-				{ type = 10, content = table.concat(sections, "\n", half + 1) },
-				{ type = 14, divider = true, spacing = 1 },
-				{ type = 10, content = "### Before you open one\n- One ticket per issue, and explain it clearly.\n- Pick the right type so the right team sees it.\n- Don't ping staff to speed things up." },
 				{ type = 1, components = { {
 					type = 3,
 					custom_id = "subjectselect",
-					placeholder = "Click here to find ticket options",
+					placeholder = "Request Assistance",
 					min_values = 0,
 					max_values = 1,
 					options = options,
 				} } },
-				{ type = 14, divider = true, spacing = 1 },
 				{ type = 12, items = { { media = { url = "attachment://" .. M.STRIP } } } },
-				{ type = 10, content = "-# Tennessee State Roleplay" },
 			},
 		} },
 	}

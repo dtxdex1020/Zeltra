@@ -52,7 +52,7 @@ end
 find(payload)
 check("panel is Components V2", payload.flags == 32768 and payload.components[1].type == 17 and payload.components[1].accent_color == T.COLOR)
 check("panel select uses the ticket handler id", select and select.custom_id == "subjectselect")
-check("dropdown placeholder", select and select.placeholder == "Click here to find ticket options")
+check("dropdown placeholder", select and select.placeholder == "Request Assistance")
 check("8 dropdown options with emoji", select and #select.options == 8 and select.options[1].emoji.name == "❓")
 local valuesOk = true
 for i, o in ipairs(select.options) do
