@@ -170,7 +170,7 @@ local function palette()
 	return {
 		success = c.success or 0x66FF66,
 		fail = c.fail or 0xFF6666,
-		warning = c.warning or 0xFFC72B,
+		warning = c.warning or 0xFF6A00,
 		info = c.info or 0xFF6A00,
 		loading = c.info or 0xFF6A00,
 		heavyred = c.heavyred or 0xB51A00,
@@ -186,6 +186,8 @@ end
 
 local function buildPayload(kind, text, emoji)
 	local prefix = emoji
+	-- error and warning replies are plain text, no emoji in front
+	if kind == "fail" or kind == "heavyred" or kind == "warning" then prefix = "" end
 	if prefix == nil or type(prefix) ~= "string" then prefix = emojiFor(kind) end
 	local desc = tostring(text or "")
 	if prefix ~= "" then desc = prefix .. " " .. desc end
@@ -214,7 +216,8 @@ local kinds = { "success", "fail", "warning", "loading", "info", "heavyred" }
 local function install(class, sender)
 	if not class then return end
 	for _, kind in ipairs(kinds) do
-		if rawget(class, kind) == nil then
+		-- fail/warning/heavyred are always replaced so error replies come out plain (no emoji)
+		if rawget(class, kind) == nil or kind == "fail" or kind == "warning" or kind == "heavyred" then
 			class[kind] = function(self, text, a, b)
 				local emoji, ephemeral = parseArgs(a, b)
 				return sender(self, buildPayload(kind, text, emoji), ephemeral)

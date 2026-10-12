@@ -52,13 +52,13 @@ return function(Client, sqldb, timer)
 		say("posted panel " .. msg.id .. " in #" .. channel.name)
 	end
 
-	panels[messageId] = { key = S.PANEL_KEY, channel = S.PANEL_CHANNEL, subjects = subjects }
+	panels[messageId] = { key = S.PANEL_KEY, channel = S.PANEL_CHANNEL, subjects = subjects, escalation = S.escalation() }
 	local ok, err = sqldb:set(S.GUILD_ID, { panels = panels }, "SEED_SHOP")
 	if not ok then return say("could not save panels: " .. tostring(err)) end
 	if timer then timer.sleep(2000) end
 	local fresh = sqldb:get(S.GUILD_ID, true) or {}
 	local saved = fresh.panels and fresh.panels[messageId]
-	if saved and saved.subjects and #saved.subjects == #S.ITEMS then
+	if saved and saved.subjects and #saved.subjects == #S.ITEMS and saved.escalation then
 		say("verified panel " .. messageId .. " with " .. #saved.subjects .. " items")
 	else
 		say("warning: panel not found in the database after saving")

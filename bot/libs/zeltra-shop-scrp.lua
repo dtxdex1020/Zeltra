@@ -21,6 +21,8 @@ M.BANNER = "banner-shop.jpg"
 M.STRIP = "strip.jpg"
 M.PAYMENT = "PayPal only"
 
+M.DEX = "1307878235383795732" -- Dex (Shark), the only person who handles shop tickets and payments
+
 M.ROLES = {
 	shr = "1522997818447626452", -- SCRP I Senior High Rank
 	relations = "1522997818363740167", -- SCRP I Director of Relations
@@ -50,8 +52,8 @@ function M.openCard(item)
 		title = "Shop order: " .. item.name,
 		description = "Thanks, {opener.mention}. You picked **" .. item.name .. "** for **" .. M.price(item) .. "**.\n\n"
 			.. "Payment is **PayPal only**. We don't take Robux, gift cards or crypto for shop items. "
-			.. "A member of the relations team will post the PayPal details in this ticket. Only pay through the details given here, "
-			.. "never to someone who DMs you.\n\n"
+			.. "**Dex (<@" .. M.DEX .. ">) is the only person who handles shop tickets and payments.** He will post the PayPal details in this ticket. "
+			.. "Only pay Dex through the details given here, never anyone else and never someone who DMs you.\n\n"
 			.. "**Copy this and fill it in:**\n> **Roblox username:**\n> **Item:** " .. item.name .. "\n> **Anything we should know:**"
 			.. "\n\n-# Ticket {ticket.number} · Please don't ping staff, someone will be with you soon.",
 		color = M.COLOR,
@@ -67,7 +69,8 @@ function M.subjects()
 			key = "shop-" .. item.key,
 			category = M.CATEGORY,
 			support = { M.ROLES.shr, M.ROLES.relations },
-			mentionables = { M.ROLES.relations },
+			mentionables = { M.DEX, M.ROLES.relations },
+			supportusers = { M.DEX },
 			transcriptschannel = M.LOG_CHANNEL,
 			ticketname = item.prefix .. "-{ticket.number}",
 			ticketclaimmode = "lock",
@@ -82,6 +85,16 @@ function M.subjects()
 		})
 	end
 	return out
+end
+
+-- Escalation for shop tickets: straight to Ownership only.
+function M.escalation()
+	local T = require("zeltra-tickets-scrp")
+	local esc = T.escalation()
+	local keep = {}
+	for _, t in ipairs(esc.tiers) do if t.key == "ownership" then keep[#keep + 1] = t end end
+	esc.tiers = keep
+	return esc
 end
 
 function M.mergeSubjects(fresh, old)

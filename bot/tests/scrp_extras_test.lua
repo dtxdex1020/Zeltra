@@ -36,5 +36,16 @@ check("denied cooldown blocks", ok == false and why:find("<t:200:R>"))
 check("cooldown over", A.canApply({ cooldowns = { ["1"] = 50 } }, "1", 100) == true)
 check("pending blocks", A.canApply({ pending = { ["1"] = 90 } }, "1", 100) == false)
 
+
+do
+	local Shop = require("../libs/zeltra-shop-scrp")
+	local sub = Shop.subjects()[1]
+	check("shop ticket pings Dex", sub.mentionables[1] == "1307878235383795732")
+	check("Dex can see shop tickets", sub.supportusers[1] == "1307878235383795732")
+	check("card says Dex handles shop tickets and payments", sub.embeds.open[1].description:find("only person who handles shop tickets and payments", 1, true) ~= nil)
+	local esc = Shop.escalation()
+	check("shop escalation goes to Ownership only", #esc.tiers == 1 and esc.tiers[1].key == "ownership")
+	check("shop escalation has staff role and cooldown", esc.staffrole ~= nil and esc.cooldown == 120)
+end
 print(("\n%d passed, %d failed"):format(passed, failed))
 if failed > 0 then process:exit(1) end
