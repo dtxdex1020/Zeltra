@@ -2559,6 +2559,8 @@ return {
 								end
 
 								local webhook, err = channel:createWebhook("South Carolina Roleplay", "for South Carolina Roleplay's audit logging module")
+
+								if webhook then pcall(function() webhook:setAvatar("images/scrp-icon.png") end) end
 								if not webhook then
 									return ia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure South Carolina Roleplay has the right permissions, and contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) for assistance.", nil, true)
 								end
@@ -2625,6 +2627,7 @@ return {
 
 									if not existingWebhook then
 										local webhook, err = channel:createWebhook("South Carolina Roleplay", "for South Carolina Roleplay's audit logging module (" .. auditlabel .. ")")
+										if webhook then pcall(function() webhook:setAvatar("images/scrp-icon.png") end) end
 										if not webhook then
 											return oia:fail("Failed to create a webhook.\n-# " .. emojis.right .. " Make sure South Carolina Roleplay has the right permissions, and contact our [support server](https://github.com/dtxdex1020/Zeltra/issues) for assistance.", nil, true)
 										end

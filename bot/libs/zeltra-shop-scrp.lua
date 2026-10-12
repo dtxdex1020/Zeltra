@@ -75,7 +75,7 @@ function M.subjects()
 				open = M.openCard(item),
 				close = { { title = "Ticket Closed", description = "> This ticket was closed by {closer.mention}.\n> **Reason:** {reason}", color = 0xFF6666 } },
 				claim = { { title = "Ticket Claimed", description = "> {claimer.mention} will be handling your order.", color = 0x66FF66 } },
-				unclaim = { { title = "Ticket Unclaimed", description = "> {unclaimer.mention} unclaimed this ticket.\n> -# Someone else will be with you soon.", color = 0xFFC72B } },
+				unclaim = { { title = "Ticket Unclaimed", description = "> {unclaimer.mention} unclaimed this ticket.\n> -# Someone else will be with you soon.", color = 0xFF6A00 } },
 				request = { { title = "Close Request", description = "> {requester.mention} would like to close this ticket.\n> **Reason:** {reason}", color = M.COLOR } },
 			},
 			tickets = {},

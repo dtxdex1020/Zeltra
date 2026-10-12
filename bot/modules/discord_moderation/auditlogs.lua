@@ -1,3 +1,4 @@
+local SCRP_LOG_COLOR = 0xFF6A00
 -- auditlogs.lua
 local auditlogs = {
 	name = "auditlogs",
@@ -131,7 +132,7 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(message.guild.id, "msgedit", {
 			embed = {
-				title = emojis.edit .. " Message Edited [Cached]",
+				title = "Message Edited [Cached]",
 				description = "A [message](" ..
 							message.link ..
 							") by " .. getUserString(message.author) .. ", was edited in " .. message.channel.mentionString .. " by " .. getUserString(message.user) .. ":",
@@ -146,7 +147,7 @@ auditlogs.Start = function()
 					}
 				},
 				author = author(message.user),
-				color = colors.warning,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -211,7 +212,7 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(message.guild.id, "msgedit", {
 			embed = {
-				title = emojis.edit .. " Message Edited [Uncached]",
+				title = "Message Edited [Uncached]",
 				description = "A [message](" ..
 							message.link ..
 							") by " .. getUserString(message.author) .. ", was edited in " .. message.channel.mentionString .. " by " .. getUserString(message.user) .. ":",
@@ -226,7 +227,7 @@ auditlogs.Start = function()
 					}
 				},
 				author = author(message.user),
-				color = colors.warning,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -263,7 +264,7 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(message.guild.id, "msgdelete", {
 			embed = {
-				title = emojis.delete .. " Message Deleted",
+				title = "Message Deleted",
 				description = "A message written by " ..
 							getUserString(message.author) .. " was deleted in " .. message.channel.mentionString .. ":",
 				fields = {
@@ -274,7 +275,7 @@ auditlogs.Start = function()
 				},
 				author = author(deleter or message.user),
 				image = message.sticker and { url = message.sticker.url },
-				color = colors.fail,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -312,13 +313,13 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(member.guild.id, "memberjoin", {
 			embed = {
-				title = emojis.add .. " Member Joined",
-				description = emojis.right .. " " .. getUserString(member.user) .. " has joined the server!\n" ..
-				emojis.space .. emojis.right .. " **User ID:** `" .. member.user.id .. "`\n" ..
-				emojis.space .. emojis.right .. " **Account Created:** <t:" .. math.floor(member.user.createdAt) .. ">\n" ..
-				emojis.space .. emojis.right .. " **Membercount:** " .. formatNumber(guild.totalMemberCount),
+				title = "Member Joined",
+				description = "" .. getUserString(member.user) .. " has joined the server!\n" ..
+				"- **User ID:** `" .. member.user.id .. "`\n" ..
+				"- **Account Created:** <t:" .. math.floor(member.user.createdAt) .. ">\n" ..
+				"- **Membercount:** " .. formatNumber(guild.totalMemberCount),
 				author = author(member.user),
-				color = colors.success,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -342,7 +343,7 @@ auditlogs.Start = function()
 		local roles = ""
 
 		for role in (member.roles and member.roles:iter()) do
-			roles = roles ..  emojis.space .. emojis.space .. emojis.right .. " " .. role.mentionString .. "\n"
+			roles = roles ..  "- " .. role.mentionString .. "\n"
 		end
 
 		local result = queueAuditRequest(guild.id)
@@ -355,16 +356,16 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(member.guild.id, "memberleave", {
 			embed = {
-				title = emojis.subtract .. " Member Left",
-				description = emojis.right .. " " .. getUserString(member.user) .. " has left the server.\n" ..
-				emojis.space .. emojis.right .. " **User ID:** `" .. member.user.id .. "`\n" ..
-				emojis.space .. emojis.right .. " **Account Created:** <t:" .. math.floor(member.user.createdAt) .. ">\n" ..
-				emojis.space .. emojis.right .. " **Joined:** <t:" .. fromISO(member.joinedAt) .. ">\n" ..
-				emojis.space .. emojis.right .. " **Membercount:** " .. formatNumber(guild.totalMemberCount) .. "\n" ..
-				emojis.space .. emojis.right .. " **Previous Roles:**\n" ..
-					(roles ~= "" and roles or (emojis.space .. emojis.space .. emojis.right .. "*User did not have any roles.*")),
+				title = "Member Left",
+				description = "" .. getUserString(member.user) .. " has left the server.\n" ..
+				"- **User ID:** `" .. member.user.id .. "`\n" ..
+				"- **Account Created:** <t:" .. math.floor(member.user.createdAt) .. ">\n" ..
+				"- **Joined:** <t:" .. fromISO(member.joinedAt) .. ">\n" ..
+				"- **Membercount:** " .. formatNumber(guild.totalMemberCount) .. "\n" ..
+				"- **Previous Roles:**\n" ..
+					(roles ~= "" and roles or ("*User did not have any roles.*")),
 				author = author(member.user),
-				color = colors.fail,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -401,9 +402,9 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.edit .. " Member Updated",
-			description = emojis.right .. " The member " .. getUserString(targetMember) .. " was changed by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.warning,
+			title = "Member Updated",
+			description = "The member " .. getUserString(targetMember) .. " was changed by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
@@ -412,16 +413,16 @@ auditlogs.Start = function()
 			if (v.new_value) or (v.old_value) then
 				if v.key:lower() == "communication_disabled_until" then
 					emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" .. "Timed-out for" ..
+									"\n" .. "- **" .. "Timed-out for" ..
 										":** " .. readable(fromISO(v.new_value) - os.time()) .. " (<t:" .. fromISO(v.new_value) .. ":R>)"
 				else
 					emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" .. string.capitalize(v.key or "Unknown") .. ":** " ..
-											((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " " ..  emojis.right .. " " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
+									"\n" .. "- **" .. string.capitalize(v.key or "Unknown") .. ":** " ..
+											((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " to " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
 					end
 			else
 				emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
+									"\n" .. "- **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
 			end
 		end
 
@@ -467,9 +468,9 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.edit .. " Member Role Updated",
-			description = emojis.right .. " The roles of " .. getUserString(targetMember) .. " were changed by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.warning,
+			title = "Member Role Updated",
+			description = "The roles of " .. getUserString(targetMember) .. " were changed by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
@@ -479,9 +480,9 @@ auditlogs.Start = function()
 
 			for _, role in pairs(v.new_value) do
 				if v.key == "$remove" then
-					emb.description = emb.description .. "\n" .. emojis.space .. " " .. emojis.subtract ..  " <@&" .. role.id .. "> (`" .. role.id .. "`)"
+					emb.description = emb.description .. "\n" .. "Removed: <@&" .. role.id .. "> (`" .. role.id .. "`)"
 				elseif v.key == "$add" then
-					emb.description = emb.description .. "\n" .. emojis.space .. " " .. emojis.add .. " <@&" .. role.id .. "> (`" .. role.id .. "`)"
+					emb.description = emb.description .. "\n" .. "Added: <@&" .. role.id .. "> (`" .. role.id .. "`)"
 				end
 			end
 		end
@@ -535,12 +536,12 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(targetChannel.guild.id, "channelcreate", {
 			embed = {
-				title = emojis.add .. " Channel Created",
-				description = emojis.right .. " The " .. targetChannel.mentionString .. " channel was created by " .. getUserString(creatorMember) .. ":\n"
-				.. emojis.space .. emojis.right .. " **Channel Name:** " .. targetChannel.name .. "\n"
-				.. emojis.space .. emojis.right .. " **Channel ID:** `" .. targetChannel.id .. "`",
+				title = "Channel Created",
+				description = "The " .. targetChannel.mentionString .. " channel was created by " .. getUserString(creatorMember) .. ":\n"
+				.. "- **Channel Name:** " .. targetChannel.name .. "\n"
+				.. "- **Channel ID:** `" .. targetChannel.id .. "`",
 				author = author(creatorMember.user),
-				color = colors.success,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -577,22 +578,22 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.edit .. " Channel Updated",
-			description = emojis.right .. " The " .. targetChannel.mentionString .. " channel was updated by " .. getUserString(creatorMember) .. ":",
+			title = "Channel Updated",
+			description = "The " .. targetChannel.mentionString .. " channel was updated by " .. getUserString(creatorMember) .. ":",
 			author = author(creatorMember.user),
-			color = colors.warning,
+			color = SCRP_LOG_COLOR,
 			timestamp = toISO(os.time())
 		}
 
 		for i, v in pairs(entryInfo.changes) do
 			if (v.new_value) or (v.old_value) then
 				emb.description = emb.description ..
-							"\n" .. emojis.space .. emojis.right .. " **" .. string.capitalize(v.key or "Unknown") .. ":** " ..
+							"\n" .. "- **" .. string.capitalize(v.key or "Unknown") .. ":** " ..
 										((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " " ..
-												emojis.right .. " " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
+												"" .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
 				else
 					emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
+									"\n" .. "- **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
 			end
 		end
 
@@ -647,12 +648,12 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(guild.id, "channeldelete", {
 			embed = {
-				title = emojis.subtract .. " Channel Delete",
-				description = emojis.right .. " The **#" .. targetChannelName .. "** channel was deleted by " .. getUserString(creatorMember) .. ":\n"
-				.. emojis.space .. emojis.right .. " **Channel Name:** " .. targetChannelName .. "\n"
-				.. emojis.space .. emojis.right .. " **Channel ID:** `" .. targetChannelId .. "`",
+				title = "Channel Delete",
+				description = "The **#" .. targetChannelName .. "** channel was deleted by " .. getUserString(creatorMember) .. ":\n"
+				.. "- **Channel Name:** " .. targetChannelName .. "\n"
+				.. "- **Channel ID:** `" .. targetChannelId .. "`",
 				author = author(creatorMember.user),
-				color = colors.fail,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -690,13 +691,13 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(reaction.message.guild.id, "reactionadd", {
 			embed = {
-				title = emojis.add .. " Reaction Added",
-				description = emojis.right .. " " .. getUserString(creator.user) .. "  added a reaction to [a message](" .. reaction.message.link .. "),\n"
-				.. emojis.space .. emojis.right .. " **Reaction:** " .. (reaction.emojiId and ((reaction.emojiAnimated and "<a:" or "<:") .. (reaction.emojiName or "emoji") .. ":" .. reaction.emojiId .. ">") or (reaction.emojiName or reaction.emojiHash or "Unknown Emoji")) .. "\n"
-				.. emojis.space .. emojis.right .. " **Channel:** " .. reaction.message.channel.mentionString .. "\n"
-				.. emojis.space .. emojis.right .. " **Message Content:**\n ```" .. contentString(message) .. "```",
+				title = "Reaction Added",
+				description = "" .. getUserString(creator.user) .. "  added a reaction to [a message](" .. reaction.message.link .. "),\n"
+				.. "- **Reaction:** " .. (reaction.emojiId and ((reaction.emojiAnimated and "<a:" or "<:") .. (reaction.emojiName or "emoji") .. ":" .. reaction.emojiId .. ">") or (reaction.emojiName or reaction.emojiHash or "Unknown Emoji")) .. "\n"
+				.. "- **Channel:** " .. reaction.message.channel.mentionString .. "\n"
+				.. "- **Message Content:**\n ```" .. contentString(message) .. "```",
 				author = author(creator.user),
-				color = colors.success,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -739,13 +740,13 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(channel.guild.id, "reactionadd", {
 			embed = {
-				title = emojis.add .. " Reaction Added",
-				description = emojis.right .. " " .. getUserString(creator.user) .. " added a reaction to [a message](https://discord.com/channels/" .. channel.guild.id .. "/" .. channel.id .. "/" .. messageId .. "):\n"
-				.. emojis.space .. emojis.right .. " **Reaction:** " .. hash .. "\n"
-				.. emojis.space .. emojis.right .. " **Channel:** " .. channel.mentionString .. "\n"
-				.. emojis.space .. emojis.right .. " **Message Content:**\n ```" .. contentString(message) .. "```",
+				title = "Reaction Added",
+				description = "" .. getUserString(creator.user) .. " added a reaction to [a message](https://discord.com/channels/" .. channel.guild.id .. "/" .. channel.id .. "/" .. messageId .. "):\n"
+				.. "- **Reaction:** " .. hash .. "\n"
+				.. "- **Channel:** " .. channel.mentionString .. "\n"
+				.. "- **Message Content:**\n ```" .. contentString(message) .. "```",
 				author = author(creator.user),
-				color = colors.success,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -783,13 +784,13 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(reaction.message.guild.id, "reactionremove", {
 			embed = {
-				title = emojis.subtract .. " Reaction Removed",
-				description = emojis.right .. " " .. getUserString(guild:getMember(userID)) .. " removed a reaction from [a message](" .. reaction.message.link .. "),\n"
-				.. emojis.space .. emojis.right .. " **Reaction:** " .. (reaction.emojiId and ((reaction.emojiAnimated and "<a:" or "<:") .. (reaction.emojiName or "emoji") .. ":" .. reaction.emojiId .. ">") or (reaction.emojiName or reaction.emojiHash or "Unknown Emoji")) .. "\n"
-				.. emojis.space .. emojis.right .. " **Channel:** " .. reaction.message.channel.mentionString .. "\n"
-				.. emojis.space .. emojis.right .. " **Message Content:**\n ```" .. contentString(message) .. "```",
+				title = "Reaction Removed",
+				description = "" .. getUserString(guild:getMember(userID)) .. " removed a reaction from [a message](" .. reaction.message.link .. "),\n"
+				.. "- **Reaction:** " .. (reaction.emojiId and ((reaction.emojiAnimated and "<a:" or "<:") .. (reaction.emojiName or "emoji") .. ":" .. reaction.emojiId .. ">") or (reaction.emojiName or reaction.emojiHash or "Unknown Emoji")) .. "\n"
+				.. "- **Channel:** " .. reaction.message.channel.mentionString .. "\n"
+				.. "- **Message Content:**\n ```" .. contentString(message) .. "```",
 				author = author(creator.user),
-				color = colors.fail,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -832,13 +833,13 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(channel.guild.id, "reactionremove", {
 			embed = {
-				title = emojis.subtract .. " Reaction Removed",
-				description = emojis.right .. " " .. getUserString(guild:getMember(userID)) .. " removed a reaction from [a message](https://discord.com/channels/" .. channel.guild.id .. "/" .. channel.id .. "/" .. messageId .. "):\n"
-				.. emojis.space .. emojis.right .. " **Reaction:** " .. hash .. "\n"
-				.. emojis.space .. emojis.right .. " **Channel:** " .. channel.mentionString .. "\n"
-				.. emojis.space .. emojis.right .. " **Message Content:**\n ```" .. contentString(message) .. "```",
+				title = "Reaction Removed",
+				description = "" .. getUserString(guild:getMember(userID)) .. " removed a reaction from [a message](https://discord.com/channels/" .. channel.guild.id .. "/" .. channel.id .. "/" .. messageId .. "):\n"
+				.. "- **Reaction:** " .. hash .. "\n"
+				.. "- **Channel:** " .. channel.mentionString .. "\n"
+				.. "- **Message Content:**\n ```" .. contentString(message) .. "```",
 				author = author(creator.user),
-				color = colors.fail,
+				color = SCRP_LOG_COLOR,
 				timestamp = toISO(os.time())
 			}
 		})
@@ -882,13 +883,13 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(guild.id, "rolecreate", {
 			embed = {
-				title = emojis.add .. " Role Created",
-				description = emojis.right .." The " .. targetRole.mentionString .. " role was created by " .. getUserString(creatorMember.user) .. ":\n"
-				.. emojis.space .. emojis.right .. " **Role Name:** " .. targetRole.name .. "\n"
-				.. emojis.space .. emojis.right .. " **Role Color:** " .. discordia.Color(targetRole.color):toHex() .. "\n"
-				.. emojis.space .. emojis.right .. " **Hoisted:** " .. ((targetRole.hoisted and emojis.success) or emojis.fail) .. "\n"
-				.. emojis.space .. emojis.right .. " **Position:** " .. targetRole.position,
-				color = colors.success,
+				title = "Role Created",
+				description = "The " .. targetRole.mentionString .. " role was created by " .. getUserString(creatorMember.user) .. ":\n"
+				.. "- **Role Name:** " .. targetRole.name .. "\n"
+				.. "- **Role Color:** " .. discordia.Color(targetRole.color):toHex() .. "\n"
+				.. "- **Hoisted:** " .. ((targetRole.hoisted and "Yes") or "No") .. "\n"
+				.. "- **Position:** " .. targetRole.position,
+				color = SCRP_LOG_COLOR,
 				author = author(creatorMember.user),
 				timestamp = toISO(os.time())
 			}
@@ -926,9 +927,9 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.edit .. " Role Updated",
-			description = emojis.right .. " The " .. targetRole.mentionString .. " role was changed by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.warning,
+			title = "Role Updated",
+			description = "The " .. targetRole.mentionString .. " role was changed by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
@@ -940,18 +941,18 @@ auditlogs.Start = function()
 					v.old_value = v.old_value and discordia.Color(v.old_value):toHex()
 					
 					emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" ..
-										string.capitalize(v.key or "Unknown") .. ":** " .. ((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " " .. emojis.right .. " " ..  ((v.new_value and tostring(v.new_value)) or "*Nothing*")
+									"\n" .. "- **" ..
+										string.capitalize(v.key or "Unknown") .. ":** " .. ((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " to " ..  ((v.new_value and tostring(v.new_value)) or "*Nothing*")
 				elseif v.key:lower() == "colors" then
 					-- filter grr
 				else
 					emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" ..
-										string.capitalize(v.key or "Unknown") .. ":** " .. ((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " " .. emojis.right .. " " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
+									"\n" .. "- **" ..
+										string.capitalize(v.key or "Unknown") .. ":** " .. ((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " to " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
 				end
 			else
 				emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. "**" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
+									"\n" .. "- **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
 			end
 		end
 
@@ -1011,12 +1012,12 @@ auditlogs.Start = function()
 
 		db:sendAuditLog(guild.id, "roledelete", {
 			embed = {
-				title = emojis.subtract .. " Role Deleted",
-				description = emojis.right .. " The **@" .. targetRoleName .. "** role was deleted by " .. getUserString(creatorMember.user) .. ":\n"
-				.. emojis.space .. emojis.right .. " **Role Name:** " .. targetRoleName .. "\n"
-				.. emojis.space .. emojis.right .. " **Role Color:** " .. discordia.Color(targetRoleColor):toHex() .. "\n"
-				.. emojis.space .. emojis.right .. " **Hoisted:** " .. ((targetRoleHoist and emojis.success) or emojis.fail),
-				color = colors.fail,
+				title = "Role Deleted",
+				description = "The **@" .. targetRoleName .. "** role was deleted by " .. getUserString(creatorMember.user) .. ":\n"
+				.. "- **Role Name:** " .. targetRoleName .. "\n"
+				.. "- **Role Color:** " .. discordia.Color(targetRoleColor):toHex() .. "\n"
+				.. "- **Hoisted:** " .. ((targetRoleHoist and "Yes") or "No"),
+				color = SCRP_LOG_COLOR,
 				author = author(creatorMember.user),
 				timestamp = toISO(os.time())
 			}
@@ -1047,9 +1048,9 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.guild .. " Server Updated",
-			description = emojis.right .. " The server updated by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.warning,
+			title = "Server Updated",
+			description = "The server updated by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
@@ -1057,11 +1058,11 @@ auditlogs.Start = function()
 		for i, v in pairs(entryInfo.changes) do
 			if (v.new_value) or (v.old_value) then
 				emb.description = emb.description ..
-							"\n" .. emojis.space .. emojis.right .. " **"
-								.. string.capitalize(v.key or "Unknown") .. ":** " .. ((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " " .. emojis.right .. " " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
+							"\n" .. "- **"
+								.. string.capitalize(v.key or "Unknown") .. ":** " .. ((v.old_value and tostring(v.old_value)) or "*Nothing*") .. " to " .. ((v.new_value and tostring(v.new_value)) or "*Nothing*")
 				else
 					emb.description = emb.description ..
-									"\n" .. emojis.space .. emojis.right .. " **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
+									"\n" .. "- **" .. string.capitalize(v.key or "Unknown") .. ":** *Failed to fetch changes*"
 			end
 		end
 
@@ -1131,21 +1132,21 @@ auditlogs.Start = function()
 
 		if entryInfo.action_type == discordia.enums.actionType.messagePin then
 			emb = {
-				title = emojis.pin .. " Message Pinned",
-				description = emojis.right .. " A [message](" .. message.link .. "), was pinned by " .. getUserString(creatorMember.user) .. ":\n"
-				.. emojis.space .. emojis.right .. " **Channel:** " .. channel.mentionString .. "\n"
-				.. emojis.space .. emojis.right .. " **Message Content:**\n ```" .. content .. "```",
-				color = colors.success,
+				title = "Message Pinned",
+				description = "A [message](" .. message.link .. "), was pinned by " .. getUserString(creatorMember.user) .. ":\n"
+				.. "- **Channel:** " .. channel.mentionString .. "\n"
+				.. "- **Message Content:**\n ```" .. content .. "```",
+				color = SCRP_LOG_COLOR,
 				author = author(creatorMember.user),
 				timestamp = toISO(os.time())
 			}
 		elseif entryInfo.action_type == discordia.enums.actionType.messageUnpin then
 			emb = {
-				title = emojis.pin .. " Message Unpinned",
-				description = emojis.right .. " A [message](" .. message.link .. "), was unpinned by " .. getUserString(creatorMember.user) .. ":\n"
-				.. emojis.space .. emojis.right .. " **Channel:** " .. channel.mentionString .. "\n"
-				.. emojis.space .. emojis.right .. " **Message Content:**\n ```" .. content .. "```",
-				color = colors.fail,
+				title = "Message Unpinned",
+				description = "A [message](" .. message.link .. "), was unpinned by " .. getUserString(creatorMember.user) .. ":\n"
+				.. "- **Channel:** " .. channel.mentionString .. "\n"
+				.. "- **Message Content:**\n ```" .. content .. "```",
+				color = SCRP_LOG_COLOR,
 				author = author(creatorMember.user),
 				timestamp = toISO(os.time())
 			}
@@ -1188,9 +1189,9 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.emoji .. " Server Emojis Updated",
-			description = emojis.right .. " The emojis on this server were updated by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.warning,
+			title = "Server Emojis Updated",
+			description = "The emojis on this server were updated by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
@@ -1201,7 +1202,7 @@ auditlogs.Start = function()
 			end
 
 			emb.description = emb.description ..
-				"\n" .. emojis.space .. emojis.right .. " **[ <:" .. v.new_value .. ":" .. entryInfo.target_id .. ">] " .. string.capitalize(v.key) .. ":** " .. v.old_value .. " " .. emojis.right .. " " .. v.new_value
+				"\n" .. "- **[ <:" .. v.new_value .. ":" .. entryInfo.target_id .. ">] " .. string.capitalize(v.key) .. ":** " .. v.old_value .. " to " .. v.new_value
 		end
 
 		local result = queueAuditRequest(guild.id)
@@ -1239,16 +1240,16 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.emoji .. " Emoji Added",
-			description = emojis.right .. " An emoji has been uploaded to the server by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.success,
+			title = "Emoji Added",
+			description = "An emoji has been uploaded to the server by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
 
 		for i, v in pairs(entryInfo.changes) do
 			emb.description = emb.description ..
-						"\n" .. emojis.space .. emojis.right .. " **[ <:" .. v.new_value .. ":" .. entryInfo.target_id .. ">] " .. string.capitalize(v.key) .. ":** " .. v.new_value
+						"\n" .. "- **[ <:" .. v.new_value .. ":" .. entryInfo.target_id .. ">] " .. string.capitalize(v.key) .. ":** " .. v.new_value
 		end
 
 		local result = queueAuditRequest(guild.id)
@@ -1286,15 +1287,15 @@ auditlogs.Start = function()
 		end
 
 		local emb = {
-			title = emojis.emoji .. " Emoji Removed",
-			description = emojis.right .. " An emoji has been removed from to the server by " .. getUserString(creatorMember.user) .. ":",
-			color = colors.fail,
+			title = "Emoji Removed",
+			description = "An emoji has been removed from to the server by " .. getUserString(creatorMember.user) .. ":",
+			color = SCRP_LOG_COLOR,
 			author = author(creatorMember.user),
 			timestamp = toISO(os.time())
 		}
 
 		for i, v in pairs(entryInfo.changes) do
-			emb.description = emb.description .. "\n" .. emojis.space .. emojis.right .. " " .. string.capitalize(v.key) .. ": " .. v.old_value
+			emb.description = emb.description .. "\n" .. "- " .. string.capitalize(v.key) .. ": " .. v.old_value
 		end
 
 		local result = queueAuditRequest(guild.id)

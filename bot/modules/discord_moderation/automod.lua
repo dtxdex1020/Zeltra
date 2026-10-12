@@ -30,7 +30,7 @@ automod.Start = function()
                         
                         db:send(guild, "modlogchannel", {
                             embed = {
-                                title = emojis.warning .. " Member Warned",
+                                title = "Member Warned",
                                 description = "**" .. violator.name .. "** was warned by **Discord Built-In Moderation**:\n" .. emojis.right .. " **Reason:** " .. case.reason .. "\n" .. emojis.right .. " **Date:** <t:" .. case.timestamp .. ">\n" .. emojis.right .. " **Case ID:** " .. case.caseID,
                                 color = colors.warning
                             }

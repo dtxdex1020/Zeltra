@@ -288,18 +288,18 @@ _G.duckyplusassets = {
 _G.erlcCycleRunningGuilds = {}
 
 local colors = {
-	blank = 0x403C44,
+	blank = 0x0B0B0B,
 	success = 0x66FF66,
 	fail = 0xFF6666,
-	info = 0x5C8FFF,
-	warning = 0xFFC72B,
+	info = 0xFF6A00,
+	warning = 0xFF6A00,
 	heavyred = 0xB51A00,
 	error = 0xB51A00, -- alias for heavyred
 	duckypluspink = 0xFF54F9,
 	pink = 0xFF54F9, -- alias for duckypluspink
 	duckyyellow = 0xFF6A00,
 	yellow = 0xFF6A00, -- alias for duckyyellow
-	pond = 0x38B6FF
+	pond = 0xFF6A00
 }
 
 _G.colors = colors

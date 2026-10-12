@@ -245,7 +245,7 @@ tickets.Start = function()
 		if logCh then
 			logCh:send({
 				embed = {
-					title = emojis.greater .. " Ticket Escalated",
+					title = "Ticket Escalated",
 					description = emojis.right .. " **Ticket:** " .. channel.mentionString .. " (" .. tostring(channel.name) .. ")\n"
 						.. emojis.right .. " **Ticket ID:** `" .. tostring(st.ticket.id) .. "`\n"
 						.. emojis.right .. " **Ticket Subject:** " .. tostring(st.subject.name) .. "\n"
@@ -820,7 +820,7 @@ tickets.Start = function()
 
 										local transcript, webTranscriptLink, transcriptCount = transcriptChannel(interaction.channel)
 										local embed = {
-											title = emojis.document .. " Ticket Transcript",
+											title = "Ticket Transcript",
 											description = emojis.right
 												.. " **Ticket ID:** `"
 												.. ticketID

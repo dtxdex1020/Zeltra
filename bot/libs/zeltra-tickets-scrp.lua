@@ -232,7 +232,7 @@ local function shared(t)
 		unclaim = { {
 			title = "Ticket Unclaimed",
 			description = "> {unclaimer.mention} unclaimed this ticket.\n> -# Another staff member will be with you soon.",
-			color = 0xFFC72B,
+			color = 0xFF6A00,
 		} },
 		request = { {
 			title = "Close Request",

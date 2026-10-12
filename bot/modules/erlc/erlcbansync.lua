@@ -61,7 +61,7 @@ erlcbansync.Start = function()
 							embed = {
 								author = author(moderator),
 								thumbnail = thumbnail(user),
-								title = emojis.success .. " Ban Syncing Successful",
+								title = "Ban Syncing Successful",
 								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. Therefore, South Carolina Roleplay has queued the ban of **" .. violator.hyperlink .. "** in the in-game server.",
 								color = colors.success
 							}
@@ -74,7 +74,7 @@ erlcbansync.Start = function()
 							embed = {
 								author = author(moderator),
 								thumbnail = thumbnail(user),
-								title = emojis.success .. " Ban Syncing Successful",
+								title = "Ban Syncing Successful",
 								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. Therefore, South Carolina Roleplay has banned **" .. violator.hyperlink .. "** from the in-game server.",
 								color = colors.success
 							}
@@ -84,7 +84,7 @@ erlcbansync.Start = function()
 							embed = {
 								author = author(moderator),
 								thumbnail = thumbnail(user),
-								title = emojis.fail .. " Ban Syncing Failed",
+								title = "Ban Syncing Failed",
 								description = "> " .. getUserString(moderator) .. " banned " .. getUserString(user) .. " in Discord. However, South Carolina Roleplay was unable to ban **" .. violator.hyperlink .. "** from the in-game server: ```" .. err .. "```",
 								color = colors.fail
 							}
@@ -155,7 +155,7 @@ erlcbansync.Start = function()
 							embed = {
 								author = author(moderator),
 								thumbnail = thumbnail(user),
-								title = emojis.success .. " Ban Syncing Successful",
+								title = "Ban Syncing Successful",
 								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. Therefore, South Carolina Roleplay has queued the unban of **" .. violator.hyperlink .. "** in the in-game server.",
 								color = colors.success
 							}
@@ -168,7 +168,7 @@ erlcbansync.Start = function()
 							embed = {
 								author = author(moderator),
 								thumbnail = thumbnail(user),
-								title = emojis.success .. " Ban Syncing Successful",
+								title = "Ban Syncing Successful",
 								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. Therefore, South Carolina Roleplay has unbanned **" .. violator.hyperlink .. "** from the in-game server.",
 								color = colors.success
 							}
@@ -178,7 +178,7 @@ erlcbansync.Start = function()
 							embed = {
 								author = author(moderator),
 								thumbnail = thumbnail(user),
-								title = emojis.fail .. " Ban Syncing Failed",
+								title = "Ban Syncing Failed",
 								description = "> " .. getUserString(moderator) .. " unbanned " .. getUserString(user) .. " in Discord. However, South Carolina Roleplay was unable to unban **" .. violator.hyperlink .. "** from the in-game server: ```" .. err .. "```",
 								color = colors.fail
 							}
@@ -237,7 +237,7 @@ erlcbansync.Start = function()
 					embed = {
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
-						title = emojis.success .. " Ban Syncing Successful",
+						title = "Ban Syncing Successful",
 						description = "> " .. getUserString(moderator) .. " banned **" .. violator.hyperlink .. "** in-game. Therefore, South Carolina Roleplay has banned " .. getUserString(violatorUser) .. " from the Discord server.",
 						color = colors.success
 					}
@@ -247,7 +247,7 @@ erlcbansync.Start = function()
 					embed = {
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
-						title = emojis.fail .. " Ban Syncing Failed",
+						title = "Ban Syncing Failed",
 						description = "> " .. getUserString(moderator) .. " banned **" .. violator.hyperlink .. "** in-game. However, South Carolina Roleplay was unable to ban " .. getUserString(violatorUser) .. " from the Discord server: ```" .. result .. "```",
 						color = colors.fail
 					}
@@ -270,7 +270,7 @@ erlcbansync.Start = function()
 					embed = {
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
-						title = emojis.success .. " Member Unbanned",
+						title = "Member Unbanned",
 						description = getUserString(violatorUser) .. " was unbanned by " .. getUserString(moderator) .. ":" .. "\n" .. emojis.right .. " **Reason:** unbanned from the in-game server (ban syncing)" .. "\n" .. emojis.right .. " **Date:** <t:" .. os.time() .. ">",
 						color = colors.success
 					}
@@ -280,7 +280,7 @@ erlcbansync.Start = function()
 					embed = {
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
-						title = emojis.success .. " Ban Syncing Successful",
+						title = "Ban Syncing Successful",
 						description = "> " .. getUserString(moderator) .. " unbanned **" .. violator.hyperlink .. "** in-game. Therefore, South Carolina Roleplay has unbanned " .. getUserString(violatorUser) .. " from the Discord server.",
 						color = colors.success
 					}
@@ -290,7 +290,7 @@ erlcbansync.Start = function()
 					embed = {
 						author = author(moderator),
 						thumbnail = thumbnail(violatorUser),
-						title = emojis.fail .. " Ban Syncing Failed",
+						title = "Ban Syncing Failed",
 						description = "> " .. getUserString(moderator) .. " unbanned **" .. violator.hyperlink .. "** in-game. However, South Carolina Roleplay was unable to unban " .. getUserString(violatorUser) .. " from the Discord server: ```" .. (result or "Unknown Error") .. "```",
 						color = colors.fail
 					}

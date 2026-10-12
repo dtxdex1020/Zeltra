@@ -171,8 +171,8 @@ local function palette()
 		success = c.success or 0x66FF66,
 		fail = c.fail or 0xFF6666,
 		warning = c.warning or 0xFFC72B,
-		info = c.info or 0x5C8FFF,
-		loading = c.info or 0x5C8FFF,
+		info = c.info or 0xFF6A00,
+		loading = c.info or 0xFF6A00,
 		heavyred = c.heavyred or 0xB51A00,
 	}
 end
