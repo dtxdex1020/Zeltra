@@ -83,8 +83,24 @@ local function alertChannel(guild, sec)
 end
 _G.securityAlertChannel = alertChannel
 
+--- Zeltra: standard action buttons on every security card about a member (extra = e.g. a jump link first).
+local function secActions(userId, extra)
+	local out = {}
+	for _, b in ipairs(extra or {}) do if b.url then table.insert(out, b) end end
+	if userId and tostring(userId) ~= "" then
+		userId = tostring(userId)
+		table.insert(out, { label = "Strip roles", custom_id = "sec:strip:" .. userId, style = 4, emoji = "⛔" })
+		table.insert(out, { label = "Restore roles", custom_id = "sec:botrestore:" .. userId, style = 3, emoji = "↩️" })
+		table.insert(out, { label = "Remove timeout", custom_id = "sec:untimeout:" .. userId, style = 2, emoji = "⏱️" })
+	end
+	table.insert(out, { label = "Unlock server", custom_id = "sec:unlock", style = 2, emoji = "🔓" })
+	while #out > 5 do table.remove(out, 1) end
+	return out
+end
+
 local function alert(guild, sec, opts)
 	if not sec.enabled then return end
+	if opts.subject then opts.buttons = secActions(opts.subject, opts.buttons); opts.subject = nil end
 	local serious = opts.serious; opts.serious = nil
 	local channel = serious and alertChannel(guild, sec) or (sec.logchannel and guild:getChannel(sec.logchannel))
 	if not channel then return end
@@ -275,7 +291,7 @@ local function onJoin(member)
 		if why then table.insert(reasons, why) end
 	end
 	if #reasons > 0 then
-		alert(guild, sec, {
+		alert(guild, sec, { subject = member.id,
 			icon = "👤", title = "Flagged account joined",
 			intro = member.user.mentionString .. " joined and looks unusual.",
 			fields = {
@@ -383,10 +399,7 @@ local function onDeleteNuke(guild, sec, entry)
 			{ "Time", dmStyle.time(t) },
 		},
 		note = "Found through the audit log. Restore roles: bot owners only.",
-		buttons = (not exempt) and {
-			{ label = "Restore roles", custom_id = "sec:botrestore:" .. executor, style = 3, emoji = "↩️" },
-			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. executor, style = 2, emoji = "⏱️" },
-		} or nil,
+		buttons = (not exempt) and secActions(executor) or secActions(nil),
 		footer = "Security",
 	})
 	if not exempt and late.sendPings then late.sendPings(guild, channel, sec.keywords, "Anti-nuke triggered, check the report above.") end
@@ -412,7 +425,7 @@ local function onNuke(guild, sec, entry, label)
 	end
 
 	local activityCard = {
-		icon = "⚠️", title = "Unusual staff activity",
+		subject = executor, icon = "⚠️", title = "Unusual staff activity",
 		intro = mention(executor) .. " made " .. count .. " " .. label .. " in under " .. sec.antinuke.window .. "s.",
 		fields = {
 			{ "Staff Member", mention(executor) .. " (`" .. tostring(executor) .. "`)" },
@@ -460,7 +473,7 @@ local function onFlaggedAudit(guild, sec, entry)
 			local ok = Client._api:modifyGuildRole(guild.id, entry.target_id, { permissions = tostring(target) })
 			reverted = (ok and "Yes") or "Tried, but it failed"
 		end
-		alert(guild, sec, {
+		alert(guild, sec, { subject = executor,
 			icon = "🚩", title = "Dangerous permissions granted",
 			intro = mention(executor) .. " gave a role powerful permissions.",
 			fields = {
@@ -485,7 +498,7 @@ local function onFlaggedAudit(guild, sec, entry)
 					local target = guild:getMember(entry.target_id)
 					reverted = (target and target:removeRole(r.id, "Security: dangerous role given") and "Yes, role removed") or "Tried, but it failed"
 				end
-				alert(guild, sec, {
+				alert(guild, sec, { subject = executor,
 					icon = "🚩", title = "Powerful role given",
 					intro = mention(executor) .. " gave " .. mention(entry.target_id) .. " a role with powerful permissions.",
 					fields = {
@@ -514,7 +527,7 @@ local function onFlaggedAudit(guild, sec, entry)
 		end
 		if #lines == 0 then return end
 		table.insert(lines, 1, { "By", mention(executor) })
-		alert(guild, sec, {
+		alert(guild, sec, { subject = executor,
 			icon = "🛠️", title = "Server settings changed",
 			intro = mention(executor) .. " changed the server settings.",
 			fields = lines,
@@ -680,13 +693,8 @@ local function keywordCard(guild, message, match, status)
 			{ "Message", status.deleted },
 		},
 		sections = { { title = "Message content", body = (content ~= "" and content) or "(no text)" } },
-		note = "Restore roles and Unlock server: bot owners only. Remove timeout: staff with Timeout Members.",
-		buttons = {
-			{ label = "Jump to message", url = message.link },
-			{ label = "Restore roles", custom_id = "sec:botrestore:" .. message.author.id, style = 3, emoji = "↩️" },
-			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. message.author.id, style = 2, emoji = "⏱️" },
-			{ label = "Unlock server", custom_id = "sec:unlock", style = 4, emoji = "🔓" },
-		},
+		note = "Strip roles, Restore roles and Unlock server: bot owners only. Remove timeout: staff with Timeout Members.",
+		buttons = secActions(message.author.id, { { label = "Jump to message", url = message.link } }),
 		footer = "Security",
 	}
 end
@@ -905,11 +913,8 @@ local function botGuardCard(guild, info, status)
 			end
 			return table.concat(lines, "\n")
 		end)() } } or nil,
-		note = "Restore roles: bot owners only. Remove timeout: staff with Timeout Members.",
-		buttons = info.adder and {
-			{ label = "Restore roles", custom_id = "sec:botrestore:" .. info.adder, style = 3, emoji = "↩️" },
-			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. info.adder, style = 2, emoji = "⏱️" },
-		} or nil,
+		note = "Strip roles, Restore roles and Unlock server: bot owners only. Remove timeout: staff with Timeout Members.",
+		buttons = secActions(info.adder),
 		footer = "Security",
 	}
 end
@@ -1059,6 +1064,43 @@ local function onButton(interaction)
 		return interaction:reply({ content = (#lines > 0 and table.concat(lines, ". ") .. ".") or "Nothing to unlock." }, true)
 	end
 
+	local stripId = id:match("^sec:strip:(%d+)$")
+	if stripId then
+		if not isOwnerId(interaction.user.id) then
+			return interaction:reply({ content = "Only the bot owners can strip roles." }, true)
+		end
+		if S.isProtectedId(stripId) or (Client.user and stripId == Client.user.id) then
+			return interaction:reply({ content = "That account can't be stripped." }, true)
+		end
+		local m = guild:getMember(stripId)
+		if not m then return interaction:reply({ content = "They're not in the server." }, true) end
+		local roles, saved = {}, {}
+		for role in m.roles:iter() do
+			table.insert(roles, { id = role.id, name = role.name, position = role.position, managed = role.managed })
+			if role.id ~= guild.id then table.insert(saved, role.id) end
+		end
+		if #saved == 0 then return interaction:reply({ content = "<@" .. stripId .. "> has no roles to strip.", allowed_mentions = { parse = {} } }, true) end
+		local cur = getSec(guild)
+		local prev = cur.botguard.cases[stripId]
+		if not (prev and prev.roles and #prev.roles > 0) then
+			cur.botguard.cases[stripId] = { roles = saved, at = now(), reason = "stripped by " .. interaction.user.id }
+			saveSec(guild, cur, "SECURITY_MANUAL_STRIP")
+		end
+		local me = guild.me
+		local top = me and me.highestRole and me.highestRole.position or 0
+		local strip, skip = S.splitRoles(roles, top, guild.id)
+		local removed, failed = {}, {}
+		for _, r in ipairs(strip) do
+			if m:removeRole(r.id, "Security: stripped by " .. interaction.user.username) then table.insert(removed, r.name) else table.insert(failed, r.name) end
+		end
+		for _, r in ipairs(skip) do table.insert(failed, r.name .. " (" .. r.why .. ")") end
+		print("[security] " .. interaction.user.id .. " stripped " .. stripId .. ": " .. #removed .. " removed, " .. #failed .. " not")
+		alert(guild, getSec(guild), { serious = true, subject = stripId, icon = "⛔", title = "Roles stripped",
+			intro = interaction.user.mentionString .. " stripped <@" .. stripId .. ">'s roles.",
+			fields = { { "Removed", (#removed > 0) and table.concat(removed, ", ") or "None" }, { "Couldn't remove", (#failed > 0) and table.concat(failed, ", ") or nil } } })
+		return interaction:reply({ content = "Stripped " .. #removed .. " roles from <@" .. stripId .. ">" .. ((#failed > 0) and (", " .. #failed .. " couldn't be removed") or "") .. ". Use Restore roles to undo.", allowed_mentions = { parse = {} } }, true)
+	end
+
 	local restoreId = id:match("^sec:botrestore:(%d+)$")
 	if restoreId then
 		if not isOwnerId(interaction.user.id) then
@@ -1138,7 +1180,7 @@ local function onMessage(message)
 		if not cooldown(kind .. ":" .. guild.id .. ":" .. message.author.id, t, 120) then return end
 		table.insert(fields, 1, { "Member", message.author.mentionString })
 		table.insert(fields, { "Channel", message.channel.mentionString })
-		alert(guild, sec, { icon = "📢", title = title, intro = intro, fields = fields,
+		alert(guild, sec, { subject = message.author.id, icon = "📢", title = title, intro = intro, fields = fields,
 			buttons = { { label = "Jump to message", url = message.link } } })
 	end
 
