@@ -110,6 +110,7 @@ _G.ticketEscalation = require("zeltra-ticket-escalation")
 _G.scrpStaffApp = require("zeltra-staffapp-scrp") -- settings for modules/server_management/scrp.lua
 -- Zeltra: interaction timing logs, auto-defer and the event loop monitor (libs/zeltra-interactions.lua)
 _G.zeltraInteractions = require("zeltra-interactions").install(discordia.class.classes.Interaction)
+_G.backgroundCheck = require("zeltra-backgroundcheck")
 print("[Zeltra] | Initialized Zeltra compatibility layer in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 print("[Zeltra] | Initializing querystring...")
@@ -728,7 +729,7 @@ SLASH_COMMAND_PERMISSIONS.permissions = PERM.ADMINISTRATOR
 
 -- Zeltra: commands registered visible to everyone; the bot checks access itself. /permissions still applies.
 -- Empty since /ownership was removed on 2026-10-11 (applications moved to a Google Form).
-local PUBLIC_SLASH_COMMANDS = {}
+local PUBLIC_SLASH_COMMANDS = { backgroundcheck = true } -- hard-locked by user ID in checkCommandAccess
 
 -- Discordia permission names for the bits above (bot-side enforcement when a command is made visible).
 local PERM_NAMES = {
@@ -1361,6 +1362,14 @@ _G.hasStaffRank = hasStaffRank
 --- command visible (default_member_permissions unset) because of an override in some server.
 local function checkCommandAccess(member, guild, command, subcmd, isSlash)
 	local name = slashNameOf(command)
+
+	-- Zeltra: /backgroundcheck is hard-locked to fixed user IDs. Nothing (/permissions, admin, owner, roles) overrides it.
+	if name == "backgroundcheck" then
+		if _G.backgroundCheck.isAllowed(member.id) then
+			return { decision = "allow", privileged = "hardlock", granted = true, reason = "hard-locked id" }
+		end
+		return { decision = "deny", privileged = false, granted = false, reason = "hard-locked command", hardLocked = true }
+	end
 
 	if name == "permissions" then
 		if cmdperms.isBotOwner(tostring(member.id), SECRETS.DEV_ACCESS_IDS) then
@@ -2198,6 +2207,9 @@ Client:on("slashCommand", function(interaction, command, args)
 				channel = interaction.channel and interaction.channel.id,
 				message = nil
 			})
+			if access.hardLocked then
+				return interaction:reply({ content = _G.backgroundCheck.DENY_MESSAGE, ephemeral = true }, true)
+			end
 			return interaction:fail(DENIED_MESSAGE, nil, true)
 		end
 		local privileged = access.privileged

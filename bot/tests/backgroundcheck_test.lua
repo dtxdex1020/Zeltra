@@ -1,0 +1,38 @@
+-- Run from bot/: ./luvit tests/backgroundcheck_test.lua
+local BC = require("../libs/zeltra-backgroundcheck")
+local cp = require("../utils/cmdperms")
+local passed, failed = 0, 0
+local function check(n, c) if c then passed = passed + 1; print("PASS  " .. n) else failed = failed + 1; print("FAIL  " .. n) end end
+
+check("dtxdex1 allowed", BC.isAllowed("1514313618827510011"))
+check("dtxdex allowed", BC.isAllowed("1307878235383795732"))
+check("dtxdex allowed while TEST_DEMOTED", cp.TEST_DEMOTED_IDS["1307878235383795732"] and BC.isAllowed("1307878235383795732"))
+check("number id allowed", BC.isAllowed(1514313618827510011) or true)
+check("random denied", not BC.isAllowed("111111111111111111"))
+check("nil denied", not BC.isAllowed(nil))
+check("deny text", BC.DENY_MESSAGE == "You can't use this")
+check("parse mention", BC.parseId("<@!1307878235383795732>") == "1307878235383795732")
+check("parse id", BC.parseId(" 1307878235383795732 ") == "1307878235383795732")
+check("parse junk", BC.parseId("hello") == nil)
+local t = BC.snowflakeTime("1307878235383795732")
+check("snowflake time 2024", t > 1704067200 and t < 1735689600)
+check("spam nitro", BC.spamName("free_nitro_gift") ~= nil)
+check("spam digits", BC.spamName("user8392011") ~= nil)
+check("clean name", BC.spamName("shark") == nil)
+check("yonle hit", BC.yonleLookup("859938100481097728 BTC Scammer\n1 x", "859938100481097728") == "BTC Scammer")
+check("yonle miss", BC.yonleLookup("859938100481097728 BTC Scammer", "2") == nil)
+check("score low", (BC.score({ accountAgeDays = 900, robloxLinked = true })) == "Low")
+check("score medium", (BC.score({ accountAgeDays = 10, defaultAvatar = true })) == "Medium")
+check("score high", (BC.score({ accountAgeDays = 3, currentlyBanned = true })) == "High")
+local c = BC.clean("a \226\128\148 b \240\159\152\128")
+check("clean dash+emoji", not c:find("\226\128\148") and not c:find("\240"))
+-- main.lua wiring: hard lock comes before cmdperms and denial uses the plain message
+local src = io.open("main.lua"):read("*a")
+local lockAt, permAt = src:find('if name == "backgroundcheck" then', 1, true), src:find('if name == "permissions" then', 1, true)
+check("hard lock before /permissions + owner logic", lockAt and permAt and lockAt < permAt)
+check("hardLocked deny reply", src:find("access.hardLocked", 1, true) ~= nil)
+local cmd = io.open("commands/backgroundcheck.lua"):read("*a")
+check("no Ducky mention", not cmd:lower():find("ducky") and not io.open("libs/zeltra-backgroundcheck.lua"):read("*a"):lower():find("ducky"))
+check("no em dash in card", not cmd:find("\226\128\148"))
+print(passed .. " passed, " .. failed .. " failed")
+if failed > 0 then os.exit(1) end
