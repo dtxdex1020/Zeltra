@@ -13,7 +13,7 @@ local slashCommand = tools.slashCommand("link", "Link your Roblox account with S
 local words = {
 	"Waddle",
 	"South Carolina Roleplay",
-	"Duck",
+	"Palmetto",
 	"Versus",
 	"Geese",
 	"Goose",

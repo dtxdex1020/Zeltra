@@ -142,7 +142,7 @@ return {
 				msg = db:send(interaction.guild.id, "promotionschannel", tosend, nil, true)
 			else
 				-- Zeltra: SCRP promotion card with the promotions banner and footer strip, plus a DM to the member
-				local fs = require("fs")
+				local fs = _G.fs
 				local banner = fs.readFileSync("images/promotions/banner-promotions.jpg")
 				local strip = fs.readFileSync("images/promotions/strip.jpg")
 				local function card(intro)

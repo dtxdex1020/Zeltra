@@ -95,7 +95,7 @@ return {
 
             local errorID = ref.embed.description:match("%*%*Error ID:%*%* `(.-)`")
 
-            if (not errorID) or (errorID == "") or (errorID:usub(1,6) ~= "ducky_") then
+            if (not errorID) or (errorID == "") or not (errorID:match("^ducky_") or errorID:match("^scrp_")) then
                 return interaction:fail("Failed to extract the error ID from the message you replied to.", nil, true)
             end
 

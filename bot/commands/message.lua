@@ -15,7 +15,7 @@ return {
 		local default = nil
 
 		if importFrom then
-			if importFrom:usub(1,6) ==  "ducky_" then
+			if (importFrom:match("^ducky_") or importFrom:match("^scrp_")) then
 				local imported, err = import(importFrom, "message", true)
 				if not imported then
 					return interaction:fail(err, nil, true)

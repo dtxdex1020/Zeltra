@@ -8,7 +8,7 @@ local subcmd = tools.subCommand("owned", "View your SCRP Exportables.")
 slashCommand = slashCommand:addOption(subcmd)
 
 local function export(tbl, owner, exportableType, name)
-    local code = "ducky_" .. junkStr(25)
+    local code = "scrp_" .. junkStr(25)
 
     local value, char, err = json.encode(tbl)
     if not value then

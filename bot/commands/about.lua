@@ -21,17 +21,11 @@ local aboutcomps = discordia.Components()
         style = "link",
 		emoji = resolvedEmojis.support
     })
-    :button({
-        url = "https://docs.duckybot.xyz/",
-        label = "Ducky docs",
-        style = "link",
-		emoji = resolvedEmojis.book
-    })
 
 return {
     name = "about",
     description = "View information on South Carolina Roleplay!",
-    aliases = {"information", "info", "invite", "invitebot", "ducky", "zeltra", "source", "license", "credits"},
+    aliases = {"information", "info", "invite", "invitebot", "zeltra", "source", "license", "credits"},
     category = "General",
     slashCommand = slashCommand,
     requiredPermissions = {},
@@ -45,8 +39,7 @@ return {
         local emb = {
             title = emojis.ducky .. " South Carolina Roleplay",
             description = "> " .. emojis.ducky .. " **South Carolina Roleplay** is a multipurpose bot focused on seamlessly integrating Discord and ERLC server automation for effortless management, run by [**Dex**](https://discord.com/users/1307878235383795732).\n\n"
-                .. emojis.right .. " **Based on Ducky V1 by duckyerlc. Source: " .. _G.ZELTRA_SOURCE_URL .. "**\n"
-                .. emojis.right .. " South Carolina Roleplay is a modified version of [**Ducky V1**](https://github.com/duckyerlc/Ducky-opensource), originally developed by [**Troptop**](https://discord.com/users/598958193032560642) and [**bobbibones**](https://discord.com/users/782235114858872854) with [**Quackscordia**](https://github.com/DuckySupport/Quackscordia), a fork of [**Discordia**](https://github.com/SinisterRectus/Discordia).\n"
+                .. emojis.right .. " Open-source software. Full credits and the original authors are listed in the source code at " .. _G.ZELTRA_SOURCE_URL .. ".\n"
                 .. emojis.right .. " Licensed under the [**GNU AGPL-3.0**](https://www.gnu.org/licenses/agpl-3.0.html). You can get the complete source code of this bot, including all modifications, at " .. _G.ZELTRA_SOURCE_URL .. ".\n"
                 .. emojis.right .. " Found a bug or need help? [**Open an issue**](https://github.com/dtxdex1020/Zeltra/issues). Please read the [**Terms & Privacy**](https://github.com/dtxdex1020/Zeltra#terms-and-privacy) before using South Carolina Roleplay.",
             fields = {

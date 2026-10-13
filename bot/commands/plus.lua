@@ -412,7 +412,7 @@ return {
                 local id = ia.data.custom_id
 
                 if id == "purchaseslot" then
-                    loadingMessage = ia:loading("Doing duck stuff...", true)
+                    loadingMessage = ia:loading("Working on it...", true)
 
                     if type(loadingMessage) ~= "table" then
                         return ia:fail("Something went wrong, **please try again**.", nil, true)
@@ -598,7 +598,7 @@ return {
                         updateEmbed(ia)
                         utilityChannels.receipts:send(emojis.loading .. " **@" .. interaction.user.username .. "** initiated a transaction.\n-# " .. emojis.guild .. " " .. activeTransaction.slots .. "・" .. emojis.sale .. " `" .. (activeTransaction.code or "N/A") .. "`・" .. emojis.robux .. " " .. calculateTotal(activeTransaction.slots, activeTransaction.code) .. "・" .. emojis.roblox .. " " .. roblox.hyperlink)
                     else
-                        loadingMessage = ia:loading("Doing duck stuff...", true)
+                        loadingMessage = ia:loading("Working on it...", true)
 
                         if type(loadingMessage) ~= "table" then
                             return ia:fail("Something went wrong, **please try again**.", nil, true)
@@ -682,7 +682,7 @@ return {
                     end
                     checkPurchaseCooldowns[interaction.user.id] = now
                     if activeTransaction and activeTransaction.check and not activeTransaction.checking then
-                        loadingMessage = ia:loading("Doing duck stuff...", true)
+                        loadingMessage = ia:loading("Working on it...", true)
 
                         if type(loadingMessage) ~= "table" then
                             return ia:fail("Something went wrong, **please try again**.", nil, true)

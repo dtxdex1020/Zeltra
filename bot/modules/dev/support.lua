@@ -137,9 +137,6 @@ support.Start = function()
 										embed = {
 											title = emojis.success .. " Marked as Resolved",
 											description = ">>> Thank you for contacting SCRP Support. This post has been marked as resolved by **" .. ia.member.name .. "**. If you require additional assistance, please feel free to create a new post, and we'll help you out as fast as we can.\n-# " .. emojis.star .. " Consider leaving a review on the support members who assisted you within this thread via <#1261046113218068590>.",
-											image = {
-												url = "https://duckybot.xyz/images/banners/footers/success.png"
-											},
 											color = colors.success
 										}
 									})
@@ -172,9 +169,6 @@ support.Start = function()
 									embed = {
 										title = emojis.developer .. " Developer Requested",
 										description = ">>> A developer has been requested by **" .. ia.member.name .. "** to assist with this ticket. Please be patient while they arrive. While you wait, provide necessary information in order to fulfill our issue. This would usually include your server's ID, what you are trying to do, etc.",
-										image = {
-											url = "https://duckybot.xyz/images/banners/footers/support.png"
-										},
 										color = colors.info
 									}
 								})
@@ -212,9 +206,6 @@ support.Start = function()
 											embed = {
 												title = emojis.error .. " Guidelines Violated",
 												description = ">>> Your post has been closed by **" .. ia.member.name .. "** as it violates the Support Guidelines for the following reason: **" .. responses["Reason"] .. "**. If you still need assistance, please submit a new post, and be sure to follow the Support Guidelines.",
-												image = {
-													url = "https://duckybot.xyz/images/banners/footers/error.png"
-												},
 												color = colors.heavyred
 											}
 										})
@@ -247,9 +238,6 @@ support.Start = function()
 									embed = {
 										title = emojis.ticket .. " Moved to a Ticket",
 										description = ">>> **" .. ia.member.name .. "** has requested for you to make a ticket for further assistance. Please create a " .. emojis.support .. " **Private Support** ticket in <#1261005301021278321>. Please be sure to provide the thread link in the ticket:```https://discord.com/channels/" .. thread._parent_id .. "/" .. thread.id .. "```",
-										image = {
-											url = "https://duckybot.xyz/images/banners/footers/support.png"
-										},
 										color = colors.info
 									}
 								})
@@ -281,9 +269,6 @@ support.Start = function()
 									embed = {
 										title = emojis.bughunter .. " Marked as a Bug",
 										description = ">>> This post has been marked as a bug by **" .. ia.member.name .. "**. This should be resolved soon. Please be patient, and provide necessary information when requested to.",
-										image = {
-											url = "https://duckybot.xyz/images/banners/footers/warning.png"
-										},
 										color = colors.warning
 									}
 								})
@@ -315,9 +300,6 @@ support.Start = function()
 								embed = {
 									title = emojis.warning .. " Inactivity Reminder",
 									description = ">>> This post has been marked as inactive by **" .. ia.member.name .. "**. Be sure to respond to our support team so we can assist you further. If your issue is resolved, please press " .. emojis.success .. " **Mark as Resolved** via the [thread panel](" .. ia.message.link .. ").",
-									image = {
-										url = "https://duckybot.xyz/images/banners/footers/warning.png"
-									},
 									color = colors.warning
 								}
 							})

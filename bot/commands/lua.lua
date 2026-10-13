@@ -588,7 +588,7 @@ return {
 		local startExecution = realtime()
 
 		p("executing", toexec)
-		local fn, syntaxError = load(toexec, 'Ducky', 't', sandbox)
+		local fn, syntaxError = load(toexec, 'SCRP', 't', sandbox)
 		if not fn then
 			if response then
 				response:update({

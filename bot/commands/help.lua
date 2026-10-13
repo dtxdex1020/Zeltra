@@ -121,7 +121,7 @@ return {
                 description = emojis.right .. " Welcome to " .. emojis.ducky .. " **South Carolina Roleplay's Help Menu**, view more information on commands below, or [**open an issue**](https://github.com/dtxdex1020/Zeltra/issues) for further assistance.",
                 color = colors.duckyyellow,
                 thumbnail = { url = Client.user.avatarURL },
-                footer = { text = "SCRP is based on Ducky V1 by duckyerlc (AGPL-3.0) · Source: " .. _G.ZELTRA_SOURCE_URL, icon_url = Client.user.avatarURL }
+                footer = { text = "South Carolina Roleplay · Open source (AGPL-3.0) · Source: " .. _G.ZELTRA_SOURCE_URL, icon_url = Client.user.avatarURL }
             },
             components = discordia.Components({
                 buildCategorySelector(false)
@@ -131,13 +131,6 @@ return {
                     style  = 'link',
                     label = 'Support',
                     emoji = resolvedEmojis.support
-
-                })
-                :button({
-                    url = 'https://docs.duckybot.xyz/',
-                    style = 'link',
-                    label = 'Documentation (Ducky docs)',
-                    emoji = resolvedEmojis.edit
 
                 })
                 :raw()

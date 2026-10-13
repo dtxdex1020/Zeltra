@@ -1763,6 +1763,7 @@ end
 _G.blacklisted = blacklisted
 
 local function saveError(errID, cmd, err, guildID, userID)
+	print("[error] " .. tostring(errID) .. " in /" .. tostring(cmd) .. ": " .. tostring(err))
 	local errors = sqldb:getAllErrors() or {}
 
 	local errormsg = err
@@ -2035,7 +2036,7 @@ Client:on("messageCreate", function(message)
 	local s, e = runWithGrant(granted, message.member, cmdCb, message, args, nil, subcmd and subcmd:lower())
 
 	if not s then
-		local errorID = "ducky_" .. junkStr(10)
+		local errorID = "scrp_" .. junkStr(10)
 		local errid = saveError(errorID, command.name, e, message.guild.id, message.user.id)
 		message:reply({
 			embed = {
@@ -2261,7 +2262,7 @@ Client:on("slashCommand", function(interaction, command, args)
 		local s, e = runWithGrant(granted, interaction.member, cmdCb, interaction, args, command, subcmd and subcmd:lower())
 
 		if not s then
-			local errorID = "ducky_" .. junkStr(10)
+			local errorID = "scrp_" .. junkStr(10)
 			local errid = saveError(errorID, command.name, e, interaction.guild.id, interaction.user.id)
 			interaction:reply({
 				embed = {

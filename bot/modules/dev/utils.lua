@@ -4306,7 +4306,7 @@ utils.Start = function()
 							style = "short",
 							required = false,
 							max = 31,
-							default = (existing and not existing.disabled and existing.id) and existing.id:match("^ducky_(.+)$") or nil
+							default = (existing and not existing.disabled and existing.id) and (existing.id:match("^scrp_(.+)$") or existing.id:match("^ducky_(.+)$")) or nil
 						})
 					end
 

@@ -14,7 +14,7 @@ verificationmodule.Start = function()
         Client:error("DuckyAPI emitter not found; API verification listener is disabled.")
     end
 
-    local words = {"Waddle", "Ducky", "Duck", "Versus", "Geese", "Goose", "Pond", "Water", "Grass", "Rubber", "Bathtub",
+    local words = {"Waddle", "Carolina", "Palmetto", "Versus", "Geese", "Goose", "Pond", "Water", "Grass", "Rubber", "Bathtub",
                    "Yellow", "Blue"}
 
     local function generatePhrase(phraseLength, predicate)

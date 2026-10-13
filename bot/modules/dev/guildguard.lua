@@ -70,6 +70,13 @@ local function sweep()
 		for g in Client.guilds:iter() do table.insert(list, g) end
 		for _, g in ipairs(list) do check(g) end
 		ensureMain()
+		local dumpId = os.getenv("DUMP_ERROR_ID")
+		if dumpId and dumpId ~= "" and sqldb and sqldb.getError then
+			for id in dumpId:gmatch("[^,]+") do
+				local ok, e = pcall(function() return sqldb:getError(id) end)
+				print("[ERRDUMP] " .. id .. ": " .. (ok and e and require("json").encode(e) or tostring(e)))
+			end
+		end
 	end)()
 end
 
