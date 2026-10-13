@@ -70,7 +70,7 @@ M.HR = {
 				{ key = "age", question = "How old are you?", placeholder = "Your age", style = "short", required = true, max = 3 },
 				{ key = "rank", question = "Are you staff anywhere? What rank, how long?", placeholder = "SCRP or any other server. Example: Moderator here, 2 months. Say none if not.", style = "short", required = true, max = 100 },
 				{ key = "activity", question = "Time zone and weekly availability", placeholder = "Time zone, hours a week and the days and times you're usually on", style = "paragraph", required = true, min = 30, max = 400 },
-				{ key = "experience", question = "Leadership experience, with proof", placeholder = "Where, what rank, how long and what you did. Add links or screenshots as proof.", style = "paragraph", required = true, min = 150, max = 1500 },
+				{ key = "experience", question = "Leadership experience", placeholder = "Describe where you led, your rank, how long and what you were responsible for.", style = "paragraph", required = true, min = 150, max = 1500 },
 			},
 		},
 		{
