@@ -47,5 +47,39 @@ do
 	check("shop escalation goes to Ownership only", #esc.tiers == 1 and esc.tiers[1].key == "ownership")
 	check("shop escalation has staff role and cooldown", esc.staffrole ~= nil and esc.cooldown == 120)
 end
+do -- High Rank application
+	local H = A.HR
+	check("HR has two pages", #H.PAGES == 2)
+	local n = 0
+	for i, page in ipairs(H.PAGES) do
+		check("HR page " .. i .. " has at most 5 questions", #page.questions <= 5)
+		for _, q in ipairs(page.questions) do
+			n = n + 1
+			check("HR label fits 45 chars: " .. q.question, #q.question <= 45)
+			check("HR placeholder fits 100 chars: " .. q.key, not q.placeholder or #q.placeholder <= 100)
+			local t = q.question .. (q.placeholder or "")
+			check("HR text has no em dash or Ducky: " .. q.key, not t:find("\226\128\148") and not t:lower():find("ducky"))
+		end
+	end
+	check("HR has 8 to 10 questions", n >= 8 and n <= 10)
+	check("HR questions copy from HR pages", A.questions(1, H)[1].question == H.PAGES[1].questions[1].question)
+	check("HR goes to the staff review channel", H.REVIEW_CHANNEL == A.REVIEW_CHANNEL)
+	check("HR state is separate from staff", H.stateKey ~= A.STAFF.stateKey)
+	local c, act = A.parseId("scrpapp_start"); check("staff start id", c == A.STAFF and act == "start")
+	c, act = A.parseId("scrpapp_next"); check("staff next id", c == A.STAFF and act == "next")
+	local u; c, act, u = A.parseId("scrpapp_acc_123"); check("staff accept id", c == A.STAFF and act == "acc" and u == "123")
+	c, act, u = A.parseId("scrpapp_deny_123"); check("staff deny id", c == A.STAFF and act == "deny" and u == "123")
+	c, act = A.parseId("scrpapp_hr_start"); check("hr start id", c == H and act == "start")
+	c, act = A.parseId("scrpapp_hr_next"); check("hr next id", c == H and act == "next")
+	c, act, u = A.parseId("scrpapp_hr_acc_9"); check("hr accept id", c == H and act == "acc" and u == "9")
+	c, act, u = A.parseId("scrpapp_hr_deny_9"); check("hr deny id", c == H and act == "deny" and u == "9")
+	check("unknown id ignored", A.parseId("scrpapp_hr_bogus") == nil and A.parseId("other") == nil)
+	check("prefixes", A.prefix(H) == "scrpapp_hr_" and A.prefix(A.STAFF) == "scrpapp_")
+	check("staff role passes", A.isStaff(H, { [H.STAFF_ROLE] = true }, false))
+	check("staff rank passes", A.isStaff(H, {}, true))
+	check("non staff blocked", not A.isStaff(H, {}, false))
+	check("not staff message is polite", H.NOT_STAFF:find("only open to current SCRP staff", 1, true) ~= nil)
+	check("HR pending blocks", A.canApply({ pending = { ["1"] = 90 } }, "1", 100, H) == false)
+end
 print(("\n%d passed, %d failed"):format(passed, failed))
 if failed > 0 then process:exit(1) end

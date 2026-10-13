@@ -105,7 +105,7 @@ local FAQ = {
 	{ "join", { "how do i join", "how to join", "join code", "server code", "join the server", "private server", "cant join", "can't join", "code", "joining", "get in", "server link" },
 		"**Joining the server:** open ER:LC on Roblox, go to Servers, then Private Servers, then Join by Code. The code is in every session post in <#1522997820389589124>." },
 	{ "staff", { "apply", "application", "staff app", "become staff", "join staff", "be staff", "be a mod", "moderator", "staff team", "applying", "hiring", "how do i get staff" },
-		"**Staff applications:** press Start Application in <#1522997820389589131>. Results come by DM and in <#1522997820775469127>. If you were denied, you can apply again after 14 days." },
+		"**Staff applications:** press Start Application in <#1522997820389589131>. Results come by DM and in <#1522997820775469127>. If you were denied, you can apply again after 14 days. Current staff can also press HR Application there to apply for High Rank." },
 	{ "verify", { "verify", "verification", "verified", "bloxlink", "unverified", "link my roblox", "link roblox", "link account", "cant see channels", "can't see channels" },
 		"**Verifying:** go to <#1522997820116697220> and follow the steps there to link your Roblox account. Once you're verified the Unverified role goes away by itself." },
 	{ "report", { "report", "reporting", "rule break", "broke the rules", "breaking rules", "exploiter", "exploiting", "hacker", "hacking", "rdm", "vdm", "clip", "proof", "griefing", "trolling", "toxic" },

@@ -48,24 +48,105 @@ M.PAGES = {
 	},
 }
 
+-- High Rank application. Same flow, review buttons and result format as the staff one.
+-- Only members who already hold a staff role can send it. Reviews go to the same app-responses channel, labeled HR.
+M.HR = {
+	kind = "hr",
+	name = "High Rank application",
+	footer = "High Rank Applications",
+	stateKey = "scrphrapps",
+	REVIEW_CHANNEL = M.REVIEW_CHANNEL,
+	RESULTS_CHANNEL = M.RESULTS_CHANNEL,
+	REVIEW_PING = "1522997818447626452", -- SCRP I Senior High Rank
+	REVIEWER_ROLE = "1522997818447626452", -- Senior High Rank or above can accept or deny
+	STAFF_ROLE = "1522997818531512542", -- SCRP | Staff Team
+	PASS_ROLE = nil, -- HR rank is given by hand after acceptance
+	COOLDOWN = 14 * 24 * 3600,
+	PENDING_COOLDOWN = 7 * 24 * 3600,
+	NOT_STAFF = "Thanks for your interest! The High Rank application is only open to current SCRP staff. If you're not on the team yet, you can send a staff application first.",
+	PAGES = {
+		{
+			title = "High Rank Application (1 of 2)",
+			questions = {
+				{ key = "roblox", question = "Roblox username", placeholder = "Your exact Roblox username", style = "short", required = true, max = 40 },
+				{ key = "age", question = "How old are you?", placeholder = "Your age", style = "short", required = true, max = 3 },
+				{ key = "activity", question = "Time zone and hours a week", placeholder = "Example: EST, about 15 hours a week", style = "short", required = true, max = 100 },
+				{ key = "rank", question = "Current SCRP rank and how long you've had it", placeholder = "Example: Senior Moderator, about 2 months", style = "short", required = true, max = 100 },
+				{ key = "experience", question = "Past HR or management experience", placeholder = "Where, what rank and how long. Say none if you have none.", style = "paragraph", required = true, max = 800 },
+			},
+		},
+		{
+			title = "High Rank Application (2 of 2)",
+			questions = {
+				{ key = "abuse", question = "A staff member is abusing powers. You?", placeholder = "Walk us through how you handle it, from proof to punishment", style = "paragraph", required = true, min = 50, max = 900 },
+				{ key = "conflict", question = "Two staff members are in a conflict. You?", placeholder = "How do you calm it down and sort it out fairly?", style = "paragraph", required = true, min = 50, max = 900 },
+				{ key = "why", question = "Why do you deserve High Rank?", placeholder = "In your own words", style = "paragraph", required = true, min = 50, max = 1000 },
+				{ key = "improve", question = "What would you improve as High Rank?", placeholder = "Something in the staff team or server you would work on", style = "paragraph", required = true, min = 30, max = 800 },
+				{ key = "extra", question = "Anything else we should know?", placeholder = "Optional", style = "paragraph", required = false, max = 600 },
+			},
+		},
+	},
+}
+
+-- staff application as a config table too (same fields as M.HR), so scrp.lua can run both with one flow
+M.STAFF = {
+	kind = "staff",
+	name = "staff application",
+	footer = "Staff Applications",
+	stateKey = "scrpapps",
+	REVIEW_CHANNEL = M.REVIEW_CHANNEL,
+	RESULTS_CHANNEL = M.RESULTS_CHANNEL,
+	REVIEW_PING = M.REVIEW_PING,
+	REVIEWER_ROLE = M.REVIEWER_ROLE,
+	PASS_ROLE = M.PASS_ROLE,
+	COOLDOWN = M.COOLDOWN,
+	PENDING_COOLDOWN = M.PENDING_COOLDOWN,
+	PAGES = M.PAGES,
+}
+
+--- Custom id prefix for an application kind. Staff keeps the old ids so posted panels and review cards still work.
+function M.prefix(cfg)
+	return (cfg and cfg.kind == "hr") and "scrpapp_hr_" or "scrpapp_"
+end
+
+--- Which application and action a button id belongs to: returns cfg, action, userId (action is start, next, acc or deny)
+function M.parseId(id)
+	if type(id) ~= "string" then return nil end
+	local cfg, rest = M.STAFF, id:match("^scrpapp_(.+)$")
+	if not rest then return nil end
+	local hr = rest:match("^hr_(.+)$")
+	if hr then cfg, rest = M.HR, hr end
+	if rest == "start" or rest == "next" then return cfg, rest end
+	local action, userId = rest:match("^(%a+)_(%d+)$")
+	if action == "acc" or action == "deny" then return cfg, action, userId end
+	return nil
+end
+
+--- Does the member hold a staff role? roleIds is a set {[id]=true}; extra is an optional checker (hasStaffRank).
+function M.isStaff(cfg, roleIds, extra)
+	if cfg.STAFF_ROLE and roleIds[cfg.STAFF_ROLE] then return true end
+	return extra == true
+end
+
 --- Copy of a page's questions in the format _G.prompt expects (it adds fields to the tables it gets).
-function M.questions(page)
+function M.questions(page, cfg)
 	local out = {}
-	for _, q in ipairs(M.PAGES[page].questions) do
+	for _, q in ipairs((cfg or M).PAGES[page].questions) do
 		out[#out + 1] = { question = q.question, placeholder = q.placeholder, style = q.style, required = q.required, min = q.min, max = q.max, key = q.key }
 	end
 	return out
 end
 
 --- Is the member allowed to apply right now? state = { cooldowns = {[userId]=until}, pending = {[userId]=timestamp} }
-function M.canApply(state, userId, now)
+function M.canApply(state, userId, now, cfg)
+	cfg = cfg or M
 	state = state or {}
 	local untilTs = state.cooldowns and state.cooldowns[userId]
 	if untilTs and now < untilTs then
 		return false, "You were denied recently. You can apply again <t:" .. untilTs .. ":R>."
 	end
 	local pending = state.pending and state.pending[userId]
-	if pending and now - pending < M.PENDING_COOLDOWN then
+	if pending and now - pending < cfg.PENDING_COOLDOWN then
 		return false, "Your application is still being reviewed. You'll get a DM once there's a decision."
 	end
 	return true
