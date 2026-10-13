@@ -4,8 +4,13 @@
 
 local M = {}
 
--- The bot owner (Dex). Always merged with SECRETS.DEV_ACCESS_IDS by callers.
-M.OWNER_ID = "1307878235383795732"
+-- The bot owner. Always merged with SECRETS.DEV_ACCESS_IDS by callers.
+-- TESTING (2026-10-13): dtxdex (1307878235383795732) is treated as a normal member; dtxdex1 is the only owner.
+-- UNDO: set OWNER_ID back to "1307878235383795732" and empty TEST_DEMOTED_IDS below (and in libs/zeltra-security-core.lua).
+M.OWNER_ID = "1514313618827510011"
+
+-- IDs that are never treated as bot owner / bypass, even if listed in SECRETS.DEV_ACCESS_IDS.
+M.TEST_DEMOTED_IDS = { ["1307878235383795732"] = true }
 
 M.MODES = { "default", "roles-only", "everyone", "disabled" }
 M.MODE_SET = { ["default"] = true, ["roles-only"] = true, ["everyone"] = true, ["disabled"] = true }
@@ -108,6 +113,9 @@ function M.isBotOwner(userId, devIds)
 		return false
 	end
 	userId = tostring(userId)
+	if M.TEST_DEMOTED_IDS[userId] then
+		return false
+	end
 	return userId == M.OWNER_ID or find(devIds, userId)
 end
 

@@ -987,6 +987,37 @@ end
 _G.syncSlashCommands = syncSlashCommands
 
 Client:once("ready", function()
+	-- One-time cleanup (2026-10-13): remove erroneous infraction 1559614676311212032 and log staff-role config.
+	coroutine.wrap(function()
+		local ok, err = pcall(function()
+			local gid = "1522997818330058772"
+			local config = sqldb:get(gid, true)
+			if not config then return end
+			local list, removed = config.infractions or {}, false
+			for i = #list, 1, -1 do
+				if tostring(list[i].id) == "1559614676311212032" then
+					table.remove(list, i)
+					removed = true
+				end
+			end
+			if removed then
+				sqldb:set(gid, { infractions = list }, "INFRACTION_REVOKE")
+			end
+			local left = 0
+			for _, inf in ipairs(list) do
+				if tostring(inf.user) == "1067233985773715587" then left = left + 1 end
+			end
+			print("[cleanup] infraction 1559614676311212032 removed=" .. tostring(removed) .. " remaining for 1067233985773715587=" .. left)
+			for _, key in ipairs({ "modroles", "adminroles", "erlcstaffroles", "erlcadminroles", "erlcmanagerroles", "sessionstarterroles" }) do
+				print("[cleanup] " .. key .. "=" .. table.concat(config[key] or {}, ","))
+			end
+			local overrides = sqldb:getCommandPermissions(gid) or {}
+			for k, rec in pairs(overrides) do
+				print("[cleanup] override " .. tostring(k) .. " mode=" .. tostring(rec.mode))
+			end
+		end)
+		if not ok then print("[cleanup] failed: " .. tostring(err)) end
+	end)()
 	if _G.zeltraInteractions and not zeltraInteractions._lagMonitor then
 		zeltraInteractions._lagMonitor = zeltraInteractions.startLagMonitor(500)
 	end
@@ -1224,7 +1255,8 @@ end
 _G.getModule = getModule
 
 local function isdev(member)
-	return (table.find(SECRETS.DEV_ACCESS_IDS or {}, member.id) and true) or false
+	-- respects cmdperms.TEST_DEMOTED_IDS
+	return cmdperms.isBotOwner(member and member.id, SECRETS.DEV_ACCESS_IDS)
 end
 
 -- Zeltra: owner bypass ----------------------------------------------------------------------------------------
@@ -1308,6 +1340,40 @@ local function slashNameOf(command)
 end
 _G.slashNameOf = slashNameOf
 
+local STAFF_CATEGORIES = { ["moderation"] = true, ["staff management"] = true, ["activity management"] = true, ["sessions"] = true }
+local STAFF_COMMAND_NAMES = { punishments = true, bolo = true, modstats = true, syncbans = true, security = true, lock = true, unlock = true, nick = true, case = true, modlogs = true, promotion = true, infraction = true, warn = true }
+-- Member-facing commands inside staff categories (e.g. /feedback submit) keep working for everyone.
+local STAFF_FLOOR_EXEMPT = { feedback = true }
+
+function isStaffCommand(command)
+	local name = slashNameOf(command)
+	if STAFF_FLOOR_EXEMPT[name] then
+		return false
+	end
+	return STAFF_COMMAND_NAMES[name] or STAFF_CATEGORIES[tostring(command.category or ""):lower()] or false
+end
+_G.isStaffCommand = isStaffCommand
+
+--- True if the member holds any configured staff rank (any tier) or Manage Server.
+function hasStaffRank(member)
+	local ok, res = pcall(function()
+		if member:hasPermission("manageGuild") then
+			return true
+		end
+		local config = sqldb:get(member.guild.id) or {}
+		for _, key in ipairs({ "modroles", "adminroles", "erlcstaffroles", "erlcadminroles", "erlcmanagerroles", "sessionstarterroles" }) do
+			for _, roleId in pairs(config[key] or {}) do
+				if member:hasRole(roleId) then
+					return true
+				end
+			end
+		end
+		return false
+	end)
+	return ok and res == true
+end
+_G.hasStaffRank = hasStaffRank
+
 --- Central /permissions check. Returns the cmdperms result table ({decision, privileged, granted, ...}).
 --- `isSlash` enables bot-side enforcement of the command's Discord default permission when the bot has made the
 --- command visible (default_member_permissions unset) because of an override in some server.
@@ -1345,6 +1411,12 @@ local function checkCommandAccess(member, guild, command, subcmd, isSlash)
 		if permName and ok and not has then
 			return { decision = "deny", privileged = false, granted = false, reason = "missing Discord permission " .. permName }
 		end
+	end
+
+	-- Staff floor: moderation/staff commands need a real staff rank no matter what /permissions grants.
+	-- Bot owners and the server owner (handled above in cmdperms.resolve) stay exempt.
+	if result.decision ~= "deny" and not result.privileged and isStaffCommand(command) and not hasStaffRank(member) then
+		return { decision = "deny", privileged = false, granted = false, reason = "no staff rank" }
 	end
 
 	return result

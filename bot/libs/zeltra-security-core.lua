@@ -13,6 +13,9 @@ local M = {}
 
 -- Bot owners: the security system never acts against these accounts.
 M.PROTECTED_USERS = { "1307878235383795732", "1514313618827510011" }
+-- TESTING (2026-10-13): dtxdex is not protected / skipped by anti-nuke or threat checks.
+-- UNDO: empty this table (and TEST_DEMOTED_IDS in utils/cmdperms.lua).
+M.TEST_DEMOTED_IDS = { ["1307878235383795732"] = true }
 
 M.DEFAULTS = {
 	enabled = true,
@@ -514,6 +517,7 @@ end
 ---------------------------------------------------------------- misc
 function M.isProtectedId(id, extra)
 	id = tostring(id or "")
+	if M.TEST_DEMOTED_IDS[id] then return false end
 	for _, p in ipairs(M.PROTECTED_USERS) do if p == id then return true end end
 	for _, p in ipairs(extra or {}) do if tostring(p) == id then return true end end
 	return false
