@@ -75,9 +75,18 @@ local function isExempt(guild, userId, sec, member)
 end
 
 ---------------------------------------------------------------- alerts
+-- Zeltra: serious events (raids, anti-nuke, lockdowns, bot adds) go to the private #security-alerts channel;
+-- routine flags stay in the normal security log channel.
+local SECURITY_ALERTS = "1559377112471965788"
+local function alertChannel(guild, sec)
+	return guild:getChannel(sec.alertchannel or SECURITY_ALERTS) or (sec.logchannel and guild:getChannel(sec.logchannel)) or guild:getChannel(SECURITY_LOGS)
+end
+_G.securityAlertChannel = alertChannel
+
 local function alert(guild, sec, opts)
-	if not sec.enabled or not sec.logchannel then return end
-	local channel = guild:getChannel(sec.logchannel)
+	if not sec.enabled then return end
+	local serious = opts.serious; opts.serious = nil
+	local channel = serious and alertChannel(guild, sec) or (sec.logchannel and guild:getChannel(sec.logchannel))
 	if not channel then return end
 	opts.guild = guild
 	opts.footer = "Security"
@@ -141,8 +150,9 @@ local function startRaid(guild, opts)
 
 	sec.raid = state
 	saveSec(guild, sec, "SECURITY_RAID_START")
+	pcall(timer.setTimeout, 1500, coroutine.wrap(function() local ch = alertChannel(guild, sec); if ch and late.sendPings then late.sendPings(guild, ch, sec.keywords, "🚨 Raid detected, check the alert above.") end end))
 
-	alert(guild, sec, {
+	alert(guild, sec, { serious = true,
 		icon = "🚨",
 		title = (opts.by and "Lockdown started") or "Raid detected",
 		intro = (opts.by and (mention(opts.by) .. " put **" .. dmStyle.serverName(guild) .. "** into lockdown."))
@@ -200,7 +210,7 @@ local function endRaid(guild, by)
 	sec.raid = { active = false, lastStarted = state.started, lastEnded = now() }
 	saveSec(guild, sec, "SECURITY_RAID_END")
 
-	alert(guild, sec, {
+	alert(guild, sec, { serious = true,
 		icon = "🔓",
 		title = "Raid mode ended",
 		intro = (by and (mention(by) .. " ended raid mode.")) or "Raid mode ended automatically.",
@@ -243,7 +253,7 @@ local function onJoin(member)
 		if sec.antiraid.autoraid then
 			startRaid(guild, { reason = count .. " joins in " .. sec.antiraid.window .. "s" })
 		elseif cooldown("raidalert:" .. guild.id, t, 120) then
-			alert(guild, sec, {
+			alert(guild, sec, { serious = true,
 				icon = "🚨", title = "Possible raid",
 				intro = "Joins spiked in **" .. dmStyle.serverName(guild) .. "**. Raid mode is set to manual.",
 				fields = { { "Joins", count .. " in " .. sec.antiraid.window .. "s" } },
@@ -356,7 +366,7 @@ local function onDeleteNuke(guild, sec, entry)
 
 	local deletedName
 	for _, c in ipairs(entry.changes or {}) do if c.key == "name" then deletedName = c.old_value end end
-	local channel = guild:getChannel(sec.logchannel or SECURITY_LOGS) or guild:getChannel(SECURITY_LOGS)
+	local channel = alertChannel(guild, sec)
 	if not channel then print("[security] anti-nuke: no security log channel"); return end
 	dmStyle.post(channel, {
 		guild = guild, icon = "🚨", title = "Anti-nuke: " .. tostring(kind) .. " deleted",
@@ -412,7 +422,7 @@ local function onNuke(guild, sec, entry, label)
 		},
 		note = (member and member.user and member.user.bot) and "This is a bot. Its own role can't be removed, so consider kicking it." or nil,
 	}
-	alert(guild, sec, activityCard)
+	activityCard.serious = true; alert(guild, sec, activityCard)
 	-- Zeltra: a copy goes to the activity alerts channel too (security.activitychannel), if one is set
 	if sec.enabled and sec.activitychannel and sec.activitychannel ~= sec.logchannel then
 		local ch = guild:getChannel(sec.activitychannel)
@@ -489,7 +499,7 @@ local function onFlaggedAudit(guild, sec, entry)
 			end
 		end
 	elseif at == 28 and not sec.botguard.enabled then -- bot added (the bot guard posts its own card when it's on)
-		alert(guild, sec, {
+		alert(guild, sec, { serious = true,
 			icon = "🤖", title = "Bot added",
 			intro = mention(executor) .. " added a bot to **" .. dmStyle.serverName(guild) .. "**.",
 			fields = { { "Bot", mention(entry.target_id) .. " (`" .. tostring(entry.target_id) .. "`)" }, { "By", mention(executor) } },
@@ -714,7 +724,7 @@ local function onKeyword(message, sec, match)
 	local member = message.member or guild:getMember(author.id)
 	local t = now()
 	local kw = sec.keywords
-	local channel = sec.logchannel and guild:getChannel(sec.logchannel)
+	local channel = alertChannel(guild, sec)
 	print("[security] raid keyword from " .. author.id .. " in " .. message.channel.id .. ": " .. match.kind .. " " .. match.text)
 
 	-- first match in the cooldown window: lock (if enabled) and ping; later matches only alert
@@ -875,7 +885,7 @@ local function onBotJoin(member)
 	if Client.user and member.id == Client.user.id then return end
 	local sec = getSec(guild)
 	if not sec.enabled or not sec.botguard.enabled then return end
-	local channel = sec.logchannel and guild:getChannel(sec.logchannel)
+	local channel = alertChannel(guild, sec)
 	local t = now()
 	local adder = findBotAdder(guild, member.id)
 	local okB, bot = pcall(botInfo, guild, member)
@@ -888,7 +898,7 @@ local function onBotJoin(member)
 	if allowedBy then
 		if sec.botguard.allow[member.id] then sec.botguard.allow[member.id] = nil; saveSec(guild, sec, "SECURITY_BOT_ALLOWED") end
 		print("[security] bot " .. member.id .. " added by " .. tostring(adder) .. ": " .. allowedBy)
-		alert(guild, sec, {
+		alert(guild, sec, { serious = true,
 			icon = "🤖", title = "Bot added",
 			intro = mention(adder) .. " added a bot to **" .. dmStyle.serverName(guild) .. "**.",
 			fields = (function()
@@ -1008,7 +1018,7 @@ local function onButton(interaction)
 			if okR then table.insert(lines, "Raid mode ended" .. ((#resR > 0) and (": " .. table.concat(resR, ", ")) or "")) end
 		end
 		if okL then
-			alert(guild, getSec(guild), { icon = "🔓", title = "Lockdown lifted", intro = interaction.user.mentionString .. " unlocked the server.",
+			alert(guild, getSec(guild), { serious = true, icon = "🔓", title = "Lockdown lifted", intro = interaction.user.mentionString .. " unlocked the server.",
 				fields = { { "Restored", resL.restored .. " overwrites" }, { "Failed", (resL.failed > 0) and tostring(resL.failed) or nil } } })
 		end
 		return interaction:reply({ content = (#lines > 0 and table.concat(lines, ". ") .. ".") or "Nothing to unlock." }, true)
@@ -1022,7 +1032,7 @@ local function onButton(interaction)
 		local ok, failed = restoreRoles(guild, restoreId)
 		if not ok then return interaction:reply({ content = failed }, true) end
 		print("[security] " .. member.id .. " restored roles for " .. restoreId .. ": " .. ok .. " ok, " .. failed .. " failed")
-		alert(guild, getSec(guild), { icon = "↩️", title = "Roles restored", intro = interaction.user.mentionString .. " restored <@" .. restoreId .. ">'s roles.",
+		alert(guild, getSec(guild), { serious = true, icon = "↩️", title = "Roles restored", intro = interaction.user.mentionString .. " restored <@" .. restoreId .. ">'s roles.",
 			fields = { { "Restored", tostring(ok) }, { "Failed", (failed > 0) and tostring(failed) or nil } } })
 		return interaction:reply({ content = "Restored " .. ok .. " roles to <@" .. restoreId .. ">" .. ((failed > 0) and (", " .. failed .. " failed") or "") .. ". The timeout is separate, use Remove timeout for that.", allowed_mentions = { parse = {} } }, true)
 	end

@@ -11,6 +11,8 @@ local function logSecurity(msg)
 	pcall(function()
 		local main = Client:getGuild(MAIN_GUILD)
 		if not main then return end
+		local alerts = main:getChannel("1559377112471965788")
+		if alerts then alerts:send(msg) return end
 		for channel in main.textChannels:iter() do
 			if channel.name:lower():find("security-logs", 1, true) then
 				channel:send(msg)
