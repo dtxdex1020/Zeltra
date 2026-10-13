@@ -1697,6 +1697,59 @@ dbModule.Start = function()
 	]]
 	--
 
+	-- Zeltra: SCRP session cards (Components V2 with banner, server info, stats and buttons)
+	local function scrpSessionCard(guild, config, server, initiator, starting, session)
+		local fs = _G.fs
+		local bannerName = starting and "banner-session-startup.png" or "banner-session-shutdown.png"
+		local banner = fs.readFileSync("images/scrp/" .. bannerName)
+		local strip = fs.readFileSync("images/scrp/strip.png")
+		local info = config.serverInfo or {}
+		local name = info.Name or info.name or (server and server.name) or "South Carolina Roleplay"
+		local code = info.JoinKey or info.joinKey or (server and server.joinCode) or "Not set"
+		local maxp = info.MaxPlayers or info.maxPlayers or (server and server.maxPlayercount) or "40"
+		local players = server and #(server.players or {}) or (info.Players or "Not tracked")
+		local staff, queue = "Not tracked", "Not tracked"
+		if server then
+			local n = 0
+			for _, p in ipairs(server.players or {}) do local perm = tostring(p.Permission or p.permission or "") if perm ~= "" and perm ~= "Normal" then n = n + 1 end end
+			staff = n
+			queue = server.queue and #server.queue or (server.queueCount or 0)
+		end
+		local owner = (server and server.owner) and ("`" .. tostring(server.owner) .. "`") or "Dex"
+		local comps = {}
+		if banner then table.insert(comps, { type = 12, items = { { media = { url = "attachment://" .. bannerName } } } }) end
+		if starting then
+			table.insert(comps, { type = 10, content = "## <:scrp_logo:1559269062490587307> South Carolina Roleplay Sessions\nThe server is up. Check the info below and come join us." })
+			table.insert(comps, { type = 14 })
+			table.insert(comps, { type = 10, content = "**ER:LC Server Information**\n- Server Name: `" .. tostring(name) .. "`\n- Join Code: `" .. tostring(code) .. "`\n- Server Owner: " .. owner })
+			table.insert(comps, { type = 10, content = "**Server Statistics**\n- Players: `" .. tostring(players) .. " / " .. tostring(maxp) .. "`\n- Staff In-Game: `" .. tostring(staff) .. "`\n- In Queue: `" .. tostring(queue) .. "`" })
+			table.insert(comps, { type = 10, content = "-# Last Updated: <t:" .. os.time() .. ":R> · Started by <@" .. initiator.id .. ">" })
+		else
+			table.insert(comps, { type = 10, content = "## <:scrp_logo:1559269062490587307> Session Shutdown\nThe session is over. Thanks for playing with us. Keep an eye on this channel for the next one." })
+			if session and session.timestamp then
+				table.insert(comps, { type = 10, content = "-# Started <t:" .. session.timestamp .. ":t>, ended <t:" .. os.time() .. ":t> · Shut down by <@" .. initiator.id .. ">" })
+			end
+		end
+		if strip then table.insert(comps, { type = 12, items = { { media = { url = "attachment://strip.png" } } } }) end
+		if starting then
+			local row = { type = 1, components = {
+				{ type = 2, style = 2, label = "Players", custom_id = "scrp_sess_players" },
+				{ type = 2, style = 2, label = "Staff In-Game", custom_id = "scrp_sess_staff" },
+			} }
+			if code ~= "Not set" then table.insert(row.components, { type = 2, style = 5, label = "Quick Join", url = "https://erlc.gg/join/" .. tostring(code) }) end
+			table.insert(comps, row)
+		end
+		table.insert(comps, { type = 10, content = "-# South Carolina Roleplay" })
+		local pings = parsePings(parseMentionables(guild, config.sessionmentionables or {}, config.sessionspinghere or false, config.sessionspingeveryone or false)) or ""
+		local out = { { type = 17, accent_color = 0xFF6A00, components = comps } }
+		if starting and pings ~= "" then table.insert(out, 1, { type = 10, content = pings }) end
+		local files = {}
+		if banner then table.insert(files, { bannerName, banner }) end
+		if strip then table.insert(files, { "strip.png", strip }) end
+		return { flags = 32768, components = out, files = files, allowed_mentions = { parse = { "roles", "everyone" } } }
+	end
+	_G.scrpSessionCard = scrpSessionCard
+
 	function db:sessionStart(initiator)
 		local guild = initiator.guild
 		local config = sqldb:get(guild and guild.id)
@@ -1752,6 +1805,10 @@ dbModule.Start = function()
 				style = "link"
 			}):raw())
 		}
+
+		if guild.id == "1522997818330058772" and not config.ssuembeds then
+			tosend = scrpSessionCard(guild, config, server, initiator, true, session)
+		end
 
 		local vote = session.status == "vote" and sessionsChannel:getMessage(session.message)
 
@@ -1821,6 +1878,9 @@ dbModule.Start = function()
 			}))
 		}
 
+		if guild.id == "1522997818330058772" and not config.ssdembeds then
+			tosend = scrpSessionCard(guild, config, nil, initiator, false, session)
+		end
 		local vote = session.status == "vote" and sessionsChannel:getMessage(session.message)
 
 		if vote then
