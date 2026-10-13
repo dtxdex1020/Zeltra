@@ -74,7 +74,7 @@ local function sweep()
 		if dumpId and dumpId ~= "" and sqldb and sqldb.getError then
 			for id in dumpId:gmatch("[^,]+") do
 				local ok, e = pcall(function() return sqldb:getError(id) end)
-				print("[ERRDUMP] " .. id .. ": " .. (ok and e and require("json").encode(e) or tostring(e)))
+				print("[ERRDUMP] " .. id .. ": " .. (ok and e and _G.json.encode(e) or tostring(e)))
 			end
 		end
 	end)()
