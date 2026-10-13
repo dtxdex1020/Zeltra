@@ -154,6 +154,8 @@ local function onNext(interaction)
 		local answers = p.answers
 		for _, q in ipairs(A.PAGES[2].questions) do answers[q.key] = responses[q.question] end
 		partial[interaction.user.id] = nil
+		-- acknowledge within Discord's 3 second limit; posting the review card with its file can take longer
+		pcall(function() mia:replyDeferred(true) end)
 
 		local channel = guild:getChannel(A.REVIEW_CHANNEL)
 		if not channel then return mia:fail("Applications can't be sent right now. Please tell a staff member.", nil, true) end
