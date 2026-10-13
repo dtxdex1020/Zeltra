@@ -66,23 +66,32 @@ M.HR = {
 	NOT_STAFF = "Thanks for your interest! The High Rank application is only open to current SCRP staff. If you're not on the team yet, you can send a staff application first.",
 	PAGES = {
 		{
-			title = "High Rank Application (1 of 2)",
+			title = "High Rank Application (1 of 3)",
 			questions = {
 				{ key = "roblox", question = "Roblox username", placeholder = "Your exact Roblox username", style = "short", required = true, max = 40 },
 				{ key = "age", question = "How old are you?", placeholder = "Your age", style = "short", required = true, max = 3 },
-				{ key = "activity", question = "Time zone and hours a week", placeholder = "Example: EST, about 15 hours a week", style = "short", required = true, max = 100 },
 				{ key = "rank", question = "Current SCRP rank and how long you've had it", placeholder = "Example: Senior Moderator, about 2 months", style = "short", required = true, max = 100 },
-				{ key = "experience", question = "Past HR or management experience", placeholder = "Where, what rank and how long. Say none if you have none.", style = "paragraph", required = true, max = 800 },
+				{ key = "activity", question = "Time zone and weekly availability", placeholder = "Time zone, hours a week and the days and times you're usually on", style = "paragraph", required = true, min = 30, max = 400 },
+				{ key = "experience", question = "Leadership experience, with proof", placeholder = "Where, what rank, how long and what you did. Add links or screenshots as proof.", style = "paragraph", required = true, min = 150, max = 1500 },
 			},
 		},
 		{
-			title = "High Rank Application (2 of 2)",
+			title = "High Rank Application (2 of 3)",
 			questions = {
-				{ key = "abuse", question = "A staff member is abusing powers. You?", placeholder = "Walk us through how you handle it, from proof to punishment", style = "paragraph", required = true, min = 50, max = 900 },
-				{ key = "conflict", question = "Two staff members are in a conflict. You?", placeholder = "How do you calm it down and sort it out fairly?", style = "paragraph", required = true, min = 50, max = 900 },
-				{ key = "why", question = "Why do you deserve High Rank?", placeholder = "In your own words", style = "paragraph", required = true, min = 50, max = 1000 },
-				{ key = "improve", question = "What would you improve as High Rank?", placeholder = "Something in the staff team or server you would work on", style = "paragraph", required = true, min = 30, max = 800 },
-				{ key = "extra", question = "Anything else we should know?", placeholder = "Optional", style = "paragraph", required = false, max = 600 },
+				{ key = "interview", question = "How would you interview staff applicants?", placeholder = "What you look for, what you ask and how you decide pass or fail", style = "paragraph", required = true, min = 200, max = 1500 },
+				{ key = "discipline", question = "How do you decide promotions and firings?", placeholder = "How you keep promotions, demotions and terminations fair and backed by proof", style = "paragraph", required = true, min = 200, max = 1500 },
+				{ key = "friend", question = "A friend of yours breaks the rules. You?", placeholder = "Walk us through it step by step", style = "paragraph", required = true, min = 150, max = 1200 },
+				{ key = "abuse", question = "A staff member is abusing powers. You?", placeholder = "From finding proof to the punishment and follow up", style = "paragraph", required = true, min = 200, max = 1500 },
+				{ key = "leak", question = "There's a leak or a raid. What do you do?", placeholder = "Your first steps, who you contact and how you stop it from happening again", style = "paragraph", required = true, min = 200, max = 1500 },
+			},
+		},
+		{
+			title = "High Rank Application (3 of 3)",
+			questions = {
+				{ key = "improve", question = "What would you improve about SCRP staff?", placeholder = "Be specific and say how you'd do it", style = "paragraph", required = true, min = 150, max = 1500 },
+				{ key = "why", question = "Why should you be High Rank?", placeholder = "In your own words, not a list of ranks", style = "paragraph", required = true, min = 150, max = 1200 },
+				{ key = "agree", question = "Do you agree to the HR rules and privacy?", placeholder = "Type I agree. You'll follow the HR rules and keep HR matters confidential.", style = "short", required = true, min = 7, max = 60 },
+				{ key = "extra", question = "Anything else we should know?", placeholder = "Optional", style = "paragraph", required = false, max = 800 },
 			},
 		},
 	},

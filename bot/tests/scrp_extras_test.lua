@@ -49,7 +49,7 @@ do
 end
 do -- High Rank application
 	local H = A.HR
-	check("HR has two pages", #H.PAGES == 2)
+	check("HR has three pages", #H.PAGES == 3)
 	local n = 0
 	for i, page in ipairs(H.PAGES) do
 		check("HR page " .. i .. " has at most 5 questions", #page.questions <= 5)
@@ -57,11 +57,12 @@ do -- High Rank application
 			n = n + 1
 			check("HR label fits 45 chars: " .. q.question, #q.question <= 45)
 			check("HR placeholder fits 100 chars: " .. q.key, not q.placeholder or #q.placeholder <= 100)
+			if q.style == "paragraph" and q.required then check("HR long answer has a minimum: " .. q.key, (q.min or 0) >= 30) end
 			local t = q.question .. (q.placeholder or "")
 			check("HR text has no em dash or Ducky: " .. q.key, not t:find("\226\128\148") and not t:lower():find("ducky"))
 		end
 	end
-	check("HR has 8 to 10 questions", n >= 8 and n <= 10)
+	check("HR has more questions than staff", n == 14)
 	check("HR questions copy from HR pages", A.questions(1, H)[1].question == H.PAGES[1].questions[1].question)
 	check("HR goes to the staff review channel", H.REVIEW_CHANNEL == A.REVIEW_CHANNEL)
 	check("HR state is separate from staff", H.stateKey ~= A.STAFF.stateKey)

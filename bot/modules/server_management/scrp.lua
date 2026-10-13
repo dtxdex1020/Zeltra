@@ -147,11 +147,11 @@ local function onApply(interaction, cfg)
 	prompt(interaction, cfg.PAGES[1].title, A.questions(1, cfg), function(mia, responses)
 		local answers = {}
 		for _, q in ipairs(cfg.PAGES[1].questions) do answers[q.key] = responses[q.question] end
-		partial[cfg.kind][interaction.user.id] = { at = os.time(), answers = answers }
+		partial[cfg.kind][interaction.user.id] = { at = os.time(), answers = answers, page = 2 }
 		mia:reply(dmStyle.build({
 			guild = guild,
 			title = "Part 1 saved",
-			intro = "Thanks. Press the button below for the second and last part of the application.",
+			intro = #cfg.PAGES > 2 and "Thanks. Press the button below for part 2." or "Thanks. Press the button below for the second and last part of the application.",
 			buttons = { { label = "Continue to part 2", custom_id = A.prefix(cfg) .. "next", style = 1 } },
 			footer = cfg.footer,
 		}), true)
@@ -164,12 +164,24 @@ local function onNext(interaction, cfg)
 	local p = store[interaction.user.id]
 	if not p or os.time() - p.at > 1800 then
 		store[interaction.user.id] = nil
-		return interaction:fail("Your first part expired. Press the button in the applications channel to start again.", nil, true)
+		return interaction:fail("Your saved answers expired. Press the button in the applications channel to start again.", nil, true)
 	end
+	local page = p.page or 2
 
-	prompt(interaction, cfg.PAGES[2].title, A.questions(2, cfg), function(mia, responses)
+	prompt(interaction, cfg.PAGES[page].title, A.questions(page, cfg), function(mia, responses)
 		local answers = p.answers
-		for _, q in ipairs(cfg.PAGES[2].questions) do answers[q.key] = responses[q.question] end
+		for _, q in ipairs(cfg.PAGES[page].questions) do answers[q.key] = responses[q.question] end
+		if page < #cfg.PAGES then
+			p.page, p.at = page + 1, os.time()
+			local last = page + 1 == #cfg.PAGES
+			return mia:reply(dmStyle.build({
+				guild = guild,
+				title = "Part " .. page .. " saved",
+				intro = "Thanks. Press the button below for part " .. (page + 1) .. (last and ", the last part." or "."),
+				buttons = { { label = "Continue to part " .. (page + 1), custom_id = A.prefix(cfg) .. "next", style = 1 } },
+				footer = cfg.footer,
+			}), true)
+		end
 		store[interaction.user.id] = nil
 		-- acknowledge within Discord's 3 second limit; posting the review card with its file can take longer
 		pcall(function() mia:replyDeferred(true) end)
@@ -201,7 +213,7 @@ local function onNext(interaction, cfg)
 			print("[scrp] could not post " .. cfg.kind .. " application: " .. tostring(err))
 			store[interaction.user.id] = p -- keep the answers so pressing Continue again can retry
 			p.at = os.time()
-			return mia:reply(dmStyle.build({ guild = guild, title = "Application not sent", intro = "Your application couldn't be sent. Press **Continue to part 2** again in a minute to retry, or tell a staff member.", footer = cfg.footer }), true)
+			return mia:reply(dmStyle.build({ guild = guild, title = "Application not sent", intro = "Your application couldn't be sent. Press **Continue to part " .. #cfg.PAGES .. "** again in a minute to retry, or tell a staff member.", footer = cfg.footer }), true)
 		end
 
 		local s = state(guild.id, cfg)

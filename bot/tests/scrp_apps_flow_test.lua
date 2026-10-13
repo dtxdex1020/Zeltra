@@ -65,18 +65,22 @@ check("non staff gets polite HR message", x.failed == A.HR.NOT_STAFF and #queue 
 -- HR: staff member goes through both parts
 members["6"] = member("6", { A.HR.STAFF_ROLE }, 100)
 x = ia("scrpapp_hr_start", members["6"]); fire(x)
-check("staff opens HR part 1", #queue == 1 and prompts[#prompts].title == "High Rank Application (1 of 2)")
+check("staff opens HR part 1", #queue == 1 and prompts[#prompts].title == "High Rank Application (1 of 3)")
 local m1 = answerPrompt(fill)
 check("HR part 1 shows continue button with HR id", m1.replies[1].opts.buttons[1].custom_id == "scrpapp_hr_next")
 fire(ia("scrpapp_hr_next", members["6"]))
-check("HR part 2 opens", prompts[#prompts].title == "High Rank Application (2 of 2)")
+check("HR part 2 opens", prompts[#prompts].title == "High Rank Application (2 of 3)")
+local mp2 = answerPrompt(fill)
+check("HR part 2 saved, continue to part 3", mp2.replies[1].opts.buttons[1].label == "Continue to part 3" and #sent == 0)
+fire(ia("scrpapp_hr_next", members["6"]))
+check("HR part 3 opens", prompts[#prompts].title == "High Rank Application (3 of 3)")
 local m2 = answerPrompt(fill)
 local card = sent[#sent]
 check("HR card sent to the review channel and deferred first", card ~= nil and m2.deferred)
 check("HR card labeled HR", card.opts.title:find("^HR") ~= nil)
 check("HR card pings Senior High Rank", card.allowed_mentions.roles[1] == A.HR.REVIEW_PING)
 check("HR card has HR review buttons", card.opts.buttons[1].custom_id == "scrpapp_hr_acc_6" and card.opts.buttons[2].custom_id == "scrpapp_hr_deny_6")
-check("HR card lists all 10 answers", #card.opts.sections == 10)
+check("HR card lists all 14 answers", #card.opts.sections == 14)
 check("HR transcript file", card.opts.file == "hr-application-6.txt")
 check("HR pending saved separately", db[A.GUILD_ID].scrphrapps.pending["6"] ~= nil and db[A.GUILD_ID].scrpapps == nil)
 
@@ -112,6 +116,7 @@ channel.send = function() return nil, "boom" end
 fire(ia("scrpapp_hr_start", members["5"])) -- still blocked
 members["10"] = member("10", { A.HR.STAFF_ROLE }, 100)
 fire(ia("scrpapp_hr_start", members["10"])); answerPrompt(fill)
+fire(ia("scrpapp_hr_next", members["10"])); answerPrompt(fill)
 fire(ia("scrpapp_hr_next", members["10"])); local mf = answerPrompt(fill)
 check("HR send failure tells applicant to retry", mf.replies[#mf.replies].opts.title == "Application not sent")
 channel.send = function(self, payload) sent[#sent + 1] = payload; return { id = "ok" } end
