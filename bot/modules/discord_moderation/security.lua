@@ -664,6 +664,11 @@ local function endLockdown(guild)
 	return true, { restored = restored, failed = failed }
 end
 
+local function snowflakeTimeEarly(id)
+	local n = tonumber(id)
+	return n and (math.floor(n / 4194304) / 1000 + 1420070400) or os.time()
+end
+
 ---------------------------------------------------------------- raid keywords
 local function timeoutBlocker(guild, member)
 	if not member then return "they're not in the server" end
@@ -1217,9 +1222,51 @@ local function oneTimeUnlock(guild)
 	end
 end
 
+-- Zeltra: remember when the bot last saw the server, so a restart can catch up on messages it missed.
+local function markSeen(guild)
+	sqldb:set(guild.id, { securityLastSeen = now() }, "SECURITY_HEARTBEAT")
+end
+
+local catchupDone = false
+local function catchUp(guild)
+	if catchupDone then return end
+	catchupDone = true
+	local since = tonumber((sqldb:get(guild.id) or {}).securityLastSeen)
+	local t = now()
+	if not since or t - since > 1800 then print("[security] catch-up skipped (lastSeen=" .. tostring(since) .. ")") return end
+	local everyone = guild.id
+	local checked, hits = 0, 0
+	for channel in guild.textChannels:iter() do
+		local ow = channel.permissionOverwrites and channel.permissionOverwrites:get(everyone)
+		local deny = ow and tonumber(ow._deny_new or ow._deny or 0) or 0
+		local hidden = (deny % 2048) >= 1024
+		if not hidden then
+			local okM, msgs = pcall(function() return channel:getMessages(25) end)
+			if okM and msgs then
+				local list = {}
+				for m in msgs:iter() do
+					local ts = snowflakeTimeEarly(m.id)
+					if ts >= since - 5 and m.author and not m.author.bot then table.insert(list, { ts, m }) end
+				end
+				table.sort(list, function(a, b) return a[1] < b[1] end)
+				for _, x in ipairs(list) do
+					checked = checked + 1
+					local okH, err = pcall(onMessage, x[2], true)
+					if not okH then print("[security] catch-up error: " .. tostring(err)) end
+				end
+			end
+		end
+	end
+	print("[security] catch-up scanned " .. checked .. " messages since " .. since)
+end
+
 local function checkRaidExpiry()
 	for guild in Client.guilds:iter() do
 		pcall(oneTimeUnlock, guild)
+		if guild.id == "1522997818330058772" then
+			pcall(catchUp, guild)
+			pcall(markSeen, guild)
+		end
 		local config = sqldb:get(guild.id)
 		local raid = config and config.security and config.security.raid
 		if raid and raid.active and raid.ends and now() >= raid.ends then
