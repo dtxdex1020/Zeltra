@@ -32,6 +32,9 @@ local joinWindow = S.newWindow()
 local nukeWindow = S.newWindow()
 local burstWindow = S.newWindow()
 local cooldown = S.newCooldown()
+local late = {} -- functions defined further down (fullLockdown, sendPings)
+local deleteWindow = S.newWindow()
+local SECURITY_LOGS = "1558672726246563962"
 
 local NUKE_ACTIONS = {
 	[20] = "kicks", [21] = "member prunes", [22] = "bans",
@@ -293,6 +296,92 @@ local function stripDangerousRoles(guild, member)
 	return removed, skipped
 end
 
+-- Zeltra: role/channel deletions are punished on the FIRST one, for everyone (any rank).
+-- Only the bot owners (S.PROTECTED_USERS) and the bot itself are skipped. Mass deletions lock the server.
+local DELETE_ACTIONS = { [12] = "channel", [32] = "role" }
+local MASS_DELETES = 3
+local deleteHandled = {}
+
+local function onDeleteNuke(guild, sec, entry)
+	local t = now()
+	local executor = tostring(entry.user_id or "")
+	local kind = DELETE_ACTIONS[entry.action_type]
+	local count = deleteWindow:hit(guild.id .. ":" .. executor, t, 120)
+	local member = guild:getMember(executor)
+	local exempt = executor == "" or (Client.user and executor == Client.user.id) or S.isProtectedId(executor)
+	local status = { removed = {}, skipped = {}, timeout = "Skipped", lockdown = "Not needed" }
+	local first = not deleteHandled[guild.id .. ":" .. executor] or (t - deleteHandled[guild.id .. ":" .. executor]) > 300
+
+	if exempt then
+		status.timeout = "Skipped: bot owner"
+	elseif member and first then
+		deleteHandled[guild.id .. ":" .. executor] = t
+		local roles, saved = {}, {}
+		for role in member.roles:iter() do
+			table.insert(roles, { id = role.id, name = role.name, position = role.position, managed = role.managed })
+			if role.id ~= guild.id then table.insert(saved, role.id) end
+		end
+		local cur = getSec(guild)
+		cur.botguard.cases[executor] = { roles = saved, at = t, reason = "deleted a " .. tostring(kind) }
+		saveSec(guild, cur, "SECURITY_ANTINUKE")
+		local me = guild.me
+		local top = me and me.highestRole and me.highestRole.position or 0
+		local strip, skipped = S.splitRoles(roles, top, guild.id)
+		for _, r in ipairs(strip) do
+			if member:removeRole(r.id, "Anti-nuke: deleted a " .. tostring(kind)) then table.insert(status.removed, r.name)
+			else table.insert(status.skipped, r.name .. " (Discord refused)") end
+		end
+		for _, r in ipairs(skipped) do table.insert(status.skipped, r.name .. " (" .. r.why .. ")") end
+		if member.user and member.user.bot then
+			local okK = member:kick("Anti-nuke: bot deleted a " .. tostring(kind))
+			status.timeout = okK and "Bot kicked" or "Couldn't kick the bot"
+		elseif guild.ownerId == executor then
+			status.timeout = "Skipped: Discord can't time out the server owner"
+		else
+			local okT = member:timeoutFor(7 * 86400)
+			status.timeout = okT and ("7 days, ends " .. dmStyle.time(t + 7 * 86400, "R")) or "Discord refused the timeout"
+		end
+	elseif member then
+		status.timeout = "Already handled " .. dmStyle.time(deleteHandled[guild.id .. ":" .. executor], "R")
+	else
+		status.timeout = "Skipped: not in the server"
+	end
+
+	if not exempt and count >= MASS_DELETES and late.fullLockdown and not (sec.lockdown and sec.lockdown.active) then
+		local res, err = late.fullLockdown(guild, { by = executor, reason = "Mass " .. tostring(kind) .. " deletion", trigger = { user = executor, text = count .. " deletions" } })
+		status.lockdown = res and ("On · " .. res.changed .. " overwrites changed in " .. res.channels .. " channels") or ("Failed: " .. tostring(err))
+	elseif sec.lockdown and sec.lockdown.active then
+		status.lockdown = "Already on"
+	end
+
+	local deletedName
+	for _, c in ipairs(entry.changes or {}) do if c.key == "name" then deletedName = c.old_value end end
+	local channel = guild:getChannel(sec.logchannel or SECURITY_LOGS) or guild:getChannel(SECURITY_LOGS)
+	if not channel then print("[security] anti-nuke: no security log channel"); return end
+	dmStyle.post(channel, {
+		guild = guild, icon = "🚨", title = "Anti-nuke: " .. tostring(kind) .. " deleted",
+		intro = mention(executor) .. " deleted a " .. tostring(kind) .. " in **" .. dmStyle.serverName(guild) .. "**.",
+		fields = {
+			{ "Member", mention(executor) .. " (`" .. executor .. "`)" },
+			{ "Deleted " .. tostring(kind), (deletedName and ("**" .. tostring(deletedName) .. "**") or "Unknown") .. " (`" .. tostring(entry.target_id) .. "`)" },
+			{ "Deletions (2 min)", tostring(count) },
+			{ "Roles removed", (#status.removed > 0) and table.concat(status.removed, ", ") or "None" },
+			{ "Couldn't remove", (#status.skipped > 0) and table.concat(status.skipped, ", ") or nil },
+			{ "Timeout", status.timeout },
+			{ "Lockdown", status.lockdown },
+			{ "Reason given", entry.reason },
+			{ "Time", dmStyle.time(t) },
+		},
+		note = "Found through the audit log. Restore roles: bot owners only.",
+		buttons = (not exempt) and {
+			{ label = "Restore roles", custom_id = "sec:botrestore:" .. executor, style = 3, emoji = "↩️" },
+			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. executor, style = 2, emoji = "⏱️" },
+		} or nil,
+		footer = "Security",
+	})
+	if not exempt and late.sendPings then late.sendPings(guild, channel, sec.keywords, "Anti-nuke triggered, check the report above.") end
+end
+
 local function onNuke(guild, sec, entry, label)
 	local t = now()
 	local executor = entry.user_id
@@ -430,6 +519,10 @@ local function onAudit(entry)
 	if not sec.enabled then return end
 
 	local label = NUKE_ACTIONS[entry.action_type]
+	if DELETE_ACTIONS[entry.action_type] and not (Client.user and tostring(entry.user_id) == Client.user.id) then
+		local okD, errD = pcall(onDeleteNuke, guild, sec, entry)
+		if not okD then print("[security] anti-nuke failed: " .. tostring(errD)) end
+	end
 	if label and sec.antinuke.enabled and not (Client.user and tostring(entry.user_id) == Client.user.id) then
 		onNuke(guild, sec, entry, label)
 	end
@@ -890,6 +983,9 @@ local function canRemoveTimeout(member)
 	if member:hasPermission("administrator") or member:hasPermission("moderateMembers") then return true end
 	return _G.hasPermission and hasPermission(member, "ADMIN", nil, nil, false) == true
 end
+
+late.fullLockdown = fullLockdown
+late.sendPings = sendPings
 
 local function onButton(interaction)
 	local data = interaction.data
