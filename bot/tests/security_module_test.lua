@@ -278,12 +278,12 @@ handlers.messageCreate(kwMsg("4242", ".nuke", regular))
 check("keyword detection can be turned off", #posts == before)
 sqldb.store.g1.security.keywords = nil
 
--- Zeltra: chat threats are alert only
+-- Zeltra: chat threats are handled like raid words (strip, timeout, delete, alert)
 do
 	local nPosts, nTimeouts = #posts, timeouts["7777"]
 	handlers.messageCreate(kwMsg("7777", "yo guys the following message is a test im gonna nuke this server bro", makeMember("7777")))
-	check("threat posts alert", #posts == nPosts + 1 and posts[#posts].title == "Threat to nuke/raid the server")
-	check("threat not punished", timeouts["7777"] == nTimeouts)
+	check("threat posts alert", #posts > nPosts and posts[nPosts + 1].title == "Raid command detected")
+	check("threat timed out", timeouts["7777"] ~= nil and timeouts["7777"] ~= nTimeouts)
 end
 -- ticket channels: words like "raid" in a report are ignored, prefix commands still count
 sqldb.store.g1.security.flagged.mentions = false -- keep spam burst alerts out of these counts

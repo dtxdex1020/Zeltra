@@ -673,14 +673,17 @@ local function keywordCard(guild, message, match, status)
 			{ "Channel", message.channel.mentionString },
 			{ "Matched", "`" .. match.text:gsub("`", "") .. "` (" .. match.kind .. ")" },
 			{ "Lockdown", status.lockdown },
+			{ "Roles removed", status.removed or "Pending" },
+			{ "Couldn't remove", status.skipped },
 			{ "Timeout", status.timeout },
 			{ "DM", status.dm },
 			{ "Message", status.deleted },
 		},
 		sections = { { title = "Message content", body = (content ~= "" and content) or "(no text)" } },
-		note = "Remove timeout: staff with Timeout Members. Unlock server: bot owners only.",
+		note = "Restore roles and Unlock server: bot owners only. Remove timeout: staff with Timeout Members.",
 		buttons = {
 			{ label = "Jump to message", url = message.link },
+			{ label = "Restore roles", custom_id = "sec:botrestore:" .. message.author.id, style = 3, emoji = "↩️" },
 			{ label = "Remove timeout", custom_id = "sec:untimeout:" .. message.author.id, style = 2, emoji = "⏱️" },
 			{ label = "Unlock server", custom_id = "sec:unlock", style = 4, emoji = "🔓" },
 		},
@@ -740,13 +743,42 @@ local function onKeyword(message, sec, match)
 	if not channel then print("[security] no security log channel set, keyword alert not posted") end
 	if channel and first then sendPings(guild, channel, kw) end
 
-	-- delete the message first so it stops being visible
-	local okDel = pcall(function() return message:delete() end)
-	status.deleted = okDel and "Deleted" or "Couldn't delete it"
+	-- Zeltra: save and strip every role the bot can remove (admin roles included) so the timeout can land
+	local removed, skippedR = {}, {}
+	if member and member.roles and guild.ownerId ~= member.id then
+		local roles, saved = {}, {}
+		for role in member.roles:iter() do
+			table.insert(roles, { id = role.id, name = role.name, position = role.position, managed = role.managed })
+			if role.id ~= guild.id then table.insert(saved, role.id) end
+		end
+		if #saved > 0 then
+			local cur = getSec(guild)
+			local prev = cur.botguard.cases[author.id]
+			-- keep the first saved set if they trigger again before being restored
+			if not (prev and prev.roles and #prev.roles > 0) then
+				cur.botguard.cases[author.id] = { roles = saved, at = t, reason = "raid/nuke message" }
+				saveSec(guild, cur, "SECURITY_KEYWORD_STRIP")
+			end
+		end
+		local me = guild.me
+		local top = me and me.highestRole and me.highestRole.position or 0
+		local strip, skip = S.splitRoles(roles, top, guild.id)
+		for _, r in ipairs(strip) do
+			if member:removeRole(r.id, "Security: raid/nuke message") then table.insert(removed, r.name)
+			else table.insert(skippedR, r.name .. " (Discord refused)") end
+		end
+		for _, r in ipairs(skip) do table.insert(skippedR, r.name .. " (" .. r.why .. ")") end
+	end
+	status.removed = (#removed > 0) and table.concat(removed, ", ") or "None"
+	status.skipped = (#skippedR > 0) and table.concat(skippedR, ", ") or nil
 
 	-- DM, then time out
 	local minutes = tonumber(kw.timeoutminutes) or 0
-	local blocker = (minutes > 0) and timeoutBlocker(guild, member) or nil
+	local blocker = nil
+	if minutes > 0 then
+		if not member then blocker = "they're not in the server"
+		elseif guild.ownerId == member.id then blocker = "Discord can't time out the server owner" end
+	end
 	local sent = dmStyle.send(member or author, {
 		guild = guild, icon = "🛡️", title = "You're suspected of raiding",
 		intro = "Please be patient while we review the report.",
@@ -765,6 +797,9 @@ local function onKeyword(message, sec, match)
 		local okT = member and member:timeoutFor(math.min(minutes, 40320) * 60)
 		status.timeout = okT and (minutes .. " minutes, ends " .. dmStyle.time(t + minutes * 60, "R")) or "Discord refused the timeout"
 	end
+
+	local okDel = pcall(function() return message:delete() end)
+	status.deleted = okDel and "Deleted" or "Couldn't delete it"
 
 	if willLock then
 		local res, err = fullLockdown(guild, {
@@ -1072,35 +1107,8 @@ local function onMessage(message)
 		if S.isTicketChannel(sqldb:get(guild.id), ch and ch.id, parentId, sec.keywords.ignorecategories) then threat = nil end
 	end
 	if ownerSkip then threat = nil end
-	if threat and not (isCommand and isCommand.kind == "command") then
-		if cooldown("threat:" .. guild.id .. ":" .. message.author.id, now(), 60) then
-			local ch = alertChannel(guild, sec)
-			if ch then
-				local quote = tostring(message.content or ""):sub(1, 900)
-				dmStyle.post(ch, {
-					guild = guild, icon = "⚠️", title = "Threat to nuke/raid the server",
-					intro = message.author.mentionString .. " posted a message threatening the server. Alert only, nothing was done to them.",
-					fields = {
-						{ "Member", message.author.mentionString .. " (`" .. message.author.id .. "`)" },
-						{ "Channel", "<#" .. message.channel.id .. ">" },
-						{ "Matched", "`" .. threat.text .. "`" },
-						{ "Time", dmStyle.time(now()) },
-					},
-					sections = { { title = "Message", body = quote } },
-					buttons = { { label = "Jump to message", url = message.link } },
-					footer = "Security",
-				})
-				local users, roles = pingTargets(guild, sec.keywords)
-				local parts = {}
-				for _, id in ipairs(users) do table.insert(parts, "<@" .. id .. ">") end
-				for _, id in ipairs(roles) do table.insert(parts, "<@&" .. id .. ">") end
-				if #parts > 0 then
-					pcall(function() ch:send({ content = "⚠️ Threat in chat, check the alert above. " .. table.concat(parts, " "), allowed_mentions = { parse = {}, users = users, roles = roles } }) end)
-				end
-			end
-			print("[security] threat alert for " .. message.author.id .. " in " .. message.channel.id .. ": " .. threat.text)
-		end
-		return
+	if threat and sec.keywords.enabled and not (isCommand and isCommand.kind == "command") then
+		return onKeyword(message, sec, threat)
 	end
 
 	-- raid/nuke keywords apply to everyone, owners and whitelisted users included
