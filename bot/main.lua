@@ -987,37 +987,6 @@ end
 _G.syncSlashCommands = syncSlashCommands
 
 Client:once("ready", function()
-	-- One-time cleanup (2026-10-13): remove erroneous infraction 1559614676311212032 and log staff-role config.
-	coroutine.wrap(function()
-		local ok, err = pcall(function()
-			local gid = "1522997818330058772"
-			local config = sqldb:get(gid, true)
-			if not config then return end
-			local list, removed = config.infractions or {}, false
-			for i = #list, 1, -1 do
-				if tostring(list[i].id) == "1559614676311212032" then
-					table.remove(list, i)
-					removed = true
-				end
-			end
-			if removed then
-				sqldb:set(gid, { infractions = list }, "INFRACTION_REVOKE")
-			end
-			local left = 0
-			for _, inf in ipairs(list) do
-				if tostring(inf.user) == "1067233985773715587" then left = left + 1 end
-			end
-			print("[cleanup] infraction 1559614676311212032 removed=" .. tostring(removed) .. " remaining for 1067233985773715587=" .. left)
-			for _, key in ipairs({ "modroles", "adminroles", "erlcstaffroles", "erlcadminroles", "erlcmanagerroles", "sessionstarterroles" }) do
-				print("[cleanup] " .. key .. "=" .. table.concat(config[key] or {}, ","))
-			end
-			local overrides = sqldb:getCommandPermissions(gid) or {}
-			for k, rec in pairs(overrides) do
-				print("[cleanup] override " .. tostring(k) .. " mode=" .. tostring(rec.mode))
-			end
-		end)
-		if not ok then print("[cleanup] failed: " .. tostring(err)) end
-	end)()
 	if _G.zeltraInteractions and not zeltraInteractions._lagMonitor then
 		zeltraInteractions._lagMonitor = zeltraInteractions.startLagMonitor(500)
 	end
@@ -1354,6 +1323,9 @@ function isStaffCommand(command)
 end
 _G.isStaffCommand = isStaffCommand
 
+-- Roles that never count as a staff rank (SCRP Community Member).
+NON_STAFF_ROLES = { ["1522997818774782013"] = true }
+
 --- True if the member holds any configured staff rank (any tier) or Manage Server.
 function hasStaffRank(member)
 	local ok, res = pcall(function()
@@ -1364,6 +1336,16 @@ function hasStaffRank(member)
 		for _, key in ipairs({ "modroles", "adminroles", "erlcstaffroles", "erlcadminroles", "erlcmanagerroles", "sessionstarterroles" }) do
 			for _, roleId in pairs(config[key] or {}) do
 				if member:hasRole(roleId) then
+					return true
+				end
+			end
+		end
+		-- Staff rank roles are also the roles granted through /permissions overrides (the seeded rank tiers),
+		-- except the base Community Member role, which is never a staff rank.
+		local overrides = sqldb:getCommandPermissions(member.guild.id) or {}
+		for _, rec in pairs(overrides) do
+			for roleId, allow in pairs(type(rec) == "table" and type(rec.roles) == "table" and rec.roles or {}) do
+				if allow == true and not NON_STAFF_ROLES[tostring(roleId)] and member:hasRole(tostring(roleId)) then
 					return true
 				end
 			end
