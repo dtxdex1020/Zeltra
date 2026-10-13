@@ -60,10 +60,11 @@ local fill = function(q) return string.rep("a", math.max(q.min or 1, 5)) end
 -- HR: non staff is turned away politely
 members["5"] = member("5", {}, 0)
 local x = ia("scrpapp_hr_start", members["5"]); fire(x)
-check("non staff gets polite HR message", x.failed == A.HR.NOT_STAFF and #queue == 0)
+check("community member can open HR", x.failed == nil and #queue == 1 and prompts[#prompts].title == "High Rank Application (1 of 3)")
+queue = {}
 
 -- HR: staff member goes through both parts
-members["6"] = member("6", { A.HR.STAFF_ROLE }, 100)
+members["6"] = member("6", {}, 100)
 x = ia("scrpapp_hr_start", members["6"]); fire(x)
 check("staff opens HR part 1", #queue == 1 and prompts[#prompts].title == "High Rank Application (1 of 3)")
 local m1 = answerPrompt(fill)
@@ -113,8 +114,7 @@ check("staff cooldown set", db[A.GUILD_ID].scrpapps.cooldowns["9"] ~= nil)
 
 -- Send failure keeps answers for retry
 channel.send = function() return nil, "boom" end
-fire(ia("scrpapp_hr_start", members["5"])) -- still blocked
-members["10"] = member("10", { A.HR.STAFF_ROLE }, 100)
+members["10"] = member("10", {}, 100)
 fire(ia("scrpapp_hr_start", members["10"])); answerPrompt(fill)
 fire(ia("scrpapp_hr_next", members["10"])); answerPrompt(fill)
 fire(ia("scrpapp_hr_next", members["10"])); local mf = answerPrompt(fill)

@@ -70,13 +70,6 @@ local function isReviewer(member, cfg)
 	return role and member.highestRole and member.highestRole.position >= role.position
 end
 
-local function isStaffMember(member, cfg)
-	local ids = {}
-	for role in member.roles:iter() do ids[role.id] = true end
-	local extra = (_G.hasStaffRank and _G.hasStaffRank(member)) or false
-	return A.isStaff(cfg, ids, extra)
-end
-
 local function short(s, n)
 	s = tostring(s or ""):gsub("\r", "")
 	if #s > n then return s:sub(1, n - 3) .. "..." end
@@ -114,7 +107,7 @@ local function reviewCard(guild, user, answers, cfg, decision)
 		{ "Applicant", "<@" .. user.id .. "> (`" .. user.id .. "`)" },
 		{ "Roblox", answers.roblox },
 	}
-	if cfg.kind == "hr" then fields[#fields + 1] = { "Current rank", answers.rank } end
+	if cfg.kind == "hr" then fields[#fields + 1] = { "Staff experience", answers.rank } end
 	fields[#fields + 1] = { "Account created", user.createdAt and dmStyle.time(math.floor(user.createdAt), "R") }
 	local opts = {
 		guild = guild,
@@ -138,9 +131,6 @@ end
 
 local function onApply(interaction, cfg)
 	local guild = interaction.guild
-	if cfg.STAFF_ROLE and not isStaffMember(interaction.member, cfg) then
-		return interaction:fail(cfg.NOT_STAFF, nil, true)
-	end
 	local ok, why = A.canApply(state(guild.id, cfg), interaction.user.id, os.time(), cfg)
 	if not ok then return interaction:fail(why, nil, true) end
 

@@ -49,7 +49,7 @@ M.PAGES = {
 }
 
 -- High Rank application. Same flow, review buttons and result format as the staff one.
--- Only members who already hold a staff role can send it. Reviews go to the same app-responses channel, labeled HR.
+-- Anyone can apply, including Community Members. Reviews go to the same app-responses channel, labeled HR.
 M.HR = {
 	kind = "hr",
 	name = "High Rank application",
@@ -59,18 +59,16 @@ M.HR = {
 	RESULTS_CHANNEL = M.RESULTS_CHANNEL,
 	REVIEW_PING = "1522997818447626452", -- SCRP I Senior High Rank
 	REVIEWER_ROLE = "1522997818447626452", -- Senior High Rank or above can accept or deny
-	STAFF_ROLE = "1522997818531512542", -- SCRP | Staff Team
 	PASS_ROLE = nil, -- HR rank is given by hand after acceptance
 	COOLDOWN = 14 * 24 * 3600,
 	PENDING_COOLDOWN = 7 * 24 * 3600,
-	NOT_STAFF = "Thanks for your interest! The High Rank application is only open to current SCRP staff. If you're not on the team yet, you can send a staff application first.",
 	PAGES = {
 		{
 			title = "High Rank Application (1 of 3)",
 			questions = {
 				{ key = "roblox", question = "Roblox username", placeholder = "Your exact Roblox username", style = "short", required = true, max = 40 },
 				{ key = "age", question = "How old are you?", placeholder = "Your age", style = "short", required = true, max = 3 },
-				{ key = "rank", question = "Current SCRP rank and how long you've had it", placeholder = "Example: Senior Moderator, about 2 months", style = "short", required = true, max = 100 },
+				{ key = "rank", question = "Are you staff anywhere? What rank, how long?", placeholder = "SCRP or any other server. Example: Moderator here, 2 months. Say none if not.", style = "short", required = true, max = 100 },
 				{ key = "activity", question = "Time zone and weekly availability", placeholder = "Time zone, hours a week and the days and times you're usually on", style = "paragraph", required = true, min = 30, max = 400 },
 				{ key = "experience", question = "Leadership experience, with proof", placeholder = "Where, what rank, how long and what you did. Add links or screenshots as proof.", style = "paragraph", required = true, min = 150, max = 1500 },
 			},
@@ -129,12 +127,6 @@ function M.parseId(id)
 	local action, userId = rest:match("^(%a+)_(%d+)$")
 	if action == "acc" or action == "deny" then return cfg, action, userId end
 	return nil
-end
-
---- Does the member hold a staff role? roleIds is a set {[id]=true}; extra is an optional checker (hasStaffRank).
-function M.isStaff(cfg, roleIds, extra)
-	if cfg.STAFF_ROLE and roleIds[cfg.STAFF_ROLE] then return true end
-	return extra == true
 end
 
 --- Copy of a page's questions in the format _G.prompt expects (it adds fields to the tables it gets).

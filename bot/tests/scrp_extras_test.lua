@@ -76,10 +76,8 @@ do -- High Rank application
 	c, act, u = A.parseId("scrpapp_hr_deny_9"); check("hr deny id", c == H and act == "deny" and u == "9")
 	check("unknown id ignored", A.parseId("scrpapp_hr_bogus") == nil and A.parseId("other") == nil)
 	check("prefixes", A.prefix(H) == "scrpapp_hr_" and A.prefix(A.STAFF) == "scrpapp_")
-	check("staff role passes", A.isStaff(H, { [H.STAFF_ROLE] = true }, false))
-	check("staff rank passes", A.isStaff(H, {}, true))
-	check("non staff blocked", not A.isStaff(H, {}, false))
-	check("not staff message is polite", H.NOT_STAFF:find("only open to current SCRP staff", 1, true) ~= nil)
+	check("HR has no staff gate", A.HR.STAFF_ROLE == nil and A.isStaff == nil)
+	check("rank question is neutral", A.HR.PAGES[1].questions[3].question == "Are you staff anywhere? What rank, how long?")
 	check("HR pending blocks", A.canApply({ pending = { ["1"] = 90 } }, "1", 100, H) == false)
 end
 print(("\n%d passed, %d failed"):format(passed, failed))
