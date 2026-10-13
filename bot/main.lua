@@ -1122,6 +1122,8 @@ Client:once("ready", function()
 	do
 		local ok, err = pcall(require("./seeds/staff_permissions"), Client, sqldb)
 		if not ok then print("[seed] staff perms: error: " .. tostring(err)) end
+		local ok2, err2 = pcall(require("./seeds/staff_permissions_v2"), Client, sqldb)
+		if not ok2 then print("[seed] staff perms v2: error: " .. tostring(err2)) end
 	end
 
 	-- Zeltra: one-time, idempotent seed, only when SEED_INFRACTION_TYPES=1 (see seeds/infraction_types.lua)
