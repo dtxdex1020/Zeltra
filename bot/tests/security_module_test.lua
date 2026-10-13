@@ -90,6 +90,8 @@ _G.Client = {
 	guilds = iterOf({ guild }),
 	_api = {
 		modifyGuildRole = function(_, g, r, p) _G.lastRoleEdit = p return true end,
+		modifyGuild = function(_, g, p) _G.lastGuildEdit = p return true end,
+		request = function(_, method, ep, p) _G.lastRequest = { method, ep, p } if method == "GET" then return {} end return true end,
 		getGuildChannels = function() return _G.fakeChannels end,
 		editChannelPermissions = function(_, c, id, p) table.insert(_G.permCalls, { "edit", c, id, p }) return true end,
 		deleteChannelPermission = function(_, c, id) table.insert(_G.permCalls, { "delete", c, id }) return true end,
@@ -159,7 +161,11 @@ handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 28, user_id =
 check("bot added audit alert skipped while bot guard handles it", posts[#posts].title ~= "Bot added")
 handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 1, user_id = "999", target_id = "g1",
 	changes = { { key = "vanity_url_code", old_value = "scrp", new_value = "x" } } })
-check("vanity alert", posts[#posts].title == "Server settings changed" and posts[#posts].fields[2][1] == "Vanity URL")
+check("settings change blocked", posts[#posts].title == "Server settings change blocked")
+check("vanity reverted", _G.lastRequest and _G.lastRequest[2] == "/guilds/g1/vanity-url" and _G.lastRequest[3].code == "scrp")
+handlers.guildAuditLogEntryCreate({ guild_id = "g1", action_type = 1, user_id = "999", target_id = "g1",
+	changes = { { key = "name", old_value = "South Carolina Roleplay", new_value = "hacked" } } })
+check("name reverted", _G.lastGuildEdit and _G.lastGuildEdit.name == "South Carolina Roleplay")
 
 -- messages
 local function msg(content, everyone)

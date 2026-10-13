@@ -518,6 +518,8 @@ local function onFlaggedAudit(guild, sec, entry)
 			fields = { { "Bot", mention(entry.target_id) .. " (`" .. tostring(entry.target_id) .. "`)" }, { "By", mention(executor) } },
 			note = (exempt and "Added by a whitelisted user or an owner.") or "Make sure this bot was expected.",
 		})
+	elseif at == 1 and late.guildGuard and late.guildGuard(guild, sec, entry) then -- Zeltra: reverted + stripped
+		return
 	elseif at == 1 then -- server settings
 		local lines = {}
 		for _, c in ipairs(entry.changes or {}) do
@@ -1039,6 +1041,116 @@ local function canRemoveTimeout(member)
 	return _G.hasPermission and hasPermission(member, "ADMIN", nil, nil, false) == true
 end
 
+
+---------------------------------------------------------------- Zeltra: server settings + template guard
+local function saveAndStrip(guild, userId, reason)
+	local m = guild:getMember(userId)
+	if not m then return nil, "not in the server" end
+	local roles, saved = {}, {}
+	for role in m.roles:iter() do
+		table.insert(roles, { id = role.id, name = role.name, position = role.position, managed = role.managed })
+		if role.id ~= guild.id then table.insert(saved, role.id) end
+	end
+	local cur = getSec(guild)
+	local prev = cur.botguard.cases[userId]
+	if #saved > 0 and not (prev and prev.roles and #prev.roles > 0) then
+		cur.botguard.cases[userId] = { roles = saved, at = now(), reason = reason }
+		saveSec(guild, cur, "SECURITY_STRIP")
+	end
+	local me = guild.me
+	local top = me and me.highestRole and me.highestRole.position or 0
+	local strip, skip = S.splitRoles(roles, top, guild.id)
+	local removed, failed = {}, {}
+	for _, r in ipairs(strip) do
+		if m:removeRole(r.id, "Security: " .. reason) then table.insert(removed, r.name) else table.insert(failed, r.name) end
+	end
+	for _, r in ipairs(skip) do table.insert(failed, r.name .. " (" .. r.why .. ")") end
+	return removed, failed
+end
+
+local SIMPLE_KEYS = { name = true, description = true, verification_level = true, default_message_notifications = true,
+	explicit_content_filter = true, afk_channel_id = true, afk_timeout = true, system_channel_id = true, rules_channel_id = true,
+	public_updates_channel_id = true, safety_alerts_channel_id = true, preferred_locale = true, system_channel_flags = true,
+	premium_progress_bar_enabled = true, widget_enabled = true, widget_channel_id = true }
+local IMAGE_KEYS = { icon_hash = { "icon", "icons" }, banner_hash = { "banner", "banners" }, splash_hash = { "splash", "splashes" },
+	discovery_splash_hash = { "discovery_splash", "discovery-splashes" } }
+
+local function imageData(guildId, folder, hash)
+	local ext = (tostring(hash):sub(1, 2) == "a_") and "gif" or "png"
+	local ok, res, body = pcall(_G.http.request, "GET", "https://cdn.discordapp.com/" .. folder .. "/" .. guildId .. "/" .. hash .. "." .. ext .. "?size=4096", {})
+	if not ok or not res or res.code ~= 200 or not body then return nil end
+	return "data:image/" .. ext .. ";base64," .. _G.base64.encode(body)
+end
+
+local function guildGuard(guild, sec, entry)
+	local executor = tostring(entry.user_id or "")
+	if executor == "" or (Client.user and executor == Client.user.id) or S.isProtectedId(executor) then return false end
+	local payload, changed, notes = {}, {}, {}
+	for _, c in ipairs(entry.changes or {}) do
+		if SIMPLE_KEYS[c.key] then
+			if c.old_value ~= nil then payload[c.key] = c.old_value; table.insert(changed, c.key)
+			else table.insert(changed, c.key .. " (was empty, not reverted)") end
+		elseif IMAGE_KEYS[c.key] then
+			local field, folder = IMAGE_KEYS[c.key][1], IMAGE_KEYS[c.key][2]
+			if c.old_value then
+				local data = imageData(guild.id, folder, c.old_value)
+				if data then payload[field] = data else table.insert(notes, "couldn't download the old " .. field) end
+				table.insert(changed, field)
+			else
+				table.insert(changed, field .. " (was empty, not reverted)")
+			end
+		elseif c.key == "vanity_url_code" then
+			local okV = Client._api:request("PATCH", "/guilds/" .. guild.id .. "/vanity-url", { code = c.old_value or "" })
+			table.insert(changed, "vanity URL" .. (okV and "" or " (couldn't revert)"))
+		elseif c.key ~= "mfa_level" and c.key ~= "owner_id" then
+			table.insert(changed, c.key .. " (not reverted)")
+		end
+	end
+	local reverted = "Nothing to revert"
+	if next(payload) then
+		local ok, err = Client._api:modifyGuild(guild.id, payload)
+		reverted = ok and "Reverted" or ("Couldn't revert: " .. tostring(err))
+	end
+	local removed, failed = saveAndStrip(guild, executor, "changed server settings")
+	alert(guild, sec, { serious = true, subject = executor, icon = "🛡️", title = "Server settings change blocked",
+		intro = mention(executor) .. " changed the server settings. The change was undone and their roles were removed.",
+		fields = {
+			{ "By", mention(executor) .. " (`" .. executor .. "`)" },
+			{ "Changed", (#changed > 0) and table.concat(changed, ", ") or "unknown" },
+			{ "Revert", reverted .. ((#notes > 0) and (" · " .. table.concat(notes, ", ")) or "") },
+			{ "Roles removed", removed and ((#removed > 0) and table.concat(removed, ", ") or "None") or ("Skipped: " .. tostring(failed)) },
+			{ "Couldn't remove", (type(failed) == "table" and #failed > 0) and table.concat(failed, ", ") or nil },
+		} })
+	print("[security] guild settings change by " .. executor .. " reverted: " .. reverted)
+	return true
+end
+late.guildGuard = guildGuard
+
+local templateSeen = {}
+local function templateGuard(guild)
+	local sec = getSec(guild)
+	if not sec.enabled then return end
+	local list = Client._api:request("GET", "/guilds/" .. guild.id .. "/templates")
+	if type(list) ~= "table" then return end
+	for _, tpl in ipairs(list) do
+		local creator = tostring(tpl.creator_id or (tpl.creator and tpl.creator.id) or "")
+		if not S.isProtectedId(creator) and not (Client.user and creator == Client.user.id) and not templateSeen[tpl.code] then
+			templateSeen[tpl.code] = true
+			local okD = Client._api:request("DELETE", "/guilds/" .. guild.id .. "/templates/" .. tpl.code)
+			local removed, failed = saveAndStrip(guild, creator, "created a server template")
+			alert(guild, sec, { serious = true, subject = creator, icon = "🧩", title = "Server template blocked",
+				intro = mention(creator) .. " created a server template. It was deleted and their roles were removed.",
+				fields = {
+					{ "By", mention(creator) .. " (`" .. creator .. "`)" },
+					{ "Template", "`" .. tostring(tpl.name) .. "` (`" .. tostring(tpl.code) .. "`)" },
+					{ "Deleted", okD ~= nil and "Yes" or "Couldn't delete it" },
+					{ "Roles removed", removed and ((#removed > 0) and table.concat(removed, ", ") or "None") or ("Skipped: " .. tostring(failed)) },
+				} })
+			print("[security] template " .. tostring(tpl.code) .. " by " .. creator .. " deleted: " .. tostring(okD ~= nil))
+		end
+	end
+end
+
 late.fullLockdown = fullLockdown
 late.sendPings = sendPings
 
@@ -1264,6 +1376,8 @@ local function checkRaidExpiry()
 	for guild in Client.guilds:iter() do
 		pcall(oneTimeUnlock, guild)
 		if guild.id == "1522997818330058772" then
+			local okT, errT = pcall(templateGuard, guild)
+			if not okT then print("[security] template check error: " .. tostring(errT)) end
 			pcall(catchUp, guild)
 			pcall(markSeen, guild)
 		end

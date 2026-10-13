@@ -1118,6 +1118,12 @@ Client:once("ready", function()
 	utilityChannels.boots:send(emojis.success .. " **" .. Client.user.name .. "** has booted in " .. os.clock() .. " seconds and is now ready.\n-# " .. emojis.clock .. " <t:" .. os.time() .. ":T>")
 	print("Fully loaded South Carolina Roleplay " .. version .. " in " .. os.clock() .. " seconds.")
 
+	-- Zeltra: one-time staff /permissions seed; guarded by a marker in the guild config, so it runs only once
+	do
+		local ok, err = pcall(require("./seeds/staff_permissions"), Client, sqldb)
+		if not ok then print("[seed] staff perms: error: " .. tostring(err)) end
+	end
+
 	-- Zeltra: one-time, idempotent seed, only when SEED_INFRACTION_TYPES=1 (see seeds/infraction_types.lua)
 	if os.getenv("SEED_INFRACTION_TYPES") == "1" then
 		local ok, err = pcall(require("./seeds/infraction_types"), Client, sqldb, require("timer"))
