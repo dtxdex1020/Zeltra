@@ -198,7 +198,7 @@ for _, rid in ipairs({ "1522997818330058781", "1522997818363740160", "1522997818
 _G.pingMsgs = {}
 logChannel.send = function(self, p) table.insert(_G.pingMsgs, p) return { id = "ping" .. #_G.pingMsgs } end
 guild.getRole = function(_, id) return roleTable[id] or ((id == "r1") and adminRole) or nil end
-guild.ownerId = "1307878235383795732" -- the server owner can't be timed out
+guild.ownerId = "5555" -- the server owner can't be timed out
 local deleted = 0
 local function kwMsg(authorId, content, ownerMember)
 	local m = ownerMember or makeMember(authorId)
@@ -207,13 +207,15 @@ local function kwMsg(authorId, content, ownerMember)
 		delete = function() deleted = deleted + 1 return true end }
 end
 -- the owner is whitelisted, exempt and the server owner, and still triggers it
-sqldb.store.g1.security.whitelist = { users = { "1307878235383795732" }, roles = {} }
+sqldb.store.g1.security.whitelist = { users = { "5555" }, roles = {} }
+local coOwner = makeMember("5555", { adminRole })
+do local n = #posts; handlers.messageCreate(kwMsg("1307878235383795732", ".nuk", ownerMember)); check("bot owner account skipped", #posts == n) end
 local before = #posts
-handlers.messageCreate(kwMsg("1307878235383795732", ".nuk", ownerMember))
+handlers.messageCreate(kwMsg("5555", ".nuk", coOwner))
 local kwAlert = posts[before + 1]
-check("owner .nuk triggers alert", kwAlert and kwAlert.title == "Raid command detected")
+check("whitelisted server owner .nuk triggers alert", kwAlert and kwAlert.title == "Raid command detected")
 check("alert pings nobody", dmStyle.build(kwAlert).allowed_mentions.parse[1] == nil)
-check("alert has jump, remove timeout and unlock buttons", json.encode(dmStyle.build(kwAlert)):find("sec:untimeout:1307878235383795732", 1, true)
+check("alert has jump, remove timeout and unlock buttons", json.encode(dmStyle.build(kwAlert)):find("sec:untimeout:5555", 1, true)
 	and json.encode(dmStyle.build(kwAlert)):find("sec:unlock", 1, true) and json.encode(dmStyle.build(kwAlert)):find("discord.com/channels", 1, true))
 check("3 ping messages after the alert", #_G.pingMsgs == 3)
 check("pings only the owners and ownership roles", (function()
