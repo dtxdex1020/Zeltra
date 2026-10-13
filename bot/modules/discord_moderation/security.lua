@@ -1197,8 +1197,29 @@ local function onMessage(message)
 	end
 end
 
+-- Zeltra one-time: lift the test lockdown from 12 Oct 2026 (started before 01:50 UTC on 13 Oct). No-op for later lockdowns.
+local ONE_TIME_UNLOCK_BEFORE = 1791856200
+local oneTimeDone = false
+local function oneTimeUnlock(guild)
+	if oneTimeDone or guild.id ~= "1522997818330058772" then return end
+	oneTimeDone = true
+	local sec = getSec(guild)
+	if sec.lockdown and sec.lockdown.active and (tonumber(sec.lockdown.started) or 0) < ONE_TIME_UNLOCK_BEFORE then
+		local ok, res = endLockdown(guild)
+		print("[security] one-time unlock: " .. tostring(ok) .. " " .. (type(res) == "table" and (res.restored .. " restored, " .. res.failed .. " failed") or tostring(res)))
+	else
+		print("[security] one-time unlock: no matching lockdown (active=" .. tostring(sec.lockdown and sec.lockdown.active) .. ")")
+	end
+	sec = getSec(guild)
+	if sec.raid and sec.raid.active and (tonumber(sec.raid.started) or 0) < ONE_TIME_UNLOCK_BEFORE then
+		local okR = pcall(endRaid, guild, nil)
+		print("[security] one-time raid end: " .. tostring(okR))
+	end
+end
+
 local function checkRaidExpiry()
 	for guild in Client.guilds:iter() do
+		pcall(oneTimeUnlock, guild)
 		local config = sqldb:get(guild.id)
 		local raid = config and config.security and config.security.raid
 		if raid and raid.active and raid.ends and now() >= raid.ends then
