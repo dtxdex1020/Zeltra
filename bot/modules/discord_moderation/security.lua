@@ -1058,6 +1058,46 @@ local function onMessage(message)
 	local sec = getSec(guild)
 	if not sec.enabled then return end
 
+	-- Zeltra: threats to nuke/raid/wipe the server in plain chat -> alert only (no delete, timeout or lockdown).
+	-- Prefix commands like .nuke still go through the keyword handler below.
+	local threat = S.detectThreat and S.detectThreat(message.content)
+	local isCommand = threat and S.detectRaidKeyword(message.content, sec.keywords.custom)
+	if threat and sec.keywords.ignoretickets ~= false then
+		local ch = message.channel
+		local parentId = ch and (ch._parent_id or (ch.category and ch.category.id))
+		if S.isTicketChannel(sqldb:get(guild.id), ch and ch.id, parentId, sec.keywords.ignorecategories) then threat = nil end
+	end
+	if threat and not (isCommand and isCommand.kind == "command") then
+		if cooldown("threat:" .. guild.id .. ":" .. message.author.id, now(), 60) then
+			local ch = alertChannel(guild, sec)
+			if ch then
+				local quote = tostring(message.content or ""):sub(1, 900)
+				dmStyle.post(ch, {
+					guild = guild, icon = "⚠️", title = "Threat to nuke/raid the server",
+					intro = message.author.mentionString .. " posted a message threatening the server. Alert only, nothing was done to them.",
+					fields = {
+						{ "Member", message.author.mentionString .. " (`" .. message.author.id .. "`)" },
+						{ "Channel", "<#" .. message.channel.id .. ">" },
+						{ "Matched", "`" .. threat.text .. "`" },
+						{ "Time", dmStyle.time(now()) },
+					},
+					sections = { { title = "Message", body = quote } },
+					buttons = { { label = "Jump to message", url = message.link } },
+					footer = "Security",
+				})
+				local users, roles = pingTargets(guild, sec.keywords)
+				local parts = {}
+				for _, id in ipairs(users) do table.insert(parts, "<@" .. id .. ">") end
+				for _, id in ipairs(roles) do table.insert(parts, "<@&" .. id .. ">") end
+				if #parts > 0 then
+					pcall(function() ch:send({ content = "⚠️ Threat in chat, check the alert above. " .. table.concat(parts, " "), allowed_mentions = { parse = {}, users = users, roles = roles } }) end)
+				end
+			end
+			print("[security] threat alert for " .. message.author.id .. " in " .. message.channel.id .. ": " .. threat.text)
+		end
+		return
+	end
+
 	-- raid/nuke keywords apply to everyone, owners and whitelisted users included
 	if sec.keywords.enabled then
 		local match = S.detectRaidKeyword(message.content, sec.keywords.custom)

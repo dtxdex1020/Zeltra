@@ -479,6 +479,38 @@ function M.detectRaidKeyword(content, custom)
 	return nil
 end
 
+--- Zeltra: plain-chat threats to nuke/raid/wipe the server ("im gonna nuke this server"). Alert only.
+local THREAT_VERBS = { nuke = true, nuking = true, nuked = true, raid = true, raiding = true, wipe = true, wiping = true,
+	destroy = true, delete = true, deleting = true, grief = true, terminate = true, nukes = true, raids = true }
+local THREAT_OBJECTS = { server = true, servers = true, discord = true, guild = true, scrp = true, everything = true,
+	channels = true, roles = true, sc = true, carolina = true, ["this"] = true, it = true, yall = true, you = true }
+local THREAT_INTENT = { gonna = true, gon = true, going = true, will = true, ill = true, imma = true, ima = true, finna = true,
+	about = true, bout = true, abt = true, wanna = true, want = true, lets = true, should = true, could = true, can = true, tryna = true, plan = true }
+local THREAT_STRONG = { nuke = true, nuking = true, raid = true, raiding = true, wipe = true, wiping = true }
+function M.detectThreat(content)
+	local s = tostring(content or ""):lower():gsub("[0]", "o"):gsub("[1!]", "i"):gsub("[3]", "e"):gsub("[4@]", "a"):gsub("[5%$]", "s"):gsub("'", "")
+	local w = {}
+	for t in s:gmatch("%a+") do table.insert(w, t) end
+	for i, t in ipairs(w) do
+		if THREAT_VERBS[t] then
+			local hit
+			for j = i + 1, math.min(i + 3, #w) do
+				local o = w[j]
+				local weakObj = (o == "this" or o == "it" or o == "you" or o == "yall")
+				if THREAT_OBJECTS[o] and (THREAT_STRONG[t] or not weakObj) then hit = true break end
+			end
+			if not hit and THREAT_STRONG[t] then
+				for j = math.max(1, i - 3), i - 1 do if THREAT_INTENT[w[j]] then hit = true break end end
+			end
+			if hit then
+				local a, b = math.max(1, i - 3), math.min(#w, i + 3)
+				return { kind = "threat", text = table.concat(w, " ", a, b) }
+			end
+		end
+	end
+	return nil
+end
+
 ---------------------------------------------------------------- misc
 function M.isProtectedId(id, extra)
 	id = tostring(id or "")
