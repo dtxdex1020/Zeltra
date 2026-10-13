@@ -245,6 +245,8 @@ local function onJoin(member)
 	if not guild or member.user.bot then return end
 	local sec = getSec(guild)
 	if not sec.enabled or not sec.antiraid.enabled then return end
+	-- Zeltra: JOIN_ANTIRAID_DISABLED=1 turns off all join-based anti-raid (raid mode, join-rate, new-account flags)
+	if os.getenv("JOIN_ANTIRAID_DISABLED") == "1" then return end
 	local t = now()
 
 	-- already in raid mode: act on the joiner

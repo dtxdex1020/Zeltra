@@ -13,7 +13,7 @@ welcome.Start = function()
 	connections["memberJoinWelcome"] = Client:on("memberJoinWelcome", function(member, config)
 		local guild = member.guild
 		
-		if config.joingatethreshold and member.user.createdAt and guild then
+		if config.joingatethreshold and member.user.createdAt and guild and os.getenv("JOIN_ANTIRAID_DISABLED") ~= "1" then
 			local created = member.user.createdAt and math.round(member.user.createdAt)
 			if (realtime() - created) < config.joingatethreshold then
 				member:kick("does not meet joingate threshold of " .. readable(config.joingatethreshold))
