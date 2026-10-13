@@ -164,7 +164,7 @@ end
 return {
     name = "plus",
     description = "Manage your SCRP Plus+ subscription.",
-    aliases = { "duckyplus", "dp", "subscription", "+" },
+    aliases = { "scrpplus", "dp", "subscription", "+" },
     subcommands = {
         profile = {
             "custom",

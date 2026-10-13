@@ -1,6 +1,6 @@
 local MAINTENANCE = {
 	status = "🔨 ・ Ongoing maintenance",
-	message = "<:ducky:1259003248266711081> **South Carolina Roleplay** is currently under maintenance for a **stability**. This interaction is unavailable at this time. There is **no ETA**."
+	message = "<:scrp_logo:1559269062490587307> **South Carolina Roleplay** is currently under maintenance for a **stability**. This interaction is unavailable at this time. There is **no ETA**."
 }
 
 local startl = 0
