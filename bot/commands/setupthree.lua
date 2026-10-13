@@ -125,7 +125,7 @@ return {
 		-- 			["timestamp"] = os.time()
 		-- 		},
 		-- 		display = emojis.right .. " **`{server.name}`:** The in-game server's name.\n" .. emojis.right .. " **`{server.players}`:** The in-game server's current playercount.\n" .. emojis.right .. " **`{server.maxplayers}`:** The in-game server's maximum playercount.\n" .. emojis.right .. " **`{server.staff}`:** The in-game server's current staff count.\n" .. emojis.right .. " **`{server.queue}`:** The in-game server's current queue count.\n" .. emojis.right .. " **`{server.code}`:** The in-game server's join code.\n" .. emojis.right .. " **`{owner.name}`:** The in-game server owner's username.\n" .. emojis.right .. " **`{owner.display}`:** The in-game server owner's display name.\n" .. emojis.right .. " **`{owner.id}`:** The in-game server owner's ID.\n" .. emojis.right .. " **`{owner.profile}`:** The link to the in-game server owner's profile.\n" .. emojis.right .. " **`{owner.hyperlink}`:** The in-game server owner's username hyperlinked to their profile.\n" .. emojis.right .. " **`{team.civilian}`:** The current amount of players on the Civilian team.\n" .. emojis.right .. " **`{team.sheriff}`:** The current amount of players on the Sheriff team.\n" .. emojis.right .. " **`{team.fire}`:** The current amount of players on the Firefighter team.\n" .. emojis.right .. " **`{team.police}`:** The current amount of players on the Police team.\n" .. emojis.right .. " **`{team.dot}`:** The current amount of players on the DOT team.\n" .. emojis.right ..
-		-- 			" [`{timestamp}`](https://docs.duckybot.xyz/misc/timestamps): The timestamp of which the server status message was last updated."
+		-- 			" [`{timestamp}`](https://r.3v.fi/discord-timestamps/): The timestamp of which the server status message was last updated."
 		-- 	},
 		-- 	welcome = {
 		-- 		display = emojis.right .. " **`{member.mention}`:** The mention of the member that joined.\n" .. emojis.right .. " **`{member.name}`:** The name of the member that joined.\n" .. emojis.right .. " **`{member.username}`:** The username of the member that joined.\n" .. emojis.right .. " **`{member.id}`:** The ID of the member that joined.\n" .. emojis.right .. " **`{guild.name}`:** The server's name.\n" .. emojis.right .. " **`{guild.id}`:** The server's ID.\n" .. emojis.right .. " **`{guild.membercount}`:** The server's membercount."
@@ -153,7 +153,7 @@ return {
 		-- 				style = "secondary"
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book
 		-- 			}):button({
@@ -201,7 +201,7 @@ return {
 		-- 				actionRow = 1
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -255,7 +255,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -322,7 +322,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -464,7 +464,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -518,7 +518,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -576,7 +576,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -657,7 +657,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -732,7 +732,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -796,7 +796,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -865,7 +865,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2
@@ -932,7 +932,7 @@ return {
 		-- 				actionRow = 2
 		-- 			}):button({
 		-- 				style = "link",
-		-- 				url = "https://docs.duckybot.xyz/",
+		-- 				url = "https://github.com/dtxdex1020/Zeltra",
 		-- 				label = "Documentation",
 		-- 				emoji = resolvedEmojis.book,
 		-- 				actionRow = 2

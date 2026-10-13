@@ -166,10 +166,24 @@ local function onNext(interaction)
 		local payload = dmStyle.build(opts)
 		table.insert(payload.components, 1, { type = 10, content = "-# <@&" .. A.REVIEW_PING .. ">" })
 		payload.allowed_mentions = { parse = {}, roles = { A.REVIEW_PING } }
-		local msg, err = channel:send(payload)
+		local okSend, msg, err = pcall(channel.send, channel, payload)
+		if not okSend then err, msg = msg, nil end
+		if not msg then
+			print("[scrp] could not post application card: " .. tostring(err) .. ", trying plain fallback")
+			-- fallback: classic embed plus the answers file, so an application is never lost
+			local fb = dmStyle.buildEmbed(opts)
+			fb.content = "<@&" .. A.REVIEW_PING .. ">"
+			fb.allowed_mentions = { parse = {}, roles = { A.REVIEW_PING } }
+			fb.files = opts.files
+			fb.components = { { type = 1, components = dmStyle.buttons(opts.buttons) } }
+			local ok2, m2, e2 = pcall(channel.send, channel, fb)
+			if ok2 and m2 then msg = m2 else err = tostring(err) .. " / fallback: " .. tostring(ok2 and e2 or m2) end
+		end
 		if not msg then
 			print("[scrp] could not post application: " .. tostring(err))
-			return mia:fail("Your application couldn't be sent. Please try again in a bit.", nil, true)
+			partial[interaction.user.id] = p -- keep the answers so pressing Continue again can retry
+			p.at = os.time()
+			return mia:reply(dmStyle.build({ guild = guild, title = "Application not sent", intro = "Your application couldn't be sent. Press **Continue to part 2** again in a minute to retry, or tell a staff member.", footer = "Staff Applications" }), true)
 		end
 
 		local s = state(guild.id)

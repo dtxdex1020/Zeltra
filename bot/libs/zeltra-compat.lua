@@ -259,7 +259,7 @@ function Client:waitModal(id, userId, timeout)
 	if type(userId) == "number" and timeout == nil then
 		timeout, userId = userId, nil
 	end
-	timeout = timeout or 15 * 60 * 1000
+	timeout = timeout or 60 * 60 * 1000 -- long forms (staff application) can take a while to write
 	return self:waitFor("interactionCreate", timeout, function(ia)
 		return ia.type == (interactionType.modalSubmit or 5)
 			and ia.data and ia.data.custom_id == id
