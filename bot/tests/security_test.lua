@@ -99,5 +99,18 @@ do
 	check(("2000-char message with 50 custom words checks in under 5ms (%.2fms)"):format(per), per < 5)
 end
 
+-- developer channel exemption
+do
+	local dev = { { id = "1559722306019008673", name = "Developer" } }
+	local byName = { { id = "999", name = "Developer" } }
+	check("developer exempt for channel delete", S.developerChannelExempt(12, dev, true))
+	check("developer exempt for overwrite edit", S.developerChannelExempt(14, dev, true))
+	check("developer not exempt for role delete", not S.developerChannelExempt(32, dev, true))
+	check("developer not exempt for bot add", not S.developerChannelExempt(28, dev, true))
+	check("name fallback when ID is gone", S.developerChannelExempt(10, byName, false))
+	check("no name fallback while ID exists", not S.developerChannelExempt(10, byName, true))
+	check("non-developer not exempt", not S.developerChannelExempt(12, { { id = "1", name = "Mod" } }, false))
+end
+
 print(("\n%d passed, %d failed"):format(passed, failed))
 os.exit(failed == 0 and 0 or 1)

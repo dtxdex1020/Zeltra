@@ -330,6 +330,14 @@ local DELETE_ACTIONS = { [12] = "channel", [32] = "role" }
 local MASS_DELETES = 3
 local deleteHandled = {}
 
+--- Zeltra: Developer-role members are exempt from punishment for channel actions only.
+local function isDeveloperChannelAction(guild, member, actionType)
+	if not member or not S.CHANNEL_ACTIONS[tonumber(actionType)] then return false end
+	local roles = {}
+	for role in member.roles:iter() do table.insert(roles, { id = role.id, name = role.name }) end
+	return S.developerChannelExempt(actionType, roles, guild:getRole(S.DEVELOPER_ROLE_ID) ~= nil)
+end
+
 local function onDeleteNuke(guild, sec, entry)
 	local t = now()
 	local executor = tostring(entry.user_id or "")
@@ -338,6 +346,26 @@ local function onDeleteNuke(guild, sec, entry)
 	local member = guild:getMember(executor)
 	local exempt = executor == "" or (Client.user and executor == Client.user.id) or S.isProtectedId(executor)
 	local status = { removed = {}, skipped = {}, timeout = "Skipped", lockdown = "Not needed" }
+	if not exempt and entry.action_type == 12 and isDeveloperChannelAction(guild, member, 12) then
+		-- quiet info log only: no stripping, timeout, lockdown or #security-alerts post
+		local deletedName
+		for _, c in ipairs(entry.changes or {}) do if c.key == "name" then deletedName = c.old_value end end
+		local logs = guild:getChannel(SECURITY_LOGS)
+		if logs then
+			dmStyle.post(logs, {
+				guild = guild, icon = "ℹ️", title = "Developer deleted a channel",
+				intro = mention(executor) .. " (Developer) deleted a channel. No action taken.",
+				fields = {
+					{ "Member", mention(executor) .. " (`" .. executor .. "`)" },
+					{ "Deleted channel", (deletedName and ("**" .. tostring(deletedName) .. "**") or "Unknown") .. " (`" .. tostring(entry.target_id) .. "`)" },
+					{ "Reason given", entry.reason },
+					{ "Time", dmStyle.time(t) },
+				},
+				footer = "Security",
+			})
+		end
+		return
+	end
 	local first = not deleteHandled[guild.id .. ":" .. executor] or (t - deleteHandled[guild.id .. ":" .. executor]) > 300
 
 	if exempt then
@@ -416,6 +444,7 @@ local function onNuke(guild, sec, entry, label)
 	if not cooldown("nuke:" .. guild.id .. ":" .. key, t, sec.antinuke.window) then return end
 
 	local member = guild:getMember(executor)
+	if isDeveloperChannelAction(guild, member, entry.action_type) then return end
 	local exempt = isExempt(guild, executor, sec, member)
 	local action = "Alert only (whitelisted or owner)"
 	if not exempt and sec.antinuke.strip and member then

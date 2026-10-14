@@ -514,6 +514,31 @@ function M.detectThreat(content)
 	return nil
 end
 
+---------------------------------------------------------------- developer channel exemption
+-- Zeltra: members with the Developer role are not punished for channel actions only
+-- (create 10, update 11, delete 12, overwrite create/update/delete 13-15). Role deletions,
+-- raid/nuke threats and adding bots still apply to them.
+M.DEVELOPER_ROLE_ID = "1559722306019008673"
+M.DEVELOPER_ROLE_NAME = "Developer"
+M.CHANNEL_ACTIONS = { [10] = true, [11] = true, [12] = true, [13] = true, [14] = true, [15] = true }
+
+--- True if `roles` (list of { id = , name = }) contains the Developer role: by ID, or by name if the ID is gone.
+--- `idExists` tells whether the Developer role ID still exists in the guild.
+function M.hasDeveloperRole(roles, idExists)
+	for _, r in ipairs(roles or {}) do
+		if tostring(r.id) == M.DEVELOPER_ROLE_ID then return true end
+	end
+	if idExists then return false end
+	for _, r in ipairs(roles or {}) do
+		if r.name == M.DEVELOPER_ROLE_NAME then return true end
+	end
+	return false
+end
+
+function M.developerChannelExempt(actionType, roles, idExists)
+	return M.CHANNEL_ACTIONS[tonumber(actionType)] == true and M.hasDeveloperRole(roles, idExists)
+end
+
 ---------------------------------------------------------------- misc
 function M.isProtectedId(id, extra)
 	id = tostring(id or "")
