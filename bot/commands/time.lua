@@ -1,215 +1,73 @@
--- time.lua
+-- time.lua (SCRP). Hand-coded by Dex.
+local K = _G.scrpKit
 
-local slashCommand = tools.slashCommand("time", "Get the current time.")
----------------------------------------------------------------------------------
-local subcmd = tools.subCommand("now", "Get the current time.")
-slashCommand = slashCommand:addOption(subcmd)
----------------------------------------------------------------------------------
-local subcmd = tools.subCommand("in", "Get the time it will be in this amount of time.")
-local option = tools.string("in", "The amount of time to add to the current timestamp."):setRequired(true)
-subcmd = subcmd:addOption(option)
-slashCommand = slashCommand:addOption(subcmd)
----------------------------------------------------------------------------------
-local subcmd = tools.subCommand("zone", "Get the current time in a specific timezone.")
-local option = tools.string("timezone", "The timezone to get the time from."):setRequired(true)
-subcmd = subcmd:addOption(option)
-slashCommand = slashCommand:addOption(subcmd)
----------------------------------------------------------------------------------
-local subcmd = tools.subCommand("zonelist", "Get a list of all registered timezones.")
-slashCommand = slashCommand:addOption(subcmd)
----------------------------------------------------------------------------------
+local ZONES = {
+	{ key = "est", name = "Eastern", offset = -5, dst = true },
+	{ key = "cst", name = "Central", offset = -6, dst = true },
+	{ key = "mst", name = "Mountain", offset = -7, dst = true },
+	{ key = "pst", name = "Pacific", offset = -8, dst = true },
+	{ key = "utc", name = "UTC", offset = 0 },
+	{ key = "gmt", name = "London", offset = 0, eudst = true },
+	{ key = "cet", name = "Central Europe", offset = 1, eudst = true },
+	{ key = "aest", name = "Sydney", offset = 10 },
+}
 
-local levenshtein = string.levenshtein
-
-local function findSimilarTimezones(input)
-	input = input:lower()
-    
-	local suggestions = {}
-
-	for _, tz in pairs(timezones) do
-		local abrvLower = tz.abrv:lower()
-		local nameLower = tz.name:lower()
-
-		if abrvLower:find(input) or nameLower:find(input) then
-			table.insert(suggestions, tz)
-		elseif levenshtein(input, abrvLower) <= 1 then
-			table.insert(suggestions, tz)
-		end
+-- US daylight time: second Sunday of March 2:00 to first Sunday of November 2:00 (local).
+local function usDst(t)
+	local d = os.date("!*t", t)
+	local function nthSunday(month, n)
+		local first = os.time({ year = d.year, month = month, day = 1, hour = 12 })
+		local wday = tonumber(os.date("!%w", first))
+		return 1 + ((7 - wday) % 7) + (n - 1) * 7
 	end
-
-	return suggestions
+	local m, day = d.month, d.day
+	if m > 3 and m < 11 then return true end
+	if m == 3 then return day >= nthSunday(3, 2) end
+	if m == 11 then return day < nthSunday(11, 1) end
+	return false
 end
 
-return {
-	name = "time",
-	description = "Get the current time.",
-	aliases = {},
-	category = "Utility",
-	slashCommand = slashCommand,
-	subcommands = {
-		"now",
-		"in",
-		"zone",
-		"zonelist"
-	},
-	requiredPermissions = {},
-	hybridCallback = function(interaction, args, command, subcmd)
-		local UTCtimestamp = os.time(os.date("!*t"))
-		local timestamp = os.time()
-
-		if (not command) then
-			table.remove(args, 1)
-		end
-
-		local formatters = {
-			"",
-			":t",
-			":T",
-			":d",
-			":D",
-			":f",
-			":F",
-			":R"
-		}
-
-		local emb = {
-			color = colors.info
-		}
-
-		if subcmd == "now" then
-			emb.title = emojis.clock .. " Right now, it's:"
-			emb.description = ""
-			for _, v in pairs(formatters) do
-				local fmt = "<t:" .. timestamp .. v .. ">"
-				emb.description = emb.description .. emojis.right .. " " .. fmt .. "・`" .. fmt .. "`\n"
-			end
-		elseif subcmd == "in" then
-			local toadd = (args["in"] and convert(args["in"])) or (args[1] and convert(args[1]))
-			if not toadd then
-				return interaction:fail("You must provide a valid amount of time to add to the current timestamp.")
-			end
-			toadd = ((toadd <= 99999999) and toadd) or 99999999
-			timestamp = timestamp + toadd
-			emb.title = emojis.clock .. " In " .. readable(toadd) .. ", it will be:"
-			emb.description = ""
-			for _, v in pairs(formatters) do
-				local fmt = "<t:" .. timestamp .. v .. ">"
-				emb.description = emb.description .. emojis.right .. " " .. fmt .. "・`" .. fmt .. "`\n"
-			end
-		elseif subcmd == "zone" then
-			local timezone = nil
-			local timezoneInput = ((args and args.timezone and args.timezone:upper()) or (args and args[1] and args[1]:upper()))
-
-			if not timezoneInput then
-				return interaction:fail("You did not provide a timezone.", nil, true)
-			end
-			
-			if timezoneInput:usub(1, 3) == "UTC" and tonumber(timezoneInput:usub(5)) then
-				local sign = timezoneInput:usub(4, 4)
-				local offsetStr = timezoneInput:usub(5)
-				local offset = tonumber(offsetStr)
-
-				if sign and offset then
-					if (sign == "+") and (offset <= 14) then
-						offset = offset
-					elseif (sign == "-") and (offset <= 12) then
-						offset = -offset
-					else
-						offset = nil
-					end
-
-					if offset then
-						timezone = {
-							abrv = "UTC" .. sign .. offsetStr,
-							name = "Coordinated Universal Time " .. sign .. " " .. offset .. " hours",
-							offset = offset,
-							twelvehourclock = false
-						}
-					end
-				end
-			elseif timezoneInput:usub(1, 3) == "GMT" then
-				local sign = timezoneInput:usub(4, 4)
-				local offsetStr = timezoneInput:usub(5)
-				local offset = tonumber(offsetStr)
-
-				if sign and offset then
-					if (sign == "+") and (offset <= 14) then
-						offset = offset
-					elseif (sign == "-") and (offset <= 12) then
-						offset = -offset
-					else
-						offset = nil
-					end
-
-					if offset then
-						timezone = {
-							abrv = "GMT" .. sign .. offsetStr,
-							name = "Greenwich Mean Time " .. sign .. " " .. offset .. " hours",
-							offset = offset,
-							twelvehourclock = false
-						}
-					end
-				end
-			end
-
-			if not timezone then
-				for _, tz in pairs(timezones) do
-					if tz.abrv == timezoneInput then
-						timezone = tz
-					end
-				end
-			end
-
-			if not timezone then
-				local suggestions = findSimilarTimezones(timezoneInput)
-				if #suggestions > 0 then
-					emb.color = colors.fail
-					emb.description = emojis.fail .. " No exact match was found for `" .. timezoneInput .. "`. Did you mean:\n"
-					for _, suggestion in ipairs(suggestions) do
-						emb.description = emb.description ..
-						emojis.right .. " **" .. suggestion.name .. "** (`" .. suggestion.abrv .. "`)\n"
-					end
-				else
-					return interaction:fail("You must provide a valid timezone.")
-				end
-			else
-				emb.title = emojis.clock .. " In " .. timezone.name .. " (" .. timezone.abrv .. "), it's currently:"
-				local d = os.date("!%B %d, %Y @ " .. ((timezone.twelvehourclock and "%I:%M:%S %p") or "%H:%M:%S"),
-					UTCtimestamp + (timezone.offset * (60 * 60)))
-				emb.description = emojis.right .. " " .. d
-			end
-		elseif subcmd == "zonelist" then
-			local emb = {
-				title = emojis.clock .. " Timezones (" .. #timezones .. ")",
-				color = colors.info,
-				description = ""
-			}
-			local pages = {}
-
-			local tzop = 0
-
-			for i, v in pairs(timezones) do
-				local d = os.date("!%B %d, %Y @ " .. ((v.twelvehourclock and "%I:%M:%S %p") or "%H:%M:%S"),
-					os.time() + (v.offset * (60 * 60)))
-				emb.description = emb.description .. emojis.right .. " **" .. v.name .. "** (" .. v.abrv .. ")\n-# " .. emojis.space .. emojis.right .. " " .. d .. "\n"
-				tzop = tzop + 1
-
-				if tzop >= 11 then
-					tzop = 0
-					table.insert(pages, emb)
-					emb = {
-						title = emojis.clock .. " Timezones (" .. #timezones .. ")",
-						color = colors.info,
-						description = ""
-					}
-				elseif i >= #timezones then
-					table.insert(pages, emb)
-				end
-			end
-
-			return paginate(interaction, pages, interaction.user, { clamp = false })
-		end
-
-		interaction:reply({ embed = emb })
+local function euDst(t)
+	local d = os.date("!*t", t)
+	local function lastSunday(month)
+		local days = os.date("!*t", os.time({ year = d.year, month = month + 1, day = 0, hour = 12 })).day
+		local last = os.time({ year = d.year, month = month, day = days, hour = 12 })
+		return days - tonumber(os.date("!%w", last))
 	end
-}
+	local m, day = d.month, d.day
+	if m > 3 and m < 10 then return true end
+	if m == 3 then return day >= lastSunday(3) end
+	if m == 10 then return day < lastSunday(10) end
+	return false
+end
+
+local function zoneTime(z, now)
+	local off = z.offset + (((z.dst and usDst(now)) or (z.eudst and euDst(now))) and 1 or 0)
+	return os.date("!%I:%M %p", now + off * 3600):gsub("^0", ""), off
+end
+
+local choices = {}
+for _, z in ipairs(ZONES) do table.insert(choices, { name = z.name, value = z.key }) end
+
+return K.command({
+	name = "time",
+	description = "Show the current time.",
+	options = {
+		{ type = "string", name = "zone", description = "Time zone to show.", choices = choices },
+	},
+	run = function(ctx, args)
+		local now = os.time()
+		local lines = {}
+		for _, z in ipairs(ZONES) do
+			if not args.zone or args.zone == z.key then
+				local t, off = zoneTime(z, now)
+				table.insert(lines, { z.name, t .. " (UTC" .. (off >= 0 and "+" or "") .. off .. ")" })
+			end
+		end
+		return ctx:card({
+			title = "Current Time",
+			blocks = { lines, { { "Your Time", "<t:" .. now .. ":F>", true } } },
+			banner = false,
+		})
+	end
+})

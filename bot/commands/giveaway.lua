@@ -1,291 +1,129 @@
--- giveaway.lua
+-- giveaway.lua (SCRP). Uses the existing giveaway module for entries and auto ending. Hand-coded by Dex.
+local K = _G.scrpKit
+local T = K.TIER
 
-local slashCommand = tools.slashCommand("giveaway", "Use South Carolina Roleplay's giveaway module.")
-local subcmd = tools.subCommand("create", "Create a giveaway.")
-subcmd = subcmd:addOption(tools.string("duration", "The duration of the giveaway (i.e. 1d, 6h, 30m)."):setRequired(true))
-subcmd = subcmd:addOption(tools.string("prize", "The prize of the giveaway."):setRequired(true))
-subcmd = subcmd:addOption(tools.integer("winners", "The amount of winners."):setRequired(false))
-subcmd = subcmd:addOption(tools.mentionable("ping", "The giveaway ping."):setRequired(false))
-subcmd = subcmd:addOption(tools.role("required_role", "The role that users must have to enter this giveaway."):setRequired(false))
-subcmd = subcmd:addOption(tools.boolean("required_ingame", "Whether or not users must be in-game to join this giveaway."):setRequired(false))
-subcmd = subcmd:addOption(tools.string("required_server", "The ID of the server that users must be in to enter this giveaway."):setRequired(false))
--- subcmd = subcmd:addOption(tools.string("required_group", "The ID of the Roblox Community that users must be in to enter this giveaway."):setRequired(false))
-slashCommand = slashCommand:addOption(subcmd)
-local subcmd = tools.subCommand("end", "End a giveaway early.")
-subcmd = subcmd:addOption(tools.string("giveaway", "The giveaway ID or the message ID/link of the giveaway message."):setRequired(true))
-slashCommand = slashCommand:addOption(subcmd)
-subcmd = tools.subCommand("cancel", "Cancel a giveaway.")
-subcmd = subcmd:addOption(tools.string("giveaway", "The giveaway ID or the message ID/link of the giveaway message."):setRequired(true))
-slashCommand = slashCommand:addOption(subcmd)
+-- Template the giveaway module also uses when it refreshes the entry count.
+local TEMPLATE = { {
+	title = "{giveaway.prize}",
+	description = "> **Prize:** `{giveaway.prize}`\n> **Hosted By:** {host.mention}\n> **Winners:** `{giveaway.winners}`\n\n> **Ends:** <t:{giveaway.ends}:F> (<t:{giveaway.ends}:R>)\n> **Entries:** `{giveaway.entries}`",
+	color = K.COLOR,
+	footer = { text = K.FOOTER },
+} }
 
-return {
-    name = "giveaway",
-    description = "Use South Carolina Roleplay's giveaway module!",
-    aliases = {},
-    category = "Giveaway",
-    slashCommand = slashCommand,
-    subcommands = {
-		"create",
-		"end",
-		"cancel"
-	},
-    requiredPermissions = {"MANAGE_SERVER", "SETUP"},
-    hybridCallback = function(interaction, args, slash, subcmd)
-		local guild = interaction.guild
-		local config = sqldb:get(guild.id) or {}
-		local plusGuild = sqldb:plusGuild(guild) or (isPrivileged(interaction.member) and true)
+local function keys(g)
+	return {
+		["host.mention"] = g.host.mention, ["host.name"] = g.host.name, ["host.username"] = g.host.username, ["host.id"] = g.host.id,
+		["giveaway.id"] = g.id, ["giveaway.entries"] = #g.entries, ["giveaway.winners"] = g.winners, ["giveaway.prize"] = g.prize,
+		["giveaway.duration"] = readable(g.duration), ["giveaway.ends"] = g.ends,
+	}
+end
 
-		if (not slash) and subcmd then
-			table.remove(args, 1)
-		end
+--- Creates a giveaway in ctx.channel. host is a Member or User. Returns message or nil, error.
+local function create(ctx, prize, durationText, winners, host, ping, requiredRole)
+	local duration = convert(tostring(durationText or ""))
+	if not duration or duration <= 0 then return nil, "That duration is not valid. Use something like 30m, 6h, or 2d." end
+	if duration > 60 * 86400 then return nil, "Giveaways can last up to 60 days." end
+	winners = math.floor(tonumber(winners) or 1)
+	if winners < 1 or winners > 50 then return nil, "Winners has to be between 1 and 50." end
 
-		if subcmd == "create" then
-			local duration = (slash and args and args.duration and convert(args.duration)) or ((not slash) and args and args[1] and convert(args[1]))
-			
-			if not duration then
-				return interaction:fail("You did not provide a valid duration for this giveaway.", nil, true)
-			elseif duration <= 0 then
-				return interaction:fail("The duration must be at least 1 second.", nil, true)
-			end
-
-			local prize = (slash and args and args.prize) or ((not slash) and args and table.remove(args, 1) and table.concat(args, " "))
-
-			if (not prize) or (prize == "") then
-				return interaction:fail("You did not provide a prize for this giveaway.", nil, true)
-			end
-
-			local winners = (slash and args and args.winners and tonumber(args.winners)) or 1
-
-			if winners <= 0 then
-				return interaction:fail("There must be at least one winner.", nil, true)
-			end
-
-			local ping = fetchMentionable(slash and args and args.ping, guild)
-			local requiredRole = (slash and args and args.required_role)
-			local requiredServerID = (slash and args and args.required_server)
-			local requiredServer = plusGuild and requiredServerID and Client:getGuild(requiredServerID)
-            local requiredInGame = not not (slash and args and args.required_ingame)
-			local requiredGroupID = (slash and args and args.required_group)
-			local requiredGroup = plusGuild and requiredGroupID and ropi.GetGroup(requiredGroupID)
-			
-			if requiredRole and (not plusGuild) then
-				return interaction:fail("Required roles on giveaways is a " .. emojis.duckyplus .. " **SCRP Plus+** feature.", nil, true)
-            elseif requiredServerID and (not plusGuild) then
-				return interaction:fail("Required servers on giveaways is a " .. emojis.duckyplus .. " **SCRP Plus+** feature.", nil, true)
-            elseif requiredInGame and (not plusGuild) then
-                return interaction:fail("Required in-game on giveaways is a " .. emojis.duckyplus .. " **SCRP Plus+** feature.", nil, true)
-			elseif requiredGroupID and (not plusGuild) then
-                return interaction:fail("Required Roblox Community on giveaways is a " .. emojis.duckyplus .. " **SCRP Plus+** feature.", nil, true)
-			elseif requiredServerID and (not requiredServer) then
-				return interaction:fail("South Carolina Roleplay must be in the required server.", nil, true)
-            elseif requiredInGame and (not config.apikey) then
-                return interaction:fail("This server does not have an ERLC server linked, and therefore cannot use the in-game requirement feature.", nil, true)
-			elseif requiredGroupID and not requiredGroup then
-				return interaction:fail("I could not find that Roblox Community.", nil, true)
-			end
-
-			local giveawayID = interaction.id
-
-			local giveawayMessage, e = interaction.channel:send({
-				content = ping and "-# " .. emojis.pings .. " " .. ping,
-				embeds = parseTable(config.giveawayembeds or {
-					{
-						title = emojis.gift .. " {giveaway.prize} Giveaway",
-						description = emojis.right .. " **Host:** {host.mention}\n" .. emojis.right .. " **Prize:** {giveaway.prize}\n" .. emojis.right .. " **Winners:** {giveaway.winners}\n" .. emojis.right .. " **Ends:** <t:{giveaway.ends}> (<t:{giveaway.ends}:R>)\n" .. emojis.right .. " **Entries:** {giveaway.entries}",
-						color = colors.info,
-						author = author(guild)
-					}
-				}, {
-					["host.mention"] = interaction.member.mentionString,
-					["host.name"] = interaction.member.name,
-					["host.username"] = interaction.user.username,
-					["host.id"] = interaction.user.id,
-					["giveaway.id"] = giveawayID,
-					["giveaway.entries"] = 0,
-					["giveaway.winners"] = winners,
-					["giveaway.prize"] = prize,
-					["giveaway.duration"] = readable(duration),
-					["giveaway.ends"] = os.time() + duration,
-					["requiredserver.name"] = (requiredServer and requiredServer.name) or emojis.fail,
-					["requiredserver.id"] = (requiredServer and requiredServer.id) or emojis.fail,
-					["requiredrole.name"] = (requiredRole and requiredRole.name) or emojis.fail,
-					["requiredrole.mention"] = (requiredRole and requiredRole.mentionString) or emojis.fail,
-					["requiredrole.id"] = (requiredRole and requiredRole.id) or emojis.fail,
-                    ["requiredingame"] = (requiredInGame and emojis.success) or emojis.fail,
-					["requiredgroup.name"] = (requiredGroup and requiredGroup.name) or emojis.fail,
-					["requiredgroup.id"] = (requiredGroup and requiredGroup.id) or emojis.fail,
-					["requiredgroup.link"] = (requiredGroup and requiredGroup.link) or emojis.fail,
-					["requiredgroup.hyperlink"] = (requiredGroup and requiredGroup.hyperlink) or emojis.fail
-				}),
-				components = discordia.Components()
-					:button({
-						id = "entergiveaway_" .. giveawayID,
-						emoji = resolvedEmojis.gift,
-						style = "blurple"
-					})
-					:button({
-						id = "giveawayentries_" .. giveawayID,
-						emoji = resolvedEmojis.people,
-						style = "secondary"
-					})
-					:raw()
-			})
-
-			if giveawayMessage then
-				local newGiveawayObject = {
-					channel = interaction.channel.id,
-					message = giveawayMessage.id,
-					id = giveawayID,
-					entries = {},
-					winners = winners,
-					prize = prize,
-					duration = duration,
-					ends = os.time() + duration,
-					started = os.time(),
-					requiredserver = requiredServerID or nil,
-					requiredrole = (requiredRole and requiredRole.id) or nil,
-                    requiredingame = requiredInGame,
-					requiredgroup = requiredGroupID or nil,
-					host = {name = interaction.member.name, username = interaction.user.username, mention = interaction.member.mentionString, id = interaction.member.id}
-				}
-
-				config.giveaways = config.giveaways or {}
-				config.giveaways[giveawayID] = newGiveawayObject
-
-				sqldb:set(guild.id, {giveaways = config.giveaways}, "GIVEAWAY_CREATE")
-
-				return interaction:success("Your giveaway has been created!\n-# " .. emojis.right .. " " .. giveawayMessage.link, nil, true)
-			else
-				return interaction:fail("Failed to send the giveaway message:\n>>> " .. e)
-			end
-
-		elseif subcmd == "end" then
-			local giveawayID = (slash and args and args.giveaway) or ((not slash) and args and args[1])
-
-			if not giveawayID then
-				return interaction:fail("You must provide a giveaway to end.", nil, true)
-			end
-
-			giveawayID = giveawayID:match("(%d+)$") -- gets message id out of message link but changes nothing if just an id was provided
-
-			local config = sqldb:get(guild.id) or {}
-			local giveaway
-
-			for id, info in pairs(config.giveaways) do
-				if id == giveawayID or info.message == giveawayID then
-					giveaway = info
-					break
-				end
-			end
-
-			if not giveaway then
-				return interaction:fail("I could not find that giveaway.", nil, true)
-			end
-
-			if giveaway.rolled then
-				return interaction:fail("That giveaway has already ended.", nil, true)
-			end
-
-			local winners = {}
-
-			math.randomseed(os.time() + math.floor(math.random() * 10000))
-
-			for i = 1, giveaway.winners do
-				local attempt = 0
-				local winner
-				repeat
-					winner = giveaway.entries[math.random(1, #giveaway.entries)]
-					attempt = attempt + 1
-				until (winner and (not table.find(winners, winner))) or attempt >= 5
-				
-				if winner then
-					table.insert(winners, winner)
-				end
-			end
-
-			giveaway.rolled = true
-
-			local giveawayChannel = guild:getChannel(giveaway.channel)
-			local giveawayMessage = giveawayChannel and giveawayChannel:getMessage(giveaway.message)
-
-			if giveawayMessage then
-				coroutine.wrap(function()
-					if not next(winners) then
-						giveawayMessage:reply(emojis.fail .. " There are not any entries in this giveaway, and no winners could be drawn.\n-# " .. emojis.reminder .. " This giveaway was ended early by " .. getUserString(interaction.member) .. ".")
-					else
-						giveawayMessage:reply(emojis.right .. " *Congratulations, " .. table.concatFn(winners, ", ", function(w) return "<@" .. w .. ">" end) .. "! You won the **" .. giveaway.prize .. "**!*\n-# " .. emojis.reminder .. " This giveaway was ended early by " .. getUserString(interaction.member) .. ".")
-					end
-					giveawayMessage:update({
-						embed = giveawayMessage.embeds and giveawayMessage.embeds[1],
-						components = discordia.Components():button({
-							id = "rerollgiveaway_" .. giveaway.id,
-							emoji = resolvedEmojis.reload,
-							style = "secondary",
-							disabled = table.count(giveaway.entries) <= 0
-						}):button({
-							id = "giveawayentries_" .. giveaway.id,
-							emoji = resolvedEmojis.people,
-							style = "secondary"
-						}):raw()
-					})
-				end)()
-			else
-				config.giveaways[giveawayID] = nil
-			end
-
-			sqldb:set(guild.id, {
-				giveaways = config.giveaways
-			}, "GIVEAWAY_UPDATE")
-
-			return interaction:success("I have ended that giveaway.", nil, true)
-		elseif subcmd == "cancel" then
-			local giveawayID = (slash and args and args.giveaway) or ((not slash) and args and args[1])
-
-			if not giveawayID then
-				return interaction:fail("You must provide a giveaway to end.", nil, true)
-			end
-
-			giveawayID = giveawayID:match("(%d+)$") -- gets message id out of message link but changes nothing if just an id was provided
-
-			local config = sqldb:get(guild.id) or {}
-			config.giveaways = config.giveaways or {}
-			
-			local giveaway
-
-			for id, info in pairs(config.giveaways) do
-				if id == giveawayID or info.message == giveawayID then
-					giveaway = info
-					break
-				end
-			end
-
-			if not giveaway then
-				return interaction:fail("I could not find that giveaway.", nil, true)
-			end
-
-			if giveaway.rolled then
-				return interaction:fail("That giveaway has already ended.", nil, true)
-			end
-
-			local giveawayChannel = guild:getChannel(giveaway.channel)
-			local giveawayMessage = giveawayChannel and giveawayChannel:getMessage(giveaway.message)
-
-			if giveawayMessage then
-				giveawayMessage:reply(emojis.delete .. " This giveaway has been canceled by " .. getUserString(interaction.member) .. ".")
-				giveawayMessage:update({
-					embed = giveawayMessage.embeds[1],
-					components = discordia.Components():button({
-						id = "giveawayentries_" .. giveaway.id,
-						emoji = resolvedEmojis.people,
-						style = "secondary"
-					}):raw()
-				})
-			end
-
-			config.giveaways[giveawayID] = nil
-			sqldb:set(guild.id, {giveaways = config.giveaways}, "GIVEAWAY_CANCEL")
-
-			return interaction:success("I have canceled that giveaway.", nil, true)
-		end
+	local config = K.config(ctx.guild)
+	if not config.giveawayembeds then
+		K.save(ctx.guild, { giveawayembeds = TEMPLATE }, "SCRP_GIVEAWAY_TEMPLATE")
+		config = K.config(ctx.guild)
 	end
-}
+
+	local id = tostring(ctx.source.id)
+	local g = {
+		channel = ctx.channel.id, id = id, entries = {}, winners = winners, prize = prize,
+		duration = duration, ends = os.time() + duration, started = os.time(),
+		requiredrole = requiredRole and requiredRole.id or nil, requiredingame = false,
+		host = { name = host.name or host.username, username = host.username, mention = host.mentionString, id = host.id },
+	}
+	local msg, err = ctx.channel:send({
+		content = ping and ping.mentionString or nil,
+		embeds = parseTable(config.giveawayembeds or TEMPLATE, keys(g)),
+		components = { { type = 1, components = {
+			{ type = 2, style = 1, label = "Enter", custom_id = "entergiveaway_" .. id },
+			{ type = 2, style = 2, label = "Entries", custom_id = "giveawayentries_" .. id },
+		} } },
+		allowed_mentions = ping and { roles = { ping.id } } or { parse = {} },
+	})
+	if not msg then return nil, "I could not post the giveaway. " .. tostring(err or "") end
+	g.message = msg.id
+	config = K.config(ctx.guild)
+	config.giveaways = config.giveaways or {}
+	config.giveaways[id] = g
+	K.save(ctx.guild, { giveaways = config.giveaways }, "GIVEAWAY_CREATE")
+	return msg
+end
+_G.scrpGiveawayCreate = create
+
+local function endGiveaway(ctx, input)
+	local wanted = tostring(input or ""):match("(%d+)%s*$")
+	if not wanted then return ctx:fail("Give the giveaway message ID or link.") end
+	local config = K.config(ctx.guild)
+	local g
+	for id, info in pairs(config.giveaways or {}) do
+		if id == wanted or info.message == wanted then g = info break end
+	end
+	if not g then return ctx:fail("I could not find that giveaway.") end
+	if g.rolled then return ctx:fail("That giveaway already ended.") end
+
+	local winners, pool = {}, {}
+	for _, e in ipairs(g.entries or {}) do table.insert(pool, e) end
+	math.randomseed(os.time() + math.floor(math.random() * 10000))
+	for _ = 1, g.winners do
+		if #pool == 0 then break end
+		table.insert(winners, table.remove(pool, math.random(1, #pool)))
+	end
+	g.rolled = true
+	K.save(ctx.guild, { giveaways = config.giveaways }, "GIVEAWAY_UPDATE")
+
+	local channel = ctx.guild:getChannel(g.channel)
+	local msg = channel and channel:getMessage(g.message)
+	if msg then
+		local mentions = {}
+		for _, w in ipairs(winners) do table.insert(mentions, "<@" .. w .. ">") end
+		msg:reply({
+			content = (#winners > 0) and ("Congratulations " .. table.concat(mentions, ", ") .. ", you won **" .. g.prize .. "**.") or ("Nobody entered the **" .. g.prize .. "** giveaway, so there are no winners."),
+			allowed_mentions = { users = winners },
+		})
+		msg:update({
+			content = msg.content,
+			embeds = msg.embeds,
+			components = { { type = 1, components = {
+				{ type = 2, style = 2, label = "Reroll", custom_id = "rerollgiveaway_" .. g.id, disabled = #g.entries == 0 },
+				{ type = 2, style = 2, label = "Entries", custom_id = "giveawayentries_" .. g.id },
+			} } },
+		})
+	end
+	return ctx:ok("The giveaway ended" .. ((#winners > 0) and (" with " .. #winners .. " winner" .. (#winners == 1 and "" or "s") .. ".") or " with no entries."))
+end
+
+return K.command({
+	name = "giveaway",
+	description = "Run giveaways.",
+	tier = T.ADMIN,
+	subs = {
+		{
+			name = "create", aliases = { "start" }, description = "Start a giveaway in this channel.",
+			options = {
+				{ type = "string", name = "duration", description = "How long it runs, like 30m, 6h, 2d.", required = true },
+				{ type = "integer", name = "winners", description = "How many winners.", required = true, min = 1, max = 50 },
+				{ type = "string", name = "prize", description = "What they win.", required = true, rest = true, maxLength = 200 },
+				{ type = "role", name = "ping", description = "Role to ping." },
+				{ type = "role", name = "required_role", description = "Role needed to enter." },
+			},
+			run = function(ctx, args)
+				local msg, err = create(ctx, args.prize, args.duration, args.winners, ctx.member, args.ping, args.required_role)
+				if not msg then return ctx:fail(err) end
+				return ctx:ok("The giveaway is live: " .. msg.link)
+			end
+		},
+		{
+			name = "end", description = "End a giveaway now and pick winners.",
+			options = { { type = "string", name = "giveaway", description = "Giveaway message ID or link.", required = true } },
+			run = function(ctx, args) return endGiveaway(ctx, args.giveaway) end
+		},
+	}
+})

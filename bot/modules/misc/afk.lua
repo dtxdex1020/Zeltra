@@ -47,18 +47,18 @@ afk.Start = function()
                 local mentionMessage = mentionChannel and mentionChannel:getMessage(mention.message)
 
                 if mentionMessage then
-                    mentionStrings = mentionStrings .. "\n-# " .. emojis.pings .. " **@" .. ((mentionMember and mentionMember.username) or "<@" .. mention.author .. ">") .. "** mentioned you <t:" .. mention.timestamp .. ":R>: " .. mentionMessage.link
+                    mentionStrings = mentionStrings .. "\n-# **@" .. ((mentionMember and mentionMember.username) or "<@" .. mention.author .. ">") .. "** mentioned you <t:" .. mention.timestamp .. ":R>: " .. mentionMessage.link
                 else
-                    mentionStrings = mentionStrings .. "\n-# " .. emojis.pings .. " **@" .. ((mentionMember and mentionMember.username) or "<@" .. mention.author .. ">") .. "** deleted a message that mentioned you <t:" .. mention.timestamp .. ":R> in <#" .. mention.channel .. ">." 
+                    mentionStrings = mentionStrings .. "\n-# **@" .. ((mentionMember and mentionMember.username) or "<@" .. mention.author .. ">") .. "** deleted a message that mentioned you <t:" .. mention.timestamp .. ":R> in <#" .. mention.channel .. ">." 
                 end
 
                 if i >= 10 then
-                    mentionStrings = mentionStrings .. "\n-# " .. emojis.right .. " and " .. (#afk.mentions - 10) .. " more..."
+                    mentionStrings = mentionStrings .. "\n-# and " .. (#afk.mentions - 10) .. " more."
                     break
                 end
             end
 
-            local r = message:reply(emojis.wave .. " Welcome back, **@" .. message.member.username .. "**!\n-# " .. emojis.right .. " You were AFK for **" .. elapsed .. "**." .. mentionStrings, true)
+            local r = message:reply("Welcome back, **@" .. message.member.username .. "**. You were AFK for **" .. elapsed .. "**." .. mentionStrings, true)
 
             local delay = ((table.count(afk.mentions or {}) > 0) and (10000 * table.count(afk.mentions or {}))) or 5000
 
@@ -96,7 +96,7 @@ afk.Start = function()
                     end
                     local member = message.guild:getMember(mentionedUser.id)
                     if member then
-                        local r = message:reply(emojis.pings .. " **@" .. member.username .. "** is AFK: " .. afk.reason .. "\n-# " .. emojis.right .. " AFK since <t:" .. afk.timestamp .. "> (<t:" .. afk.timestamp .. ":R>)", true)
+                        local r = message:reply("**@" .. member.username .. "** is AFK: " .. afk.reason .. "\n-# AFK since <t:" .. afk.timestamp .. "> (<t:" .. afk.timestamp .. ":R>)", true)
                         coroutine.wrap(function()
                             timer.sleep(5000)
                             if r then r:delete() end

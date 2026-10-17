@@ -1,73 +1,41 @@
--- afk.lua
-local slashCommand = tools.slashCommand("afk", "Set your AFK status.")
-slashCommand = slashCommand:addOption(tools.string("reason", "The reason for your AFK."):setRequired(false))
+-- afk.lua (SCRP). Hand-coded by Dex.
+local K = _G.scrpKit
 
-return {
+return K.command({
 	name = "afk",
-	description = "Set your AFK status.",
-	aliases = {
-		"awayfromkeyboard",
-		"busy",
-		"idle",
-		"brb",
-		"berightback"
+	description = "Set yourself as AFK. You come back the next time you talk.",
+	options = {
+		{ type = "string", name = "reason", description = "Why you are away.", maxLength = 300 },
 	},
-	category = "Utility",
-	slashCommand = slashCommand,
-	requiredPermissions = {
-		"SETUP"
-	},
-	hybridCallback = function(interaction, args, slash, subcmd)
-		local reason = (args and args.reason) or (args and args[1] and args[1] ~= "" and args[1] ~= " " and table.concat(args, " "))
-
-        local config = sqldb:get(interaction.guild.id) or {}
-		local userSettings = sqldb:getUserSettings(interaction.user.id) or {}
-
-		if userSettings.afk or table.find(config.afks or {}, function(afk)
-            return afk.id == interaction.user.id
-        end) then
-            return interaction:fail("You already have an active AFK.", nil, true)
+	run = function(ctx, args)
+		local config = K.config(ctx.guild)
+		local settings = sqldb:getUserSettings(ctx.user.id) or {}
+		for _, a in pairs(config.afks or {}) do
+			if a.id == ctx.user.id then return ctx:fail("You are already AFK.") end
 		end
+		if settings.afk then return ctx:fail("You are already AFK.") end
 
-		if (not reason or reason == "" or reason == " ") and userSettings.defaultafkreason then
-			reason = userSettings.defaultafkreason
-		end
+		local reason = args.reason
+		if not reason or reason:match("^%s*$") then reason = settings.defaultafkreason or "AFK" end
+		reason = sanitize(string.truncate(reason, 300), ctx.guild)
 
-		if not reason or reason == "" or reason == " " then
-			reason = "AFK"
-		end
-
-		reason = string.truncate(reason, 300)
-		reason = sanitize(reason, interaction.guild)
-
-		local succ, err
-
-		if not userSettings.globalafk then
-			local config = sqldb:get(interaction.guild.id) or {}
+		local entry = { id = ctx.user.id, timestamp = os.time(), reason = reason }
+		local ok, err
+		if settings.globalafk then
+			settings.afk = entry
+			ok, err = sqldb:setUserSettings(ctx.user.id, settings)
+		else
 			config.afks = config.afks or {}
-
-			table.insert(config.afks, {
-				id = interaction.user.id,
-				timestamp = os.time(),
-				reason = reason
-			})
-			succ, err = sqldb:set(interaction.guild.id, {
-				afks = config.afks
-			}, "AFK_SET")
-		else
-			userSettings.afk = {
-				id = interaction.user.id,
-				timestamp = os.time(),
-				reason = reason
-			}
-
-			succ, err = sqldb:setUserSettings(interaction.member.id, userSettings)
+			table.insert(config.afks, entry)
+			ok, err = K.save(ctx.guild, { afks = config.afks }, "AFK_SET")
 		end
+		if not ok then return ctx:fail("I could not set your AFK. " .. tostring(err or "")) end
 
-		if succ then
-			interaction:success("I set your " .. ((userSettings.globalafk and "Global ") or "") .. "AFK: " .. reason .. "")
-		else
-			interaction:fail(err .. "\n-# " .. emojis.right .. " If this error continues, contact us in the [South Carolina Roleplay issue tracker](https://github.com/dtxdex1020/Zeltra/issues).")
-		end
+		return ctx:card({
+			title = "AFK Set",
+			blocks = { { { "Member", ctx.user.mentionString, true }, { "Reason", reason } } },
+			note = "Send a message to remove your AFK.",
+			banner = false,
+		})
 	end
-}
+})

@@ -241,6 +241,11 @@ _G.badwords = badwords
 -- Zeltra: per-server command permission resolver (/permissions)
 local cmdperms = require("utils/cmdperms")
 _G.cmdperms = cmdperms
+-- SCRP command kit (hybrid slash + "-" prefix commands, tier gating, cards) and API clients. Hand-coded by Dex.
+_G.scrpKit = require("scrp-kit")
+_G.scrpApi = require("scrp-api")
+require("scrp-shared-helpers")
+print("[scrp] prefix is \"" .. _G.scrpKit.PREFIX .. "\" | ERLC_API_KEY " .. (_G.scrpApi.erlc.ready() and "set" or "not set") .. " | Roblox group " .. (_G.scrpApi.roblox.ready() and "set" or "not set"))
 print("[Zeltra] | Initialized badwords in " .. (os.clock() - startl) .. " seconds.\n")
 ------------------------------------------------------------------------------------------------------------------
 startl = os.clock()
@@ -772,7 +777,8 @@ local function applySlashPermissions(command)
 		return
 	end
 	local name = tostring(slash.name or command.name or ""):lower()
-	if PUBLIC_SLASH_COMMANDS[name] then
+	if PUBLIC_SLASH_COMMANDS[name] or command.scrpKit then
+		-- SCRP kit commands are visible to everyone; staff tiers are enforced inside the kit.
 		command.baseMemberPermissions = nil
 		slash.default_member_permissions = nil
 		slash.dm_permission = false
@@ -1371,6 +1377,15 @@ local function checkCommandAccess(member, guild, command, subcmd, isSlash)
 		return { decision = "deny", privileged = false, granted = false, reason = "hard-locked command", hardLocked = true }
 	end
 
+	-- SCRP kit commands gate themselves by staff tier (bot side), for slash and prefix alike.
+	if command.scrpKit then
+		local tier = _G.scrpKit.tier(member)
+		if tier >= _G.scrpKit.TIER.OWNER then
+			return { decision = "allow", privileged = "owner", granted = true, reason = "scrp owner" }
+		end
+		return { decision = "default", privileged = false, granted = false, reason = "scrp tier gate" }
+	end
+
 	if name == "permissions" then
 		if cmdperms.isBotOwner(tostring(member.id), SECRETS.DEV_ACCESS_IDS) then
 			return { decision = "allow", privileged = "bot_owner", granted = true, reason = "owner" }
@@ -1926,17 +1941,10 @@ Client:on("messageCreate", function(message)
 	local config = sqldb:get(message.guild.id) or {}
 
 	if not isBlacklisted and message.content == Client.user.mentionString or message.content == Client.user.mentionString .. " " then
-		local botName = emojis.ducky .. " **South Carolina Roleplay**"
-		if Client.user.name == "SCRP Dev" then
-			botName = emojis.duckyoutline .. " **SCRP Dev**"
-		end
-		if sqldb:plusGuild(message.guild) then
-			botName = emojis.duckyplus .. " **SCRP Plus+**"
-		end
-		message:reply(emojis.hiya .. " **Hiya,** I'm " .. botName .. ".\n-# " .. emojis.right .. " My prefix in this server is `" .. ((config and config.prefix) or "d!") .. "`.")
+		message:reply("Hi, I'm South Carolina Roleplay. My prefix is `" .. _G.scrpKit.PREFIX .. "`, and every command also works as a slash command.")
 	end
 
-	local prefix = config.prefix or "d!"
+	local prefix = _G.scrpKit.PREFIX
 	local mentionPrefix = message.content:usub(1, Client.user.mentionString:len() + 1) == Client.user.mentionString .. " "
 
 	if (message.content:usub(1, prefix:len()):lower() ~= prefix:lower()) and not mentionPrefix then

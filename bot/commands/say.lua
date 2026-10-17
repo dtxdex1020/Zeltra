@@ -1,59 +1,22 @@
--- say.lua
+-- say.lua (SCRP). Hand-coded by Dex.
+local K = _G.scrpKit
 
-local slashCommand = tools.slashCommand("say", "Say a message with South Carolina Roleplay.")
-slashCommand = slashCommand:addOption(tools.string("message", "The message to say."):setRequired(true))
-
-return {
-    name = "say",
-    description = "Say something with South Carolina Roleplay!",
-    aliases = {},
-    category = "Fun",
-    slashCommand = slashCommand,
-    requiredPermissions = {},
-    hybridCallback = function(interaction, args, slash)
-        local content = (slash and args and args.message) or ((not slash) and args and table.concat(args, " "))
-
-        if not content or content == "" or content == " " then
-            return interaction:fail("You must provide something to say.", nil, true)
-        end
-
-        local cleaned, violate = content, false
-
-        if not hasPermission(interaction.member, "MANAGE_SERVER") then
-            cleaned, violate = sanitize(content, interaction.guild)
-        end
-
-        if cleaned == "" and violate then
-            return interaction:fail("Your message was fully sanitized. Consider removing inappropriate or potentially harmful words/phrases.", nil, true)
-        end
-
-        local tosend = {
-            content = cleaned,
-        }
-
-        local repliedMessage = (not slash and interaction.referencedMessage)
-
-        if (not (interaction.guild.id == duckysPond.id and sqldb:plusMember(interaction.member))) and (not hasPermission(interaction.member, "MANAGE_SERVER")) and (not hasPermission(interaction.member, "BOT_DEVELOPER")) then
-            tosend.components = discordia.Components()
-                :button({
-                    style = "link",
-                    url = "https://discord.com/users/" .. interaction.user.id,
-                    label = "Sent by " .. string.truncate(interaction.user.username, 30) .. " (" .. interaction.user.id .. ")",
-                    emoji = resolvedEmojis.send
-                })
-                :raw()
-        end
-
-		if repliedMessage then
-			repliedMessage:reply(tosend)
-		else
-        	interaction.channel:send(tosend)
-		end
-
-        if interaction.updateDeferred then
-            interaction:success("Your message has been sent." .. ((violate and ("\n-# " .. emojis.warning .. " Sanitization occurred, meaning one or more words have been removed.")) or ""), nil, true)
-        else
-            interaction:delete()
-        end
-    end
-}
+return K.command({
+	name = "say",
+	description = "Make the bot send a message.",
+	tier = K.TIER.ADMIN,
+	options = {
+		{ type = "string", name = "message", description = "What to send.", required = true, rest = true, maxLength = 2000 },
+		{ type = "channel", name = "channel", description = "Where to send it (defaults to here)." },
+	},
+	run = function(ctx, args)
+		local channel = args.channel or ctx.channel
+		if not channel or not channel.send then return ctx:fail("I could not find that channel.") end
+		local text = tostring(args.message):gsub("\\n", "\n")
+		local msg, err = channel:send({ content = string.truncate(text, 2000), allowed_mentions = { parse = {} } })
+		if not msg then return ctx:fail("I could not send that. " .. tostring(err or "")) end
+		print("[scrp] say by " .. ctx.user.id .. " in " .. channel.id)
+		if ctx.isSlash then return ctx:send(K.notice("Sent."), true) end
+		pcall(function() ctx.source:delete() end)
+	end
+})

@@ -261,6 +261,9 @@ tickets.Start = function()
 		print("[tickets] " .. user.id .. " escalated " .. channel.id .. " to " .. tier.key .. (failedRoles > 0 and (" (" .. failedRoles .. " overwrite(s) failed)") or ""))
 	end
 
+	-- Shared with the SCRP -escalate ticket command (same checks and the same escalation steps).
+	_G.scrpTicketEscalation = { state = escalationState, apply = applyEscalation }
+
 	local function onEscalateTier(interaction, key)
 		local config = sqldb:get(interaction.guild.id) or {}
 		local st, msg = escalationState(interaction, config)
